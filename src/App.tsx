@@ -3,947 +3,1157 @@ import {
   INITIAL_USERS, 
   INITIAL_CLIENTS, 
   INITIAL_SPONSORS, 
-  INITIAL_BLOGS, 
-  INITIAL_MEDIA, 
+  INITIAL_PENGAJUAN_PENUGASAN,
   INITIAL_KEGIATAN, 
   INITIAL_PENUGASAN, 
   INITIAL_NOTIFICATIONS, 
-  INITIAL_CONTACTS,
-  INITIAL_TRANSAKSI
+  INITIAL_CONTACTS 
 } from './data';
-import { User, Client, Sponsor, BlogArticle, MediaItem, Kegiatan, Penugasan, Notification, ContactMessage, Role, Transaksi } from './types';
-import PrototypeController from './components/PrototypeController';
-import { LoginScreen, ProfileScreen, NotificationScreen } from './components/CommonScreens';
-import { SdmDashboard, SdmPlotting, SdmUserManagement, SdmPenugasanManagement, SdmReportValidation } from './components/SdmScreens';
-import { HumasClients, HumasSponsors, HumasBlogs, HumasGallery, HumasKegiatan, HumasDashboard, HumasProposeTalent, HumasAssignmentsView } from './components/HumasScreens';
-import { TalentAssignments, TalentDetail, TalentReportForm, TalentDashboard, TalentRiwayatKegiatan, TalentRiwayatHonor, TalentProfileEdit } from './components/TalentScreens';
-import { BendaharaDashboard, BendaharaPaymentInput, BendaharaFinancialReport, BendaharaFinancialManagement } from './components/BendaharaScreens';
-import GuestLayout from './components/GuestLayout';
-import LofiLayoutGuideScreen from './components/LofiLayoutGuideScreen';
 import { 
-  Bell, 
-  User as UserIcon, 
-  LogOut, 
-  CheckSquare, 
-  Layers, 
-  FolderHeart, 
+  User, 
+  Client, 
+  Sponsor, 
+  PengajuanPenugasan,
+  Kegiatan, 
+  Penugasan, 
+  Notification, 
+  ContactMessage, 
+  Role 
+} from './types';
+
+// Screen Components
+import { GuestScreens } from './components/GuestScreens';
+import { 
+  HumasDashboard, 
+  HumasClients, 
+  HumasSponsors, 
+  HumasPengajuanPenugasan, 
+  HumasTalentInfo 
+} from './components/HumasScreens';
+import { 
+  SdmDashboard, 
+  SdmUserManagement, 
+  SdmTalentList, 
+  SdmPenugasanManagement, 
+  SdmReportValidation 
+} from './components/SdmScreens';
+import { 
+  TalentDashboard, 
+  TalentAssignments, 
+  TalentDetail, 
+  TalentReportForm, 
+  TalentHistory, 
+  TalentRatingAndProfile 
+} from './components/TalentScreens';
+import { BendaharaDashboard, BendaharaPaymentList } from './components/BendaharaScreens';
+import { KetuaUmumScreen } from './components/KetuaUmumScreen';
+import LofiLayoutGuideScreen from './components/LofiLayoutGuideScreen';
+import { LoginScreen, ProfileScreen, NotificationScreen } from './components/CommonScreens';
+
+// Icons
+import { 
+  Home, 
+  Users, 
+  Mail, 
+  Building2, 
+  Handshake, 
   Calendar, 
+  ShieldCheck, 
+  FileText, 
+  History, 
+  Star, 
   CreditCard, 
-  ChevronRight,
-  ChevronLeft,
-  Menu,
-  LayoutDashboard,
-  Users,
-  CalendarPlus,
-  ClipboardList,
-  ShieldCheck,
-  Building2,
-  Handshake,
-  Award,
-  PenTool,
-  Image,
+  Award, 
+  ChevronRight, 
+  ChevronLeft, 
+  ChevronDown,
+  Menu, 
+  X, 
+  RotateCcw, 
+  Bell, 
   Sparkles,
-  Eye,
-  Home,
-  Inbox,
-  Info,
-  History,
-  Coins,
-  Settings,
-  PieChart,
-  Banknote,
-  FileSpreadsheet
+  Layers,
+  Compass,
+  LayoutDashboard,
+  CheckCircle2,
+  Lock,
+  LogOut,
+  ExternalLink,
+  UserCheck,
+  User as UserIcon
 } from 'lucide-react';
 
 export default function App() {
-  // --- STATE DATABASE HUB ---
+  // ============================================================================
+  // DATABASE STATE HUB
+  // ============================================================================
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [clients, setClients] = useState<Client[]>(INITIAL_CLIENTS);
   const [sponsors, setSponsors] = useState<Sponsor[]>(INITIAL_SPONSORS);
-  const [blogs, setBlogs] = useState<BlogArticle[]>(INITIAL_BLOGS);
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>(INITIAL_MEDIA);
-  const [kegiatan, setKegiatan] = useState<Kegiatan[]>(INITIAL_KEGIATAN);
-  const [penugasan, setPenugasan] = useState<Penugasan[]>(INITIAL_PENUGASAN);
+  const [pengajuanList, setPengajuanList] = useState<PengajuanPenugasan[]>(INITIAL_PENGAJUAN_PENUGASAN);
+  const [kegiatanList, setKegiatanList] = useState<Kegiatan[]>(INITIAL_KEGIATAN);
+  const [penugasanList, setPenugasanList] = useState<Penugasan[]>(INITIAL_PENUGASAN);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [contacts, setContacts] = useState<ContactMessage[]>(INITIAL_CONTACTS);
-  const [transaksi, setTransaksi] = useState<Transaksi[]>(INITIAL_TRANSAKSI);
 
-  // --- ACTIVE SESSION STATES ---
-  const [currentUser, setCurrentUser] = useState<User | null>(null); // starts as Guest/Logged out
+  // ============================================================================
+  // DUAL NAVIGATION & ACTIVE ACTOR STATE
+  // Roles: 'Guest' | 'Humas' | 'SDM' | 'Talent' | 'Bendahara' | 'Ketua Umum'
+  // ============================================================================
   const [currentRole, setCurrentRole] = useState<Role>('Guest');
   const [currentScreen, setCurrentScreen] = useState<string>('GUEST_HOME');
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(true);
+  const [selectedPenugasanId, setSelectedPenugasanId] = useState<string>('p1');
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
-  // --- NAVIGATION PARAMETERS ---
-  const [selectedKegiatanId, setSelectedKegiatanId] = useState<string>('k1');
-  const [selectedPenugasanId, setSelectedPenugasanId] = useState<string>('p3');
+  // Floating Prototype Dropdown state & Profile Dropdown state
+  const [isPrototypeDropdownOpen, setIsPrototypeDropdownOpen] = useState<boolean>(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState<boolean>(false);
+  const [logoutMessage, setLogoutMessage] = useState<string>('');
 
-  // --- CORE SYSTEM HANDLERS ---
-  const handleResetData = () => {
-    if (confirm('Apakah Anda ingin merestore database mockup ke pengaturan semula? Semua penambahan instansi/bakat baru akan dihapus.')) {
-      setUsers(INITIAL_USERS);
-      setClients(INITIAL_CLIENTS);
-      setSponsors(INITIAL_SPONSORS);
-      setBlogs(INITIAL_BLOGS);
-      setMediaItems(INITIAL_MEDIA);
-      setKegiatan(INITIAL_KEGIATAN);
-      setPenugasan(INITIAL_PENUGASAN);
-      setNotifications(INITIAL_NOTIFICATIONS);
-      setContacts(INITIAL_CONTACTS);
-      setTransaksi(INITIAL_TRANSAKSI);
-      alert('Mock database berhasil di-reset!');
-    }
-  };
+  // Active Personas & Notifications
+  const currentActiveUser = users.find(u => u.peran === currentRole) || users[0];
+  const currentTalent = users.find(u => u.id === 'u4') || users.find(u => u.peran === 'Talent') || users[0];
+  const ketumUser = users.find(u => u.peran === 'Ketua Umum') || users[0];
 
-  const handleQuickLogin = (role: Role) => {
+  const unreadNotificationsCount = notifications.filter(
+    n => (n.penerimaRole === currentRole || n.penerimaRole === 'SDM') && !n.dibaca
+  ).length;
+
+  // Helper to switch role & screen together
+  const jumpToScreen = (role: Role, screenId: string) => {
     setCurrentRole(role);
-    if (role === 'Guest') {
-      setCurrentUser(null);
-      setCurrentScreen('GUEST_HOME');
-    } else {
-      // Find representative user of that role
-      const found = users.find(u => u.peran === role);
-      if (found) {
-        setCurrentUser(found);
-      } else {
-        // Fallback user creator
-        const fallback: User = {
-          id: 'u_fallback_' + role.toLowerCase(),
-          username: `user_${role.toLowerCase()}`,
-          nama: `Simulasi ${role}`,
-          email: `${role.toLowerCase()}@cakning.org`,
-          telepon: '081234567890',
-          peran: role,
-          status: 'Aktif'
-        };
-        setUsers(prev => [...prev, fallback]);
-        setCurrentUser(fallback);
-      }
-
-      // Route to default role dashboard
-      if (role === 'SDM') setCurrentScreen('SDM_DASHBOARD');
-      else if (role === 'Humas') setCurrentScreen('HUMAS_DASHBOARD');
-      else if (role === 'Talent') setCurrentScreen('TALENT_DASHBOARD');
-      else if (role === 'Bendahara') setCurrentScreen('BENDAHARA_DASHBOARD');
-    }
-  };
-
-  const handleFigmaScreenJump = (screenId: string) => {
-    // Determine target role for chosen screen to avoid mismatched layouts
-    let targetRole: Role = 'Guest';
-    if (['LOGIN'].includes(screenId)) {
-      targetRole = 'Guest';
-    } else if (['SDM_DASHBOARD', 'SDM_PLOTTING', 'SDM_USER_MANAGEMENT', 'SDM_PENUGASAN_MGMT', 'SDM_VALIDATION_MGMT'].includes(screenId)) {
-      targetRole = 'SDM';
-    } else if (['HUMAS_DASHBOARD', 'HUMAS_CLIENTS', 'HUMAS_SPONSORS', 'HUMAS_BLOGS', 'HUMAS_GALLERY', 'HUMAS_KEGIATAN', 'HUMAS_PROPOSE', 'HUMAS_PENUGASAN'].includes(screenId)) {
-      targetRole = 'Humas';
-    } else if (['TALENT_DASHBOARD', 'TALENT_ASSIGNMENTS', 'TALENT_DETAIL', 'TALENT_REPORT_FORM', 'TALENT_HISTORY', 'TALENT_HONOR', 'TALENT_PROFILE_EDIT'].includes(screenId)) {
-      targetRole = 'Talent';
-    } else if (['BENDAHARA_DASHBOARD', 'BENDAHARA_PAYMENT_INPUT', 'BENDAHARA_REPORT'].includes(screenId)) {
-      targetRole = 'Bendahara';
-    } else if (['ALL_PROFILE', 'ALL_NOTIFICATIONS'].includes(screenId)) {
-      // keep current or fallback to SDM
-      targetRole = currentRole === 'Guest' ? 'SDM' : currentRole;
-    }
-
-    // Apply role config
-    setCurrentRole(targetRole);
-    if (targetRole === 'Guest') {
-      setCurrentUser(null);
-    } else {
-      const found = users.find(u => u.peran === targetRole);
-      if (found) setCurrentUser(found);
-    }
-
-    // Special Parameter fallbacks to prevent screen crashes
-    if (screenId === 'SDM_PLOTTING' && !selectedKegiatanId) {
-      const fallbackK = kegiatan.find(k => k.status === 'Butuh Plotting') || kegiatan[0];
-      setSelectedKegiatanId(fallbackK.id);
-    }
-    if ((screenId === 'TALENT_DETAIL' || screenId === 'TALENT_REPORT_FORM' || screenId === 'BENDAHARA_PAYMENT_INPUT') && !selectedPenugasanId) {
-      setSelectedPenugasanId(penugasan[0]?.id || 'p1');
-    }
-
     setCurrentScreen(screenId);
+    setIsPrototypeDropdownOpen(false);
+    setIsProfileDropdownOpen(false);
   };
 
-  const handleLoginSuccess = (user: User) => {
-    setCurrentUser(user);
-    setCurrentRole(user.peran);
-    
-    if (user.peran === 'SDM') {
-      setCurrentScreen('SDM_DASHBOARD');
-    } else if (user.peran === 'Humas') {
-      setCurrentScreen('HUMAS_DASHBOARD');
-    } else if (user.peran === 'Talent') {
-      setCurrentScreen('TALENT_DASHBOARD');
-    } else if (user.peran === 'Bendahara') {
-      setCurrentScreen('BENDAHARA_DASHBOARD');
+  const getDashboardScreenForRole = (role: Role): string => {
+    switch (role) {
+      case 'Humas': return 'HUMAS_DASHBOARD';
+      case 'SDM': return 'SDM_DASHBOARD';
+      case 'Talent': return 'TALENT_DASHBOARD';
+      case 'Bendahara': return 'BENDAHARA_DASHBOARD';
+      case 'Ketua Umum': return 'KETUM_DASHBOARD';
+      default: return 'GUEST_HOME';
     }
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    setIsProfileDropdownOpen(false);
     setCurrentRole('Guest');
-    setCurrentScreen('GUEST_HOME');
+    setLogoutMessage('Anda telah berhasil keluar dari akun paguyuban.');
+    setCurrentScreen('LOGIN');
   };
 
-  // --- WORKFLOW TRANSACTIONS ---
-  
-  // SDM - Plotting confirmed
-  const handleConfirmPlotting = (kegId: string, talentIds: string[]) => {
-    // 1. Update kegiatan status
-    setKegiatan(prev => prev.map(k => k.id === kegId ? { ...k, status: 'Sedang Berjalan' } : k));
-    
-    // 2. Insert new penugasan records
-    const keg = kegiatan.find(k => k.id === kegId);
-    const newPenugasans: Penugasan[] = talentIds.map(tId => {
-      const talentUser = users.find(u => u.id === tId);
-      return {
-        id: 'p_new_' + tId + '_' + Date.now(),
-        kegiatanId: kegId,
-        kegiatanNama: keg?.namaKegiatan || 'Pariwisata Surabaya',
-        tanggal: keg?.tanggal || '',
-        lokasi: keg?.lokasi || '',
-        talentId: tId,
-        talentNama: talentUser?.nama || 'Talent',
-        status: 'Menunggu Konfirmasi',
-        statusBayar: 'Belum Dibayar'
-      };
-    });
-    setPenugasan(prev => [...prev, ...newPenugasans]);
-
-    // 3. Send system notifications to selected talents
-    const newNotifications: Notification[] = talentIds.map(tId => ({
-      id: 'n_pl_' + tId + '_' + Date.now(),
-      penerimaRole: 'Talent',
-      penerimaUserId: tId,
-      tipe: 'warning',
-      pesan: `Anda diusulkan oleh SDM untuk bertugas pada kegiatan "${keg?.namaKegiatan}" tanggal ${keg?.tanggal}. Harap berikan konfirmasi kehadiran.`,
-      tanggal: 'Baru saja',
-      dibaca: false
-    }));
-    setNotifications(prev => [...newNotifications, ...prev]);
-
-    setCurrentScreen('SDM_DASHBOARD');
+  const handleLoginSuccess = (user: User) => {
+    setCurrentRole(user.peran);
+    setLogoutMessage('');
+    const targetDashboard = getDashboardScreenForRole(user.peran);
+    setCurrentScreen(targetDashboard);
   };
 
-  // Talent - Respond to Duty (Accept/Reject)
-  const handleRespondAssignment = (penID: string, accept: boolean) => {
-    // Notify SDM to simulate full integration
-    const pen = penugasan.find(p => p.id === penID);
-    const newNotif: Notification = {
-      id: 'n_resp_' + penID + '_' + Date.now(),
-      penerimaRole: 'SDM',
-      tipe: accept ? 'success' : 'warning',
-      pesan: `Talent "${pen?.talentNama}" telah ${accept ? 'MENERIMA' : 'MENOLAK'} mandat penugasan untuk kegiatan "${pen?.kegiatanNama}".`,
-      tanggal: 'Baru saja',
-      dibaca: false
-    };
-    setNotifications(prev => [newNotif, ...prev]);
-
-    // Show a beautiful informative alert explaining the low-fidelity loop reset
-    alert(
-      `🎉 Sukses! Konfirmasi ${accept ? 'Menerima' : 'Menolak'} Mandat Penugasan Berhasil Dikirim ke SDM.\n\n` +
-      `Sistem simulasi telah mencatat tanggapan Anda dan mengirimkan notifikasi kepada pengurus.\n\n` +
-      `[Catatan Prototype Low-Fidelity]: Status penugasan ini dikembalikan ke 'Menunggu Konfirmasi' ` +
-      `agar Anda dapat menguji kembali alur interaksi ini berulang-ulang dengan lancar.`
-    );
-    
-    // We do NOT modify the state status so it remains "Menunggu Konfirmasi" (kembali ke kondisi semula)
+  // Reset Data Handler
+  const handleResetData = () => {
+    if (confirm('Kembalikan seluruh data simulasi ke kondisi awal? Semua penambahan instansi, sponsor, dan penugasan baru akan di-reset.')) {
+      setUsers(INITIAL_USERS);
+      setClients(INITIAL_CLIENTS);
+      setSponsors(INITIAL_SPONSORS);
+      setPengajuanList(INITIAL_PENGAJUAN_PENUGASAN);
+      setKegiatanList(INITIAL_KEGIATAN);
+      setPenugasanList(INITIAL_PENUGASAN);
+      setNotifications(INITIAL_NOTIFICATIONS);
+      setContacts(INITIAL_CONTACTS);
+      alert('Data simulasi organisasi berhasil di-reset!');
+    }
   };
 
-  // Talent - Submit Report
-  const handleSubmitReport = (penID: string, desc: string, fileLabel: string) => {
-    // Notify Bendahara & SDM to simulate full integration
-    const pen = penugasan.find(p => p.id === penID);
-    const newNotifs: Notification[] = [
-      {
-        id: 'n_rep_b_' + penID + '_' + Date.now(),
-        penerimaRole: 'Bendahara',
-        tipe: 'info',
-        pesan: `Laporan kegiatan "${pen?.kegiatanNama}" telah diserahkan oleh ${pen?.talentNama}. Siap divalidasi dan diproses transfer honornya.`,
-        tanggal: 'Baru saja',
-        dibaca: false
-      },
-      {
-        id: 'n_rep_s_' + penID + '_' + Date.now(),
-        penerimaRole: 'SDM',
-        tipe: 'success',
-        pesan: `Talent "${pen?.talentNama}" telah mengunggah laporan penugasan kegiatan "${pen?.kegiatanNama}".`,
-        tanggal: 'Baru saja',
-        dibaca: false
+  // ============================================================================
+  // WORKFLOW ACTION HANDLERS
+  // ============================================================================
+  const handleRespondAssignment = (penId: string, accept: boolean) => {
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
+        return { ...p, status: accept ? 'Dikonfirmasi' : 'Ditolak' };
       }
-    ];
-    setNotifications(prev => [...newNotifs, ...prev]);
-
-    // Show a beautiful informative alert explaining the low-fidelity loop reset
-    alert(
-      `🎉 Sukses! Laporan Pertanggungjawaban Kegiatan Berhasil Diunggah.\n\n` +
-      `Deskripsi: "${desc}"\n` +
-      `File Bukti: ${fileLabel}\n\n` +
-      `Sistem simulasi telah mengirimkan laporan ini ke Pengurus SDM & Bendahara.\n\n` +
-      `[Catatan Prototype Low-Fidelity]: Status penugasan dikembalikan ke 'Dikonfirmasi' ` +
-      `agar Anda dapat menguji kembali pengunggahan laporan ini berulang-ulang tanpa terkunci.`
-    );
-
-    // Go back to the assignments list where it remains "Dikonfirmasi" (kembali ke kondisi semula)
-    setCurrentScreen('TALENT_ASSIGNMENTS');
+      return p;
+    }));
   };
 
-  // Bendahara - Update Honor inline
-  const handleUpdateHonorInline = (penID: string, nominal: number) => {
-    setPenugasan(prev => prev.map(p => p.id === penID ? { ...p, honor: nominal } : p));
-  };
-
-  // Bendahara - Save final payment
-  const handleSavePayment = (penID: string, nominal: number, tanggalTransfer: string, fileLabel: string) => {
-    setPenugasan(prev => prev.map(p => {
-      if (p.id === penID) {
+  const handleSubmitReport = (penId: string, desc: string, fileLabel: string) => {
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
         return {
           ...p,
-          honor: nominal,
-          statusBayar: 'Lunas',
-          tanggalBayar: tanggalTransfer,
-          buktiBayar: fileLabel
+          laporanDeskripsi: desc,
+          laporanBuktiLink: fileLabel,
+          laporanTanggal: new Date().toISOString().split('T')[0],
+          laporanStatus: 'Menunggu Validasi',
+          status: 'Selesai'
         };
       }
       return p;
     }));
-
-    // Notify Talent
-    const pen = penugasan.find(p => p.id === penID);
-    const newNotif: Notification = {
-      id: 'n_pay_' + penID + '_' + Date.now(),
-      penerimaRole: 'Talent',
-      penerimaUserId: pen?.talentId,
-      tipe: 'success',
-      pesan: `Kabar Baik! Honorarium penugasan Anda untuk "${pen?.kegiatanNama}" sebesar Rp ${nominal.toLocaleString('id-ID')} telah ditransfer oleh Bendahara. Silakan cek mutasi Anda.`,
-      tanggal: 'Baru saja',
-      dibaca: false
-    };
-    setNotifications(prev => [newNotif, ...prev]);
-    setCurrentScreen('BENDAHARA_DASHBOARD');
+    alert('Laporan penugasan berhasil diunggah dan diteruskan ke Sie SDM & Diklat!');
+    setCurrentScreen('TALENT_ASSIGNMENTS');
   };
 
-  // SDM - Validate Report (Approve/Reject)
-  const handleValidateReport = (penID: string, statusLaporan: 'Disetujui' | 'Revisi', catatanSdm?: string) => {
-    setPenugasan(prev => prev.map(p => {
-      if (p.id === penID) {
+  const handleValidateReport = (penId: string, statusLaporan: 'Disetujui' | 'Revisi', catatan?: string) => {
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
         return {
           ...p,
           laporanStatus: statusLaporan,
-          catatanSdm: catatanSdm || '',
+          catatanSdm: catatan || '',
           status: statusLaporan === 'Disetujui' ? 'Selesai' : 'Dikonfirmasi'
         };
       }
       return p;
     }));
-
-    // Notify Talent
-    const penItem = penugasan.find(p => p.id === penID);
-    const validationNotif: Notification = {
-      id: 'n_val_' + penID + '_' + Date.now(),
-      penerimaRole: 'Talent',
-      penerimaUserId: penItem?.talentId,
-      tipe: statusLaporan === 'Disetujui' ? 'success' : 'warning',
-      pesan: `Laporan kegiatan "${penItem?.kegiatanNama}" Anda telah ${statusLaporan === 'Disetujui' ? 'DISETUJUI' : 'DIBERIKAN CATATAN REVISI'} oleh SDM. Catatan: ${catatanSdm || '-'}`,
-      tanggal: 'Baru saja',
-      dibaca: false
-    };
-    setNotifications(prev => [validationNotif, ...prev]);
   };
 
-  // SDM - Update User
-  const handleUpdateUser = (updated: User) => {
-    setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
-    if (currentUser?.id === updated.id) {
-      setCurrentUser(updated);
-    }
+  const handleSavePayment = (penId: string, nominal: number, tanggalTransfer: string, fileLabel: string) => {
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
+        return {
+          ...p,
+          honor: nominal,
+          tanggalBayar: tanggalTransfer,
+          buktiBayar: fileLabel,
+          statusBayar: 'Lunas'
+        };
+      }
+      return p;
+    }));
   };
 
-  // --- RENDERING ROUTER ENGINE ---
-  const renderRoleSidebar = () => {
-    if (currentRole === 'Guest' || currentScreen === 'LOGIN') return null;
+  // ============================================================================
+  // RENDER NAVBAR ATAS (KHUSUS GUEST AREA)
+  // ============================================================================
+  const renderGuestNavbar = () => {
+    return (
+      <header className="sticky top-0 z-40 bg-white border-b-2 border-[#1A3C5E] shadow-sm font-sans">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
+          {/* Logo & Identity */}
+          <div 
+            onClick={() => setCurrentScreen('GUEST_HOME')}
+            className="flex items-center gap-3 cursor-pointer"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#1A3C5E] text-amber-400 flex items-center justify-center font-black text-sm font-mono shadow-sm border border-amber-400/40">
+              C&N
+            </div>
+            <div>
+              <h1 className="text-sm font-black text-[#1A3C5E] uppercase tracking-tight leading-none">
+                Cak & Ning Surabaya
+              </h1>
+              <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                Paguyuban Duta Wisata Kota Surabaya
+              </p>
+            </div>
+          </div>
 
-    const screenIcons: Record<string, React.ComponentType<any>> = {
-      SDM_DASHBOARD: LayoutDashboard,
-      SDM_USER_MANAGEMENT: Users,
-      SDM_PLOTTING: CalendarPlus,
-      SDM_PENUGASAN_MGMT: ClipboardList,
-      SDM_VALIDATION_MGMT: ShieldCheck,
+          {/* Links: Beranda | Talent | Kontak */}
+          <nav className="flex items-center gap-1 md:gap-2">
+            <button
+              onClick={() => setCurrentScreen('GUEST_HOME')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                currentScreen === 'GUEST_HOME' 
+                  ? 'bg-[#1A3C5E] text-white shadow-xs' 
+                  : 'text-slate-600 hover:text-[#1A3C5E] hover:bg-slate-100'
+              }`}
+            >
+              Beranda
+            </button>
+            <button
+              onClick={() => setCurrentScreen('GUEST_TALENTS')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                currentScreen === 'GUEST_TALENTS' 
+                  ? 'bg-[#1A3C5E] text-white shadow-xs' 
+                  : 'text-slate-600 hover:text-[#1A3C5E] hover:bg-slate-100'
+              }`}
+            >
+              Talent
+            </button>
+            <button
+              onClick={() => setCurrentScreen('GUEST_CONTACT')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                currentScreen === 'GUEST_CONTACT' 
+                  ? 'bg-[#1A3C5E] text-white shadow-xs' 
+                  : 'text-slate-600 hover:text-[#1A3C5E] hover:bg-slate-100'
+              }`}
+            >
+              Kontak
+            </button>
+          </nav>
 
-      HUMAS_DASHBOARD: Building2,
-      HUMAS_CLIENTS: Handshake,
-      HUMAS_SPONSORS: Award,
-      HUMAS_BLOGS: PenTool,
-      HUMAS_GALLERY: Image,
-      HUMAS_KEGIATAN: Calendar,
-      HUMAS_PROPOSE: Sparkles,
-      HUMAS_PENUGASAN: Eye,
+          {/* Quick Internal Entry Shortcut & Login */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setLogoutMessage('');
+                setCurrentRole('Guest');
+                setCurrentScreen('LOGIN');
+              }}
+              className={`font-bold px-3.5 py-2 rounded-xl text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer ${
+                currentScreen === 'LOGIN'
+                  ? 'bg-[#1A3C5E] text-white ring-2 ring-amber-400'
+                  : 'bg-white hover:bg-slate-100 text-[#1A3C5E] border border-slate-300'
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-500" /> Masuk ke Sistem
+            </button>
 
-      TALENT_DASHBOARD: Home,
-      TALENT_ASSIGNMENTS: Inbox,
-      TALENT_DETAIL: Info,
-      TALENT_HISTORY: History,
-      TALENT_HONOR: Coins,
-      TALENT_PROFILE_EDIT: Settings,
+            <button
+              onClick={() => jumpToScreen('SDM', 'SDM_DASHBOARD')}
+              className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3.5 py-2 rounded-xl text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer hidden sm:flex"
+              title="Akses Cepat Pengurus SDM"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Portal Internal
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  };
 
-      BENDAHARA_DASHBOARD: PieChart,
-      BENDAHARA_KELOLA_KEUANGAN: Coins,
-      BENDAHARA_PAYMENT_INPUT: Banknote,
-      BENDAHARA_REPORT: FileSpreadsheet,
-
-      ALL_PROFILE: UserIcon,
-      ALL_NOTIFICATIONS: Bell,
-    };
-
-    const navItemClass = (screenId: string) => {
-      const isActive = currentScreen === screenId;
-      return `w-full text-left font-sans text-xs font-bold py-2.5 transition-all cursor-pointer flex items-center border-b border-slate-200 ${
-        isSidebarExpanded ? 'px-4 justify-between' : 'px-0 justify-center'
-      } ${
-        isActive 
-          ? 'bg-[#1A3C5E] text-white border-[#1A3C5E]' 
-          : 'bg-white hover:bg-slate-100 text-[#1A3C5E]'
-      }`;
-    };
-
-    const renderNavItem = (screenId: string, label: string) => {
-      const Icon = screenIcons[screenId] || CheckSquare;
+  // ============================================================================
+  // RENDER INTERNAL SIDEBAR (KHUSUS ROLE INTERNAL: HUMAS, SDM, TALENT, BENDAHARA, KETUA UMUM)
+  // Sidebar isinya HANYA menu untuk peran tersebut!
+  // ============================================================================
+  const renderInternalSidebar = () => {
+    const NavItem = ({ screenId, label, icon: Icon }: { screenId: string; label: string; icon: any }) => {
       const isActive = currentScreen === screenId;
       return (
-        <button 
-          onClick={() => {
-            if (screenId === 'SDM_PLOTTING' || screenId === 'BENDAHARA_PAYMENT_INPUT' || screenId === 'TALENT_DETAIL') {
-              handleFigmaScreenJump(screenId);
-            } else {
-              setCurrentScreen(screenId);
-            }
-          }} 
-          className={navItemClass(screenId)}
+        <button
+          onClick={() => setCurrentScreen(screenId)}
+          className={`w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-all cursor-pointer ${
+            isActive 
+              ? 'bg-[#1A3C5E] text-white shadow-sm font-bold' 
+              : 'text-slate-600 hover:bg-slate-100 hover:text-[#1A3C5E]'
+          }`}
           title={label}
         >
-          <div className={`flex items-center gap-2.5 ${!isSidebarExpanded && 'justify-center w-full'}`}>
-            <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#1A3C5E]'}`} />
-            {isSidebarExpanded && <span className="truncate">{label}</span>}
+          <div className="flex items-center gap-3 truncate">
+            <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-amber-400' : 'text-slate-400'}`} />
+            <span className="truncate">{label}</span>
           </div>
-          {isSidebarExpanded && <ChevronRight className="w-3.5 h-3.5 opacity-40 shrink-0" />}
+          {isActive && <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
         </button>
       );
     };
 
     return (
-      <aside className={`${isSidebarExpanded ? 'w-64' : 'w-16'} transition-all duration-300 shrink-0 bg-white border-r-2 border-[#1A3C5E] flex flex-col justify-between`}>
-        <div>
-          {/* Toggle Button Header */}
-          <div className={`p-3 bg-slate-100 border-b-2 border-[#1A3C5E] flex items-center ${isSidebarExpanded ? 'justify-between' : 'justify-center'}`}>
-            {isSidebarExpanded && (
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 font-mono">
-                MENU UTAMA
-              </span>
-            )}
-            <button 
-              onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-              className="p-1 text-[#1A3C5E] hover:bg-slate-200 rounded cursor-pointer transition-colors"
-              title={isSidebarExpanded ? "Sembunyikan Menu" : "Tampilkan Menu"}
-            >
-              {isSidebarExpanded ? <ChevronLeft className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </button>
+      <aside 
+        className={`${
+          isSidebarOpen ? 'w-64' : 'w-0 -translate-x-full'
+        } transition-all duration-200 ease-in-out shrink-0 bg-white border-r border-slate-200 flex flex-col justify-between overflow-y-auto z-30`}
+      >
+        <div className="p-4 space-y-6">
+          {/* Header Role Identifier */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block font-mono">
+              PERAN AKTIF SAAT INI
+            </span>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <strong className="text-xs text-[#1A3C5E] font-bold">
+                {currentRole === 'SDM' ? 'Sie SDM & Diklat' :
+                 currentRole === 'Humas' ? 'Sie Humas & Relasi' :
+                 currentRole === 'Talent' ? 'Talent Duta Wisata' :
+                 currentRole === 'Bendahara' ? 'Bendahara Keuangan' :
+                 'Ketua Umum'}
+              </strong>
+            </div>
           </div>
 
-          {/* Navigation Items based on Role */}
-          <nav className="flex flex-col">
-            {currentRole === 'SDM' && (
-              <>
-                {renderNavItem('SDM_DASHBOARD', 'Dashboard SDM')}
-                {renderNavItem('SDM_USER_MANAGEMENT', 'Manajemen User Akun')}
-                {renderNavItem('SDM_PLOTTING', 'Plotting Penugasan')}
-                {renderNavItem('SDM_PENUGASAN_MGMT', 'Daftar Penugasan')}
-                {renderNavItem('SDM_VALIDATION_MGMT', 'Validasi Laporan')}
-              </>
-            )}
-
+          {/* MENUS STRICTLY FOR CURRENT ROLE */}
+          <nav className="space-y-1">
+            {/* HUMAS: Dashboard | Client | Sponsor | Pengajuan Penugasan | Lihat Talent */}
             {currentRole === 'Humas' && (
               <>
-                {renderNavItem('HUMAS_DASHBOARD', 'Dashboard Humas')}
-                {renderNavItem('HUMAS_CLIENTS', 'Kelola Client Mitra')}
-                {renderNavItem('HUMAS_SPONSORS', 'Kelola Sponsor')}
-                {renderNavItem('HUMAS_BLOGS', 'Kelola Blog Artikel')}
-                {renderNavItem('HUMAS_GALLERY', 'Kelola Galeri Media')}
-                {renderNavItem('HUMAS_KEGIATAN', 'Kelola Agenda Kegiatan')}
-                {renderNavItem('HUMAS_PROPOSE', 'Usulkan Talent')}
-                {renderNavItem('HUMAS_PENUGASAN', 'Monitoring Penugasan')}
+                <NavItem screenId="HUMAS_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
+                <NavItem screenId="HUMAS_CLIENTS" label="Client" icon={Building2} />
+                <NavItem screenId="HUMAS_SPONSORS" label="Sponsor" icon={Handshake} />
+                <NavItem screenId="HUMAS_PENGAJUAN" label="Pengajuan Penugasan" icon={Calendar} />
+                <NavItem screenId="HUMAS_TALENT_INFO" label="Lihat Talent" icon={Users} />
               </>
             )}
 
-            {currentRole === 'Bendahara' && (
+            {/* SDM: Dashboard | Manajemen User | Daftar Talent | Penugasan | Validasi Laporan */}
+            {currentRole === 'SDM' && (
               <>
-                {renderNavItem('BENDAHARA_DASHBOARD', 'Dashboard Bendahara')}
-                {renderNavItem('BENDAHARA_KELOLA_KEUANGAN', 'Kelola Kas & Transaksi')}
-                {renderNavItem('BENDAHARA_PAYMENT_INPUT', 'Input Pembayaran Honor')}
-                {renderNavItem('BENDAHARA_REPORT', 'Laporan Keuangan')}
+                <NavItem screenId="SDM_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
+                <NavItem screenId="SDM_USER_MANAGEMENT" label="Manajemen User" icon={UserCheck} />
+                <NavItem screenId="SDM_TALENT_LIST" label="Daftar Talent" icon={Users} />
+                <NavItem screenId="SDM_PENUGASAN_MGMT" label="Penugasan" icon={Calendar} />
+                <NavItem screenId="SDM_VALIDATION_MGMT" label="Validasi Laporan" icon={ShieldCheck} />
               </>
             )}
 
+            {/* TALENT: Dashboard | Penugasan Saya | Riwayat | Rating | Profil */}
             {currentRole === 'Talent' && (
               <>
-                {renderNavItem('TALENT_DASHBOARD', 'Dashboard Talent')}
-                {renderNavItem('TALENT_ASSIGNMENTS', 'Penugasan Saya')}
-                {renderNavItem('TALENT_DETAIL', 'Detail Tugas')}
-                {renderNavItem('TALENT_HISTORY', 'Riwayat Kegiatan')}
-                {renderNavItem('TALENT_HONOR', 'Riwayat Honor')}
-                {renderNavItem('TALENT_PROFILE_EDIT', 'Edit Portofolio')}
+                <NavItem screenId="TALENT_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
+                <NavItem screenId="TALENT_ASSIGNMENTS" label="Penugasan Saya" icon={Calendar} />
+                <NavItem screenId="TALENT_HISTORY" label="Riwayat" icon={History} />
+                <NavItem screenId="TALENT_RATING_PROFILE" label="Rating & Profil" icon={Star} />
               </>
             )}
 
-            {/* Universal Internal Shortcuts */}
-            <div className={`pt-2 mt-2 border-t-2 border-[#1A3C5E] ${!isSidebarExpanded && 'flex flex-col items-center'}`}>
-              {renderNavItem('ALL_PROFILE', 'Profil Akun Saya')}
-              {renderNavItem('ALL_NOTIFICATIONS', 'Notifikasi')}
-            </div>
+            {/* BENDAHARA: Dashboard | Daftar Pembayaran */}
+            {currentRole === 'Bendahara' && (
+              <>
+                <NavItem screenId="BENDAHARA_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
+                <NavItem screenId="BENDAHARA_PAYMENT_LIST" label="Daftar Pembayaran" icon={CreditCard} />
+              </>
+            )}
+
+            {/* KETUA UMUM: Dashboard Pengawasan */}
+            {currentRole === 'Ketua Umum' && (
+              <>
+                <NavItem screenId="KETUM_DASHBOARD" label="Dashboard Pengawasan" icon={Award} />
+              </>
+            )}
           </nav>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="p-3 border-t border-slate-200 space-y-2 bg-slate-50 flex flex-col items-center w-full">
-          {isSidebarExpanded ? (
-            <>
-              <button
-                onClick={() => setCurrentScreen('GUEST_HOME')}
-                className="w-full bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-1.5 px-3 text-[10px] uppercase tracking-wider cursor-pointer text-center"
-              >
-                Lihat Publik Site
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full bg-red-700 hover:bg-slate-800 text-white font-bold py-1.5 px-3 text-[10px] uppercase tracking-wider cursor-pointer flex items-center justify-center gap-1.5 border-none"
-              >
-                <LogOut className="w-3.5 h-3.5" /> Log Out
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setCurrentScreen('GUEST_HOME')}
-                className="p-1.5 text-[#1A3C5E] hover:bg-slate-200 rounded transition-colors"
-                title="Lihat Publik Site"
-              >
-                <Layers className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleLogout}
-                className="p-1.5 text-red-700 hover:bg-red-100 rounded transition-colors"
-                title="Log Out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </>
-          )}
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
+          <p className="text-[10px] text-slate-400 font-mono">&copy; 2026 Cak & Ning Surabaya</p>
+          <p className="text-[9px] text-[#1A3C5E] font-bold mt-0.5">Paguyuban Duta Wisata</p>
         </div>
       </aside>
     );
   };
 
-  const renderContent = () => {
-    // 0. LO-FI STRUCTURAL BLUEPRINT PAGE
-    if (currentScreen === 'LOFI_LAYOUT_GUIDE') {
-      return (
-        <LofiLayoutGuideScreen 
-          onBackToApp={() => setCurrentScreen('GUEST_HOME')}
-          onNavigateToScreen={handleFigmaScreenJump}
-        />
-      );
-    }
-
-    // A. PUBLIC GUEST FLOW
-    if (['GUEST_HOME', 'GUEST_TALENTS', 'GUEST_KEGIATAN', 'GUEST_BLOG', 'GUEST_GALLERY', 'GUEST_CONTACT'].includes(currentScreen)) {
-      return (
-        <GuestLayout
-          currentScreen={currentScreen}
-          onScreenChange={handleFigmaScreenJump}
-          talents={users}
-          kegiatanList={kegiatan}
-          blogs={blogs}
-          mediaItems={mediaItems}
-          onSendContact={(msg) => setContacts(prev => [msg, ...prev])}
-        />
-      );
-    }
-
-    // B. LOGIN SCREEN
-    if (currentScreen === 'LOGIN') {
-      return (
-        <div className="min-h-screen bg-slate-100 flex flex-col justify-between">
-          <div className="p-4 border-b bg-white flex justify-between items-center border-[#1A3C5E]">
-            <span className="font-extrabold text-xs text-[#1A3C5E] uppercase tracking-wider font-mono">← SIM PENUGASAN CAK & NING (WIREFRAME DESKTOP)</span>
-            <button onClick={() => setCurrentScreen('GUEST_HOME')} className="text-xs text-[#1A3C5E] underline font-bold cursor-pointer">
-              Kembali ke Beranda Publik
-            </button>
-          </div>
-          <LoginScreen onLoginSuccess={handleLoginSuccess} users={users} />
-          <footer className="py-3 bg-white text-center text-[10px] text-slate-400 border-t border-[#E0E0E0]">
-            &copy; 2026 Paguyuban Cak Ning Surabaya.
-          </footer>
-        </div>
-      );
-    }
-
-    // C. INTERNAL ROLES (CONTAINED WITH HEADER & SIDEBAR)
-    const isTalentRole = currentRole === 'Talent';
-    const isNing = currentUser?.nama.toLowerCase().includes('ning') || false;
-    const avatarGradient = isNing 
-      ? 'from-rose-500 to-pink-600' 
-      : 'from-[#1A3C5E] to-blue-600';
-
-    const getDescriptiveRoleBadge = (user: User | null) => {
-      if (!user) return '';
-      if (user.peran === 'SDM') return 'Pengurus SDM & Diklat';
-      if (user.peran === 'Humas') return 'Pengurus Hubungan Masyarakat';
-      if (user.peran === 'Bendahara') return 'Bendahara Keuangan';
-      if (user.peran === 'Talent') return `Talent Duta Wisata (${user.angkatan || '2023'})`;
-      return user.peran;
-    };
-
-    const unreadCount = notifications.filter(n => !n.dibaca).length;
-
+  // ============================================================================
+  // RENDER INTERNAL TOP BAR (FOR INTERNAL WORKSPACE)
+  // ============================================================================
+  const renderInternalTopBar = () => {
     return (
-      <div className="min-h-screen bg-slate-100 flex flex-col text-slate-800">
-        {/* Header Bar */}
-        <header className="bg-white border-b-2 border-[#1A3C5E] px-6 py-3 flex justify-between items-center sticky top-0 z-40 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="bg-[#1A3C5E] text-white px-2.5 py-1.5 text-xs font-mono font-bold uppercase border">
-              Cak Ning
-            </div>
-            <div>
-              <h1 className="text-xs font-extrabold uppercase tracking-widest text-[#1A3C5E]">SIM Penugasan Talent Duta Wisata</h1>
-              <p className="text-[10px] text-slate-400 font-mono">PEMERINTAH KOTA SURABAYA | PAGUYUBAN CAK & NING</p>
+      <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-xs font-sans">
+        <div className="px-4 md:px-6 py-3 flex items-center justify-between gap-4">
+          {/* Left: Sidebar Toggle & Branding */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
+              title={isSidebarOpen ? "Tutup Sidebar" : "Buka Sidebar"}
+            >
+              {isSidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#1A3C5E] text-amber-400 flex items-center justify-center font-black text-xs font-mono shadow-xs">
+                C&N
+              </div>
+              <div>
+                <h1 className="text-xs font-black text-[#1A3C5E] uppercase tracking-wider">
+                  SIM Penugasan Cak & Ning Surabaya
+                </h1>
+                <p className="text-[10px] text-slate-400 font-mono">
+                  Area: <strong className="text-amber-600 font-bold">{currentRole}</strong> &bull; Iterasi 1
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Notification Badge Shortcut */}
-            <button 
-              onClick={() => setCurrentScreen('ALL_NOTIFICATIONS')}
-              className="relative p-2 text-[#1A3C5E] hover:bg-slate-100 rounded-full cursor-pointer transition-colors"
-              title="Notifikasi"
+          {/* Right: Reset Data, Notif, Persona */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleResetData}
+              className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
+              title="Reset data simulasi"
             >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 bg-red-600 text-white font-sans text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                  {unreadCount}
-                </span>
+              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+              <span className="hidden sm:inline text-[11px]">Reset Data</span>
+            </button>
+
+            {/* Integrated Profile & Account Dropdown (Notifikasi, Profil & Logout) */}
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                className="flex items-center gap-2.5 pl-2.5 py-1.5 pr-2 rounded-xl hover:bg-slate-100 border border-slate-200/80 hover:border-slate-300 transition-all cursor-pointer relative bg-slate-50/60"
+                title="Buka Menu Profil & Akun"
+              >
+                <div className="text-right hidden sm:block">
+                  <span className="text-xs font-bold text-[#1A3C5E] block leading-tight truncate max-w-[150px]">
+                    {currentActiveUser.nama}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-mono block">
+                    {currentRole} Paguyuban
+                  </span>
+                </div>
+
+                <div className="relative">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1A3C5E] to-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-inner">
+                    {currentActiveUser.nama.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                  </div>
+                  {unreadNotificationsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center ring-2 ring-white animate-pulse">
+                      {unreadNotificationsCount}
+                    </span>
+                  )}
+                </div>
+
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {isProfileDropdownOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setIsProfileDropdownOpen(false)} 
+                  />
+
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 py-2 animate-fadeIn font-sans">
+                    {/* User Info Header */}
+                    <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-3 bg-slate-50/80">
+                      <div className="w-10 h-10 rounded-xl bg-[#1A3C5E] text-amber-400 font-black flex items-center justify-center text-sm shadow-xs border border-amber-400/40">
+                        {currentActiveUser.nama.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-slate-800 truncate">{currentActiveUser.nama}</p>
+                        <p className="text-[10px] text-slate-400 truncate font-mono">{currentActiveUser.email}</p>
+                        <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-amber-100 text-amber-800">
+                          {currentRole}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Menu Actions */}
+                    <div className="p-1.5 space-y-0.5 text-xs">
+                      {/* Update Profil */}
+                      <button
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          setCurrentScreen('PROFILE');
+                        }}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium cursor-pointer transition-colors ${
+                          currentScreen === 'PROFILE'
+                            ? 'bg-[#1A3C5E] text-white font-bold'
+                            : 'text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <UserIcon className={`w-4 h-4 ${currentScreen === 'PROFILE' ? 'text-amber-400' : 'text-slate-500'}`} />
+                        <span>Update Profil Saya</span>
+                      </button>
+
+                      {/* Notifikasi */}
+                      <button
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          setCurrentScreen('NOTIFICATIONS');
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium cursor-pointer transition-colors ${
+                          currentScreen === 'NOTIFICATIONS'
+                            ? 'bg-[#1A3C5E] text-white font-bold'
+                            : 'text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Bell className={`w-4 h-4 ${currentScreen === 'NOTIFICATIONS' ? 'text-amber-400' : 'text-slate-500'}`} />
+                          <span>Pusat Notifikasi</span>
+                        </div>
+                        {unreadNotificationsCount > 0 && (
+                          <span className="text-[10px] bg-rose-500 text-white font-black px-2 py-0.5 rounded-full">
+                            {unreadNotificationsCount} Baru
+                          </span>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Role Quick Switcher Pills */}
+                    <div className="px-3 py-2 border-t border-slate-100">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                        Ganti Peran Aktif:
+                      </span>
+                      <div className="grid grid-cols-2 gap-1 text-[10px]">
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            jumpToScreen('SDM', 'SDM_DASHBOARD');
+                          }}
+                          className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'SDM' ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
+                        >
+                          SDM (Diklat)
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            jumpToScreen('Humas', 'HUMAS_DASHBOARD');
+                          }}
+                          className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'Humas' ? 'bg-amber-50 border-amber-300 text-amber-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
+                        >
+                          Humas & Media
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            jumpToScreen('Talent', 'TALENT_DASHBOARD');
+                          }}
+                          className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'Talent' ? 'bg-purple-50 border-purple-300 text-purple-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
+                        >
+                          Talent (Duta)
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            jumpToScreen('Bendahara', 'BENDAHARA_DASHBOARD');
+                          }}
+                          className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'Bendahara' ? 'bg-indigo-50 border-indigo-300 text-indigo-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
+                        >
+                          Bendahara (Kas)
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Logout Action */}
+                    <div className="pt-1.5 p-1.5 border-t border-slate-100">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-bold cursor-pointer transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 text-rose-500" />
+                        <span>Keluar (Logout)</span>
+                      </button>
+                    </div>
+                  </div>
+                </>
               )}
-            </button>
-
-            {/* Profile Navigation Card */}
-            <div 
-              onClick={() => setCurrentScreen('ALL_PROFILE')}
-              className="flex items-center gap-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-[#1A3C5E] px-3 py-1.5 rounded-lg cursor-pointer transition-all group"
-              title="Lihat Profil Akun Saya"
-            >
-              {/* Info text */}
-              <div className="text-right select-none hidden sm:block">
-                <div className="text-xs font-bold text-[#1A3C5E] group-hover:underline">
-                  {currentUser?.nama || 'Simulasi User'}
-                </div>
-                <div className="text-[9px] font-mono font-bold text-slate-400 uppercase leading-none mt-0.5">
-                  {getDescriptiveRoleBadge(currentUser)}
-                </div>
-              </div>
-
-              {/* Avatar circle with initials */}
-              <div className="relative">
-                <div className={`w-9 h-9 rounded-full bg-gradient-to-tr ${avatarGradient} text-white flex items-center justify-center font-bold text-xs shadow-inner`}>
-                  {currentUser?.nama ? currentUser.nama.substring(0, 2).toUpperCase() : 'US'}
-                </div>
-                {/* Active Indicator Status Dot */}
-                <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" />
-              </div>
             </div>
-
-            {/* Compact logout in header too for extra convenience */}
-            <button 
-              onClick={handleLogout}
-              className="bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 p-2 rounded-full cursor-pointer transition-colors border border-red-100"
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
-
-        {/* Lower body */}
-        <div className="flex flex-1">
-          {renderRoleSidebar()}
-
-          {/* Actual content pane */}
-          <div className="flex-1 p-8 bg-slate-50 min-h-[85vh]">
-            {/* Screen selection mapping */}
-            {currentScreen === 'SDM_DASHBOARD' && (
-              <SdmDashboard 
-                users={users} 
-                kegiatanList={kegiatan} 
-                penugasanList={penugasan} 
-                onNavigateToPlotting={(id) => { setSelectedKegiatanId(id); setCurrentScreen('SDM_PLOTTING'); }}
-                onNavigateToUserManagement={() => setCurrentScreen('SDM_USER_MANAGEMENT')}
-                onNavigateToPenugasanManagement={() => setCurrentScreen('SDM_PENUGASAN_MGMT')}
-                onNavigateToReportValidation={() => setCurrentScreen('SDM_VALIDATION_MGMT')}
-              />
-            )}
-            {currentScreen === 'SDM_PLOTTING' && (
-              <SdmPlotting 
-                kegiatanId={selectedKegiatanId} 
-                kegiatanList={kegiatan} 
-                talents={users.filter(u => u.peran === 'Talent')} 
-                penugasanList={penugasan} 
-                onConfirmPlotting={handleConfirmPlotting} 
-                onCancel={() => setCurrentScreen('SDM_DASHBOARD')}
-              />
-            )}
-            {currentScreen === 'SDM_USER_MANAGEMENT' && (
-              <SdmUserManagement 
-                users={users} 
-                onAddUser={(u) => setUsers(prev => [...prev, u])} 
-                onUpdateUser={handleUpdateUser}
-                onDeleteUser={(id) => setUsers(prev => prev.filter(u => u.id !== id))}
-              />
-            )}
-            {currentScreen === 'SDM_PENUGASAN_MGMT' && (
-              <SdmPenugasanManagement
-                penugasanList={penugasan}
-                kegiatanList={kegiatan}
-                talents={users.filter(u => u.peran === 'Talent')}
-                onAddPenugasan={(p) => setPenugasan(prev => [...prev, p])}
-                onDeletePenugasan={(id) => setPenugasan(prev => prev.filter(p => p.id !== id))}
-                onBack={() => setCurrentScreen('SDM_DASHBOARD')}
-              />
-            )}
-            {currentScreen === 'SDM_VALIDATION_MGMT' && (
-              <SdmReportValidation
-                penugasanList={penugasan}
-                onValidateReport={handleValidateReport}
-                onBack={() => setCurrentScreen('SDM_DASHBOARD')}
-              />
-            )}
-
-            {currentScreen === 'HUMAS_DASHBOARD' && (
-              <HumasDashboard 
-                clients={clients} 
-                sponsors={sponsors} 
-                blogs={blogs} 
-                kegiatanList={kegiatan} 
-                penugasanList={penugasan}
-                onNavigateToClients={() => setCurrentScreen('HUMAS_CLIENTS')}
-                onNavigateToSponsors={() => setCurrentScreen('HUMAS_SPONSORS')}
-                onNavigateToBlogs={() => setCurrentScreen('HUMAS_BLOGS')}
-                onNavigateToGallery={() => setCurrentScreen('HUMAS_GALLERY')}
-                onNavigateToKegiatan={() => setCurrentScreen('HUMAS_KEGIATAN')}
-                onNavigateToPropose={() => setCurrentScreen('HUMAS_PROPOSE')}
-                onNavigateToPenugasan={() => setCurrentScreen('HUMAS_PENUGASAN')}
-              />
-            )}
-            {currentScreen === 'HUMAS_CLIENTS' && (
-              <HumasClients 
-                clients={clients} 
-                onAddClient={(c) => setClients(prev => [...prev, c])} 
-                onUpdateClientLog={(clientId, log) => {
-                  setClients(prev => prev.map(c => {
-                    if (c.id === clientId) {
-                      return { ...c, catatanInteraksi: [...c.catatanInteraksi, `${new Date().toLocaleDateString('id-ID')}: ${log}`] };
-                    }
-                    return c;
-                  }));
-                }}
-                onDeleteClient={(id) => setClients(prev => prev.filter(c => c.id !== id))}
-              />
-            )}
-            {currentScreen === 'HUMAS_SPONSORS' && (
-              <HumasSponsors 
-                sponsors={sponsors} 
-                onAddSponsor={(s) => setSponsors(prev => [...prev, s])} 
-                onDeleteSponsor={(id) => setSponsors(prev => prev.filter(s => s.id !== id))}
-              />
-            )}
-            {currentScreen === 'HUMAS_BLOGS' && (
-              <HumasBlogs 
-                blogs={blogs} 
-                onAddBlog={(b) => setBlogs(prev => [...prev, b])} 
-                onDeleteBlog={(id) => setBlogs(prev => prev.filter(b => b.id !== id))}
-              />
-            )}
-            {currentScreen === 'HUMAS_GALLERY' && (
-              <HumasGallery 
-                mediaItems={mediaItems} 
-                onAddMedia={(m) => setMediaItems(prev => [...prev, m])} 
-                onDeleteMedia={(id) => setMediaItems(prev => prev.filter(m => m.id !== id))}
-              />
-            )}
-            {currentScreen === 'HUMAS_KEGIATAN' && (
-              <HumasKegiatan 
-                kegiatanList={kegiatan} 
-                onAddKegiatan={(k) => {
-                  setKegiatan(prev => [...prev, k]);
-                  // Send SDM warning notification
-                  const newNotif: Notification = {
-                    id: 'n_keg_' + k.id + '_' + Date.now(),
-                    penerimaRole: 'SDM',
-                    tipe: 'warning',
-                    pesan: `Humas mengajukan agenda kegiatan baru "${k.namaKegiatan}" tanggal ${k.tanggal}. Plotting penugasan segera diperlukan.`,
-                    tanggal: 'Baru saja',
-                    dibaca: false
-                  };
-                  setNotifications(prev => [newNotif, ...prev]);
-                }} 
-                onDeleteKegiatan={(id) => setKegiatan(prev => prev.filter(k => k.id !== id))}
-              />
-            )}
-            {currentScreen === 'HUMAS_PROPOSE' && (
-              <HumasProposeTalent
-                kegiatanList={kegiatan}
-                talents={users.filter(u => u.peran === 'Talent')}
-                onBack={() => setCurrentScreen('HUMAS_DASHBOARD')}
-              />
-            )}
-            {currentScreen === 'HUMAS_PENUGASAN' && (
-              <HumasAssignmentsView
-                penugasanList={penugasan}
-                onBack={() => setCurrentScreen('HUMAS_DASHBOARD')}
-              />
-            )}
-
-            {currentScreen === 'TALENT_DASHBOARD' && currentUser && (
-              <TalentDashboard
-                talent={currentUser}
-                penugasanList={penugasan}
-                onNavigateToAssignments={() => setCurrentScreen('TALENT_ASSIGNMENTS')}
-                onNavigateToHistory={() => setCurrentScreen('TALENT_HISTORY')}
-                onNavigateToHonor={() => setCurrentScreen('TALENT_HONOR')}
-                onNavigateToProfileEdit={() => setCurrentScreen('TALENT_PROFILE_EDIT')}
-              />
-            )}
-            {currentScreen === 'TALENT_ASSIGNMENTS' && currentUser && (
-              <TalentAssignments 
-                talent={currentUser} 
-                penugasanList={penugasan} 
-                onSelectPenugasan={(id) => { setSelectedPenugasanId(id); setCurrentScreen('TALENT_DETAIL'); }}
-              />
-            )}
-            {currentScreen === 'TALENT_DETAIL' && (
-              <TalentDetail 
-                penugasanId={selectedPenugasanId} 
-                penugasanList={penugasan} 
-                onRespondAssignment={handleRespondAssignment} 
-                onNavigateToReport={(id) => { setSelectedPenugasanId(id); setCurrentScreen('TALENT_REPORT_FORM'); }}
-                onBack={() => setCurrentScreen('TALENT_ASSIGNMENTS')}
-              />
-            )}
-            {currentScreen === 'TALENT_REPORT_FORM' && (
-              <TalentReportForm 
-                penugasanId={selectedPenugasanId} 
-                penugasanList={penugasan} 
-                onSubmitReport={handleSubmitReport} 
-                onCancel={() => setCurrentScreen('TALENT_DETAIL')}
-              />
-            )}
-            {currentScreen === 'TALENT_HISTORY' && currentUser && (
-              <TalentRiwayatKegiatan
-                talent={currentUser}
-                penugasanList={penugasan}
-                onBack={() => setCurrentScreen('TALENT_DASHBOARD')}
-              />
-            )}
-            {currentScreen === 'TALENT_HONOR' && currentUser && (
-              <TalentRiwayatHonor
-                talent={currentUser}
-                penugasanList={penugasan}
-                onBack={() => setCurrentScreen('TALENT_DASHBOARD')}
-              />
-            )}
-            {currentScreen === 'TALENT_PROFILE_EDIT' && currentUser && (
-              <TalentProfileEdit
-                talent={currentUser}
-                onSaveProfile={(updated) => {
-                  setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
-                  setCurrentUser(updated);
-                }}
-                onBack={() => setCurrentScreen('TALENT_DASHBOARD')}
-              />
-            )}
-
-            {currentScreen === 'BENDAHARA_DASHBOARD' && (
-              <BendaharaDashboard 
-                penugasanList={penugasan} 
-                transaksiList={transaksi}
-                onUpdateHonorInline={handleUpdateHonorInline} 
-                onNavigateToPaymentInput={(id) => { setSelectedPenugasanId(id); setCurrentScreen('BENDAHARA_PAYMENT_INPUT'); }}
-                onAddTransaksi={(newTx) => setTransaksi(prev => [newTx, ...prev])}
-                onUpdateTransaksi={(updatedTx) => setTransaksi(prev => prev.map(t => t.id === updatedTx.id ? updatedTx : t))}
-              />
-            )}
-            {currentScreen === 'BENDAHARA_PAYMENT_INPUT' && (
-              <BendaharaPaymentInput 
-                penugasanId={selectedPenugasanId} 
-                penugasanList={penugasan} 
-                onSavePayment={handleSavePayment} 
-                onCancel={() => setCurrentScreen('BENDAHARA_DASHBOARD')}
-              />
-            )}
-            {currentScreen === 'BENDAHARA_KELOLA_KEUANGAN' && (
-              <BendaharaFinancialManagement
-                transaksiList={transaksi}
-                onBack={() => setCurrentScreen('BENDAHARA_DASHBOARD')}
-              />
-            )}
-            {currentScreen === 'BENDAHARA_REPORT' && (
-              <BendaharaFinancialReport
-                penugasanList={penugasan}
-                onBack={() => setCurrentScreen('BENDAHARA_DASHBOARD')}
-              />
-            )}
-
-            {currentScreen === 'ALL_PROFILE' && currentUser && (
-              <ProfileScreen 
-                user={currentUser} 
-                onSaveProfile={(updated) => {
-                  setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
-                  setCurrentUser(updated);
-                }}
-              />
-            )}
-
-            {currentScreen === 'ALL_NOTIFICATIONS' && (
-              <NotificationScreen 
-                notifications={notifications} 
-                onMarkAsRead={(id) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, dibaca: true } : n))} 
-                onMarkAllAsRead={() => setNotifications(prev => prev.map(n => ({ ...n, dibaca: true })))} 
-                activeRole={currentRole}
-              />
-            )}
           </div>
         </div>
-
-        {/* Footer */}
-        <footer className="border-t-2 border-[#1A3C5E] bg-white py-3 text-center text-[11px] text-slate-400 font-sans">
-          &copy; 2026 Paguyuban Duta Wisata Cak & Ning Surabaya. Sistem Informasi Manajemen Penugasan Talent.
-        </footer>
-      </div>
+      </header>
     );
   };
 
-  return (
-    <div className="relative min-h-screen bg-slate-50 font-sans selection:bg-[#1A3C5E]/20">
-      {/* 22 Pages Figma-style Prototype Controller Navigator Widget */}
-      <PrototypeController
-        currentScreen={currentScreen}
-        onScreenChange={handleFigmaScreenJump}
-        currentUserRole={currentRole}
-        onResetData={handleResetData}
-        onQuickLogin={handleQuickLogin}
-      />
+  // ============================================================================
+  // RENDER CONTENT SCREEN
+  // ============================================================================
+  const renderScreenContent = () => {
+    // A. GUEST AREA
+    if (currentScreen === 'GUEST_HOME') {
+      return (
+        <GuestScreens 
+          currentScreen="GUEST_HOME" 
+          onNavigate={setCurrentScreen} 
+          talents={users} 
+          onSendContact={(msg) => setContacts(prev => [msg, ...prev])} 
+        />
+      );
+    }
+    if (currentScreen === 'GUEST_TALENTS') {
+      return (
+        <GuestScreens 
+          currentScreen="GUEST_TALENTS" 
+          onNavigate={setCurrentScreen} 
+          talents={users} 
+          onSendContact={(msg) => setContacts(prev => [msg, ...prev])} 
+        />
+      );
+    }
+    if (currentScreen === 'GUEST_CONTACT') {
+      return (
+        <GuestScreens 
+          currentScreen="GUEST_CONTACT" 
+          onNavigate={setCurrentScreen} 
+          talents={users} 
+          onSendContact={(msg) => setContacts(prev => [msg, ...prev])} 
+        />
+      );
+    }
 
-      {/* Render selected screen layout */}
-      {renderContent()}
+    // B. HUMAS AREA
+    if (currentScreen === 'HUMAS_DASHBOARD') {
+      return (
+        <HumasDashboard
+          clients={clients}
+          sponsors={sponsors}
+          pengajuanList={pengajuanList}
+          onNavigateToScreen={setCurrentScreen}
+        />
+      );
+    }
+    if (currentScreen === 'HUMAS_CLIENTS') {
+      return (
+        <HumasClients
+          clients={clients}
+          onAddClient={(c) => setClients(prev => [...prev, c])}
+          onUpdateClient={(c) => setClients(prev => prev.map(item => item.id === c.id ? c : item))}
+          onDeleteClient={(id) => setClients(prev => prev.filter(c => c.id !== id))}
+        />
+      );
+    }
+    if (currentScreen === 'HUMAS_SPONSORS') {
+      return (
+        <HumasSponsors
+          sponsors={sponsors}
+          onAddSponsor={(s) => setSponsors(prev => [...prev, s])}
+          onUpdateSponsor={(s) => setSponsors(prev => prev.map(item => item.id === s.id ? s : item))}
+          onDeleteSponsor={(id) => setSponsors(prev => prev.filter(s => s.id !== id))}
+        />
+      );
+    }
+    if (currentScreen === 'HUMAS_PENGAJUAN') {
+      return (
+        <HumasPengajuanPenugasan
+          pengajuanList={pengajuanList}
+          talents={users.filter(u => u.peran === 'Talent')}
+          onAddPengajuan={(p) => setPengajuanList(prev => [...prev, p])}
+          onUpdatePengajuan={(p) => setPengajuanList(prev => prev.map(item => item.id === p.id ? p : item))}
+          onCancelPengajuan={(id) => setPengajuanList(prev => prev.map(item => item.id === id ? { ...item, status: 'Dibatalkan' } : item))}
+        />
+      );
+    }
+    if (currentScreen === 'HUMAS_TALENT_INFO') {
+      return (
+        <HumasTalentInfo talents={users} />
+      );
+    }
+
+    // C. SDM AREA
+    if (currentScreen === 'SDM_DASHBOARD') {
+      return (
+        <SdmDashboard
+          users={users}
+          penugasanList={penugasanList}
+          kegiatanList={kegiatanList}
+          onNavigateToScreen={setCurrentScreen}
+        />
+      );
+    }
+    if (currentScreen === 'SDM_USER_MANAGEMENT') {
+      return (
+        <SdmUserManagement
+          users={users}
+          onAddUser={(u) => setUsers(prev => [...prev, u])}
+          onUpdateUser={(u) => setUsers(prev => prev.map(item => item.id === u.id ? u : item))}
+          onDeleteUser={(id) => setUsers(prev => prev.filter(u => u.id !== id))}
+        />
+      );
+    }
+    if (currentScreen === 'SDM_TALENT_LIST') {
+      return (
+        <SdmTalentList talents={users} />
+      );
+    }
+    if (currentScreen === 'SDM_PENUGASAN_MGMT') {
+      return (
+        <SdmPenugasanManagement
+          penugasanList={penugasanList}
+          kegiatanList={kegiatanList}
+          talents={users.filter(u => u.peran === 'Talent')}
+          onAddPenugasan={(p) => setPenugasanList(prev => [...prev, p])}
+          onUpdatePenugasan={(p) => setPenugasanList(prev => prev.map(item => item.id === p.id ? p : item))}
+          onDeletePenugasan={(id) => setPenugasanList(prev => prev.filter(p => p.id !== id))}
+        />
+      );
+    }
+    if (currentScreen === 'SDM_VALIDATION_MGMT') {
+      return (
+        <SdmReportValidation
+          penugasanList={penugasanList}
+          onValidateReport={handleValidateReport}
+        />
+      );
+    }
+
+    // D. TALENT AREA
+    if (currentScreen === 'TALENT_DASHBOARD') {
+      return (
+        <TalentDashboard
+          talent={currentTalent}
+          penugasanList={penugasanList}
+          onNavigateToScreen={setCurrentScreen}
+        />
+      );
+    }
+    if (currentScreen === 'TALENT_ASSIGNMENTS') {
+      return (
+        <TalentAssignments
+          talent={currentTalent}
+          penugasanList={penugasanList}
+          onSelectPenugasan={(id) => {
+            setSelectedPenugasanId(id);
+            setCurrentScreen('TALENT_DETAIL');
+          }}
+        />
+      );
+    }
+    if (currentScreen === 'TALENT_DETAIL') {
+      return (
+        <TalentDetail
+          penugasanId={selectedPenugasanId}
+          penugasanList={penugasanList}
+          onRespondAssignment={handleRespondAssignment}
+          onNavigateToReport={(id) => {
+            setSelectedPenugasanId(id);
+            setCurrentScreen('TALENT_REPORT_FORM');
+          }}
+          onBack={() => setCurrentScreen('TALENT_ASSIGNMENTS')}
+        />
+      );
+    }
+    if (currentScreen === 'TALENT_REPORT_FORM') {
+      return (
+        <TalentReportForm
+          penugasanId={selectedPenugasanId}
+          penugasanList={penugasanList}
+          onSubmitReport={handleSubmitReport}
+          onCancel={() => setCurrentScreen('TALENT_DETAIL')}
+        />
+      );
+    }
+    if (currentScreen === 'TALENT_HISTORY') {
+      return (
+        <TalentHistory
+          talent={currentTalent}
+          penugasanList={penugasanList}
+        />
+      );
+    }
+    if (currentScreen === 'TALENT_RATING_PROFILE') {
+      return (
+        <TalentRatingAndProfile
+          talent={currentTalent}
+          onUpdateProfile={(updated) => {
+            setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
+          }}
+        />
+      );
+    }
+
+    // E. BENDAHARA AREA
+    if (currentScreen === 'BENDAHARA_DASHBOARD') {
+      return (
+        <BendaharaDashboard
+          penugasanList={penugasanList}
+          onNavigateToScreen={setCurrentScreen}
+        />
+      );
+    }
+    if (currentScreen === 'BENDAHARA_PAYMENT_LIST') {
+      return (
+        <BendaharaPaymentList
+          penugasanList={penugasanList}
+          onSavePayment={handleSavePayment}
+        />
+      );
+    }
+
+    // F. KETUA UMUM AREA
+    if (currentScreen === 'KETUM_DASHBOARD') {
+      return (
+        <KetuaUmumScreen
+          ketumUser={ketumUser}
+          users={users}
+          kegiatanList={kegiatanList}
+          penugasanList={penugasanList}
+          clients={clients}
+          sponsors={sponsors}
+          onNavigate={(screen) => {
+            if (screen.startsWith('SDM_')) setCurrentRole('SDM');
+            else if (screen.startsWith('HUMAS_')) setCurrentRole('Humas');
+            else if (screen.startsWith('TALENT_')) setCurrentRole('Talent');
+            else if (screen.startsWith('BENDAHARA_')) setCurrentRole('Bendahara');
+            setCurrentScreen(screen);
+          }}
+        />
+      );
+    }
+
+    // G. LO-FI BLUEPRINT & WIREFRAME LAYOUT GUIDE
+    if (currentScreen === 'LOFI_LAYOUT_GUIDE') {
+      return (
+        <LofiLayoutGuideScreen
+          onBackToApp={() => {
+            setCurrentRole('Guest');
+            setCurrentScreen('GUEST_HOME');
+          }}
+          onNavigateToScreen={(screen) => {
+            if (screen.startsWith('SDM_')) setCurrentRole('SDM');
+            else if (screen.startsWith('HUMAS_')) setCurrentRole('Humas');
+            else if (screen.startsWith('TALENT_')) setCurrentRole('Talent');
+            else if (screen.startsWith('BENDAHARA_')) setCurrentRole('Bendahara');
+            else setCurrentRole('Guest');
+            setCurrentScreen(screen);
+          }}
+        />
+      );
+    }
+
+    // H. AUTH & COMMON SCREENS (LOGIN, PROFILE, NOTIFICATIONS)
+    if (currentScreen === 'LOGIN') {
+      return (
+        <LoginScreen
+          users={users}
+          onLoginSuccess={handleLoginSuccess}
+          onBackToPublic={() => {
+            setCurrentRole('Guest');
+            setCurrentScreen('GUEST_HOME');
+          }}
+          logoutMessage={logoutMessage}
+        />
+      );
+    }
+    if (currentScreen === 'PROFILE') {
+      return (
+        <ProfileScreen
+          user={currentActiveUser}
+          onSaveProfile={(updated) => {
+            setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
+          }}
+          onBackToDashboard={() => setCurrentScreen(getDashboardScreenForRole(currentRole))}
+        />
+      );
+    }
+    if (currentScreen === 'NOTIFICATIONS') {
+      return (
+        <NotificationScreen
+          notifications={notifications}
+          onMarkAsRead={(id) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, dibaca: true } : n))}
+          onMarkAllAsRead={() => setNotifications(prev => prev.map(n => ({ ...n, dibaca: true })))}
+          activeRole={currentRole}
+          onBackToDashboard={() => setCurrentScreen(getDashboardScreenForRole(currentRole))}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  const isGuestMode = currentRole === 'Guest';
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col selection:bg-[#1A3C5E]/20 relative">
+      {/* 
+        DUAL NAVIGATION (RULE 3):
+        - In-App Navigation: Gunakan Sidebar di sebelah kiri untuk halaman internal (Humas, SDM, Talent, Bendahara, Ketua Umum) yang isinya HANYA menu untuk peran tersebut.
+        - Untuk halaman Guest (Publik), gunakan Navbar di bagian atas.
+      */}
+      {isGuestMode ? (
+        renderGuestNavbar()
+      ) : (
+        renderInternalTopBar()
+      )}
+
+      {/* Main Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Render internal sidebar ONLY when NOT guest */}
+        {!isGuestMode && renderInternalSidebar()}
+
+        {/* Content Pane */}
+        <main className={`flex-1 overflow-y-auto ${
+          currentScreen === 'LOGIN'
+            ? 'p-0 w-full'
+            : isGuestMode
+            ? 'p-6 md:p-10 max-w-7xl mx-auto w-full'
+            : 'p-4 md:p-8'
+        }`}>
+          {renderScreenContent()}
+        </main>
+      </div>
+
+      {/* ============================================================================
+          PROTOTYPE DROPDOWN (FLOATING BUTTON DI POJOK KANAN BAWAH)
+          "Buat tombol melayang (floating button) di pojok kanan bawah dengan ikon 'menu' atau 'figma'. 
+          Jika diklik, muncul dropdown untuk melompat bebas ke halaman peran mana pun (Guest, Humas, SDM, Talent, Bendahara)."
+      ============================================================================ */}
+      <div className="fixed bottom-6 right-6 z-50 font-sans">
+        {/* Dropdown Menu Modal */}
+        {isPrototypeDropdownOpen && (
+          <div className="absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border-2 border-[#1A3C5E] p-4 text-xs animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded bg-[#1A3C5E] text-amber-400 flex items-center justify-center font-bold text-xs">
+                  <Layers className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <strong className="text-[#1A3C5E] text-xs uppercase font-black block">Lompat Layar Prototype</strong>
+                  <span className="text-[10px] text-slate-400">Pilih peran aktor atau layar tujuan</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsPrototypeDropdownOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+              {/* 0. AUTH & AKUN */}
+              <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-300 space-y-1.5">
+                <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-slate-700" /> Autentikasi & Akun
+                </span>
+                <div className="grid grid-cols-3 gap-1 text-[11px]">
+                  <button onClick={() => jumpToScreen('Guest', 'LOGIN')} className="p-1.5 rounded-lg bg-white hover:bg-slate-800 hover:text-white text-slate-700 font-semibold border border-slate-200 text-center cursor-pointer transition-colors truncate">
+                    🔑 Login
+                  </button>
+                  <button onClick={() => jumpToScreen(currentRole === 'Guest' ? 'SDM' : currentRole, 'PROFILE')} className="p-1.5 rounded-lg bg-white hover:bg-slate-800 hover:text-white text-slate-700 font-semibold border border-slate-200 text-center cursor-pointer transition-colors truncate">
+                    👤 Profil
+                  </button>
+                  <button onClick={() => jumpToScreen(currentRole === 'Guest' ? 'SDM' : currentRole, 'NOTIFICATIONS')} className="p-1.5 rounded-lg bg-white hover:bg-slate-800 hover:text-white text-slate-700 font-semibold border border-slate-200 text-center cursor-pointer transition-colors truncate">
+                    🔔 Notifikasi
+                  </button>
+                </div>
+              </div>
+
+              {/* 1. GUEST */}
+              <div className="p-2.5 rounded-xl bg-blue-50/60 border border-blue-200/60 space-y-1.5">
+                <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" /> A. Guest Area (Publik)
+                </span>
+                <div className="grid grid-cols-3 gap-1 text-[11px]">
+                  <button onClick={() => jumpToScreen('Guest', 'GUEST_HOME')} className="p-1.5 rounded-lg bg-white hover:bg-[#1A3C5E] hover:text-white text-slate-700 font-semibold border border-slate-200 text-center cursor-pointer transition-colors truncate">
+                    Beranda
+                  </button>
+                  <button onClick={() => jumpToScreen('Guest', 'GUEST_TALENTS')} className="p-1.5 rounded-lg bg-white hover:bg-[#1A3C5E] hover:text-white text-slate-700 font-semibold border border-slate-200 text-center cursor-pointer transition-colors truncate">
+                    Talent
+                  </button>
+                  <button onClick={() => jumpToScreen('Guest', 'GUEST_CONTACT')} className="p-1.5 rounded-lg bg-white hover:bg-[#1A3C5E] hover:text-white text-slate-700 font-semibold border border-slate-200 text-center cursor-pointer transition-colors truncate">
+                    Kontak
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. HUMAS */}
+              <div className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/60 space-y-1.5">
+                <span className="text-[10px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" /> B. Humas Area
+                </span>
+                <div className="grid grid-cols-2 gap-1 text-[11px]">
+                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Dashboard
+                  </button>
+                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_CLIENTS')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Kelola Client (12)
+                  </button>
+                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_SPONSORS')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Kelola Sponsor (10)
+                  </button>
+                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_PENGAJUAN')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Pengajuan Penugasan
+                  </button>
+                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_TALENT_INFO')} className="col-span-2 p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Lihat Talent (Informasi)
+                  </button>
+                </div>
+              </div>
+
+              {/* 3. SDM */}
+              <div className="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-200/60 space-y-1.5">
+                <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" /> C. SDM Area (Diklat)
+                </span>
+                <div className="grid grid-cols-2 gap-1 text-[11px]">
+                  <button onClick={() => jumpToScreen('SDM', 'SDM_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Dashboard
+                  </button>
+                  <button onClick={() => jumpToScreen('SDM', 'SDM_USER_MANAGEMENT')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Manajemen User (15)
+                  </button>
+                  <button onClick={() => jumpToScreen('SDM', 'SDM_TALENT_LIST')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Daftar Talent (Filter)
+                  </button>
+                  <button onClick={() => jumpToScreen('SDM', 'SDM_PENUGASAN_MGMT')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Penugasan Talent (12)
+                  </button>
+                  <button onClick={() => jumpToScreen('SDM', 'SDM_VALIDATION_MGMT')} className="col-span-2 p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Validasi Laporan (8 LPJ)
+                  </button>
+                </div>
+              </div>
+
+              {/* 4. TALENT */}
+              <div className="p-2.5 rounded-xl bg-purple-50/60 border border-purple-200/60 space-y-1.5">
+                <span className="text-[10px] font-bold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-purple-500" /> D. Talent Area
+                </span>
+                <div className="grid grid-cols-2 gap-1 text-[11px]">
+                  <button onClick={() => jumpToScreen('Talent', 'TALENT_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Dashboard
+                  </button>
+                  <button onClick={() => jumpToScreen('Talent', 'TALENT_ASSIGNMENTS')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Penugasan Saya (10)
+                  </button>
+                  <button onClick={() => jumpToScreen('Talent', 'TALENT_DETAIL')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Detail Tugas
+                  </button>
+                  <button onClick={() => jumpToScreen('Talent', 'TALENT_REPORT_FORM')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Buat Laporan
+                  </button>
+                  <button onClick={() => jumpToScreen('Talent', 'TALENT_HISTORY')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Riwayat (2 Tab)
+                  </button>
+                  <button onClick={() => jumpToScreen('Talent', 'TALENT_RATING_PROFILE')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Rating & Profil
+                  </button>
+                </div>
+              </div>
+
+              {/* 5. BENDAHARA */}
+              <div className="p-2.5 rounded-xl bg-indigo-50/60 border border-indigo-200/60 space-y-1.5">
+                <span className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500" /> E. Bendahara Area
+                </span>
+                <div className="grid grid-cols-2 gap-1 text-[11px]">
+                  <button onClick={() => jumpToScreen('Bendahara', 'BENDAHARA_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-indigo-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Dashboard
+                  </button>
+                  <button onClick={() => jumpToScreen('Bendahara', 'BENDAHARA_PAYMENT_LIST')} className="p-1.5 rounded-lg bg-white hover:bg-indigo-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                    Daftar Pembayaran (12)
+                  </button>
+                </div>
+              </div>
+
+              {/* 6. KETUA UMUM */}
+              <div className="p-2.5 rounded-xl bg-rose-50/60 border border-rose-200/60 space-y-1.5">
+                <span className="text-[10px] font-bold text-rose-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-rose-500" /> F. Ketua Umum
+                </span>
+                <button onClick={() => jumpToScreen('Ketua Umum', 'KETUM_DASHBOARD')} className="w-full p-1.5 rounded-lg bg-white hover:bg-rose-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                  Dashboard Pengawasan Eksekutif
+                </button>
+              </div>
+
+              {/* 7. LO-FI WIREFRAME / BLUEPRINT */}
+              <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-300 space-y-1.5">
+                <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-black" /> G. Blueprint / Lo-Fi Guide
+                </span>
+                <button 
+                  onClick={() => {
+                    setCurrentRole('Guest');
+                    setCurrentScreen('LOFI_LAYOUT_GUIDE');
+                    setIsPrototypeDropdownOpen(false);
+                  }} 
+                  className="w-full p-1.5 rounded-lg bg-white hover:bg-black hover:text-white text-slate-900 font-bold border border-black text-left px-2 cursor-pointer transition-colors text-xs truncate flex items-center justify-between"
+                >
+                  <span>📐 Posisi Komponen (Lo-Fi)</span>
+                  <span className="text-[10px] px-1 bg-slate-100 text-slate-700 rounded border border-slate-300 font-mono">B/W</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Floating Button Trigger with Figma/Menu Icon */}
+        <button
+          onClick={() => setIsPrototypeDropdownOpen(!isPrototypeDropdownOpen)}
+          className="bg-[#1A3C5E] hover:bg-slate-900 text-white font-bold p-3.5 rounded-full shadow-2xl flex items-center gap-2 border-2 border-amber-400 cursor-pointer transition-all hover:scale-105 active:scale-95 group"
+          title="Lompat Bebas Antar Peran (Figma Prototype Navigator)"
+        >
+          <div className="w-5 h-5 flex items-center justify-center text-amber-400 group-hover:rotate-12 transition-transform">
+            {isPrototypeDropdownOpen ? <X className="w-5 h-5 text-white" /> : <Layers className="w-5 h-5" />}
+          </div>
+          <span className="text-xs font-bold pr-1 text-amber-300 hidden sm:inline">
+            Prototype Navigator
+          </span>
+        </button>
+      </div>
     </div>
   );
 }

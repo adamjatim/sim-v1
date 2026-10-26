@@ -1,169 +1,107 @@
 import React, { useState } from 'react';
 import { User, Penugasan } from '../types';
-import { Calendar, MapPin, CheckCircle, XCircle, FileText, Upload, ArrowLeft, Award, DollarSign, Clock, Star, BookOpen, UserCheck, Eye, Download, Edit3, Save } from 'lucide-react';
-import { WireframeImage } from './CommonScreens';
+import { 
+  Award, 
+  Calendar, 
+  MapPin, 
+  CheckCircle2, 
+  XCircle, 
+  Clock, 
+  FileText, 
+  Upload, 
+  Eye, 
+  DollarSign, 
+  Star, 
+  Check, 
+  ArrowLeft, 
+  ChevronRight, 
+  FileCheck,
+  TrendingUp,
+  ShieldCheck,
+  Sparkles
+} from 'lucide-react';
 
-// ==========================================
-// NEW: TALENT DASHBOARD
-// ==========================================
+// ============================================================================
+// 1. DASHBOARD TALENT (3 Kartu Statistik: Tugas Aktif, Rating, Total Honor)
+// ============================================================================
 interface TalentDashboardProps {
   talent: User;
   penugasanList: Penugasan[];
-  onNavigateToAssignments: () => void;
-  onNavigateToHistory: () => void;
-  onNavigateToHonor: () => void;
-  onNavigateToProfileEdit: () => void;
+  onNavigateToScreen: (screenId: string) => void;
 }
 
 export function TalentDashboard({
   talent,
   penugasanList,
-  onNavigateToAssignments,
-  onNavigateToHistory,
-  onNavigateToHonor,
-  onNavigateToProfileEdit
+  onNavigateToScreen
 }: TalentDashboardProps) {
-  const myPenugasan = penugasanList.filter(p => p.talentId === talent.id);
-  
-  // Calculations
-  const totalTasks = myPenugasan.length;
-  const pendingTasks = myPenugasan.filter(p => p.status === 'Menunggu Konfirmasi').length;
-  const activeTasks = myPenugasan.filter(p => p.status === 'Dikonfirmasi').length;
-  const completedTasks = myPenugasan.filter(p => p.status === 'Selesai').length;
-
-  const totalHonorPaid = myPenugasan
+  const activeCount = penugasanList.filter(p => p.status === 'Dikonfirmasi').length;
+  const totalHonorPaid = penugasanList
     .filter(p => p.statusBayar === 'Lunas')
-    .reduce((sum, p) => sum + (p.honor ?? 0), 0);
-
-  const upcomingTask = myPenugasan.find(p => p.status === 'Dikonfirmasi');
+    .reduce((sum, p) => sum + (p.honor || 0), 0);
 
   return (
-    <div className="space-y-6 font-sans">
-      <div className="border-b border-[#E0E0E0] pb-4 flex justify-between items-end">
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#2E7D32]">Dashboard Talent</h2>
-          <p className="text-xs text-slate-500">Halo, <strong>{talent.nama}</strong> ({talent.angkatan || 'Cak/Ning'}). Selamat bertugas melayani kebudayaan kota!</p>
+          <h2 className="text-2xl font-black text-[#1A3C5E]">Dashboard Talent</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Halo, <strong>{talent.nama}</strong> ({talent.angkatan || 'Cak Ning 2024'}). Selamat bertugas melayani pariwisata Surabaya.
+          </p>
         </div>
-        <span className="text-xs bg-[#2E7D32] text-white font-mono font-bold px-3 py-1 uppercase border border-white">
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 self-start sm:self-auto">
           Status: {talent.status}
         </span>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border-2 border-[#2E7D32] p-4 flex justify-between items-center">
+      {/* 3 Kartu Statistik (Tugas Aktif, Rating Performa, Total Honor) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Tugas Aktif */}
+        <div 
+          onClick={() => onNavigateToScreen('TALENT_ASSIGNMENTS')}
+          className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+        >
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase block">Total Penugasan</span>
-            <span className="text-xl font-bold text-slate-800 font-mono">{totalTasks} Tugas</span>
+            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Tugas Aktif</span>
+            <span className="text-3xl font-black text-[#1A3C5E] font-mono block">2 Tugas</span>
+            <p className="text-[11px] text-emerald-600 font-medium">Terkonfirmasi Mendatang</p>
           </div>
-          <Award className="w-5 h-5 text-[#2E7D32]" />
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 text-[#1A3C5E] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Calendar className="w-7 h-7" />
+          </div>
         </div>
 
-        <div className="bg-white border-2 border-amber-600 p-4 flex justify-between items-center">
+        {/* Rating Performa */}
+        <div 
+          onClick={() => onNavigateToScreen('TALENT_RATING_PROFILE')}
+          className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+        >
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase block">Butuh Konfirmasi</span>
-            <span className="text-xl font-bold text-amber-700 font-mono">{pendingTasks} Tugas</span>
-          </div>
-          <Clock className="w-5 h-5 text-amber-600" />
-        </div>
-
-        <div className="bg-white border-2 border-indigo-600 p-4 flex justify-between items-center">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase block">Total Payout Honor</span>
-            <span className="text-base font-bold text-indigo-700 font-mono">Rp {(totalHonorPaid ?? 0).toLocaleString('id-ID')}</span>
-          </div>
-          <DollarSign className="w-5 h-5 text-indigo-600" />
-        </div>
-
-        <div className="bg-white border-2 border-[#1A3C5E] p-4 flex justify-between items-center">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase block">Skor Kinerja Talent</span>
-            <span className="text-xl font-bold text-[#1A3C5E] font-mono flex items-center gap-1">
-              4.92 <Star className="w-4 h-4 text-amber-500 fill-amber-500 inline" />
+            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Rating Performa</span>
+            <span className="text-3xl font-black text-amber-500 font-mono flex items-center gap-1">
+              4.95 <Star className="w-6 h-6 fill-amber-500 text-amber-500 inline" />
             </span>
+            <p className="text-[11px] text-slate-500 font-medium">Predikat Duta Teladan</p>
           </div>
-          <UserCheck className="w-5 h-5 text-[#1A3C5E]" />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6">
-        {/* Upcoming agenda notification */}
-        <div className="col-span-2 space-y-6">
-          <div className="bg-white border-2 border-[#2E7D32] p-5 space-y-3">
-            <h3 className="font-bold text-xs uppercase text-[#2E7D32] border-b pb-1.5 flex items-center gap-1.5">
-              <Calendar className="w-4 h-4" /> Agenda Terdekat Menunggu Anda
-            </h3>
-
-            {upcomingTask ? (
-              <div className="space-y-2">
-                <h4 className="font-bold text-sm text-slate-800">{upcomingTask.kegiatanNama}</h4>
-                <div className="grid grid-cols-2 gap-4 text-xs font-mono text-slate-600">
-                  <p>Tanggal: <strong>{upcomingTask.tanggal}</strong></p>
-                  <p>Tempat: <strong>{upcomingTask.lokasi}</strong></p>
-                </div>
-                <div className="pt-2">
-                  <button
-                    onClick={onNavigateToAssignments}
-                    className="bg-[#2E7D32] hover:bg-slate-800 text-white font-bold py-1.5 px-4 text-[10px] uppercase tracking-wider cursor-pointer border-none"
-                  >
-                    Buka Panduan & Laporkan Kegiatan
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="py-6 text-center text-xs text-slate-400 italic">
-                Tidak ada agenda terdekat yang terkonfirmasi aktif saat ini.
-              </div>
-            )}
-          </div>
-
-          {/* Quick Shortcuts */}
-          <div className="grid grid-cols-3 gap-3">
-            <button 
-              onClick={onNavigateToAssignments}
-              className="p-4 border-2 border-[#2E7D32] bg-slate-50 hover:bg-white text-center cursor-pointer transition-all space-y-1"
-            >
-              <FileText className="w-6 h-6 text-[#2E7D32] mx-auto" />
-              <strong className="text-[10px] uppercase block text-slate-800">Cek Penugasan</strong>
-              <span className="text-[9px] text-slate-400 block font-normal">Konfirmasi & plotting baru</span>
-            </button>
-            <button 
-              onClick={onNavigateToHistory}
-              className="p-4 border-2 border-[#2E7D32] bg-slate-50 hover:bg-white text-center cursor-pointer transition-all space-y-1"
-            >
-              <BookOpen className="w-6 h-6 text-[#2E7D32] mx-auto" />
-              <strong className="text-[10px] uppercase block text-slate-800">Riwayat Kegiatan</strong>
-              <span className="text-[9px] text-slate-400 block font-normal">Semua portofolio terdaftar</span>
-            </button>
-            <button 
-              onClick={onNavigateToHonor}
-              className="p-4 border-2 border-[#2E7D32] bg-slate-50 hover:bg-white text-center cursor-pointer transition-all space-y-1"
-            >
-              <DollarSign className="w-6 h-6 text-[#2E7D32] mx-auto" />
-              <strong className="text-[10px] uppercase block text-slate-800">Riwayat Honor</strong>
-              <span className="text-[9px] text-slate-400 block font-normal">Verifikasi transfer bendahara</span>
-            </button>
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Award className="w-7 h-7" />
           </div>
         </div>
 
-        {/* Portofolio summary / CV */}
-        <div className="bg-white border-2 border-[#2E7D32] p-5 space-y-4">
-          <h3 className="font-bold text-xs uppercase text-[#2E7D32] border-b pb-1.5">Identitas & Portofolio Duta</h3>
-          <div className="flex justify-center">
-            <WireframeImage label={`Avatar: ${talent.nama}`} className="w-20 h-20 border border-[#2E7D32]" />
+        {/* Total Honor */}
+        <div 
+          onClick={() => onNavigateToScreen('TALENT_HISTORY')}
+          className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+        >
+          <div className="space-y-1">
+            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Honor Diterima</span>
+            <span className="text-2xl font-black text-emerald-700 font-mono block">
+              Rp {totalHonorPaid.toLocaleString('id-ID')}
+            </span>
+            <p className="text-[11px] text-slate-500 font-medium">Tercatat Lunas di Kas</p>
           </div>
-          <div className="space-y-2 text-xs">
-            <p>Nama: <strong>{talent.nama}</strong></p>
-            <p>Angkatan: <strong>{talent.angkatan || 'Cak Ning'}</strong></p>
-            <p>Keahlian: <strong>Bahasa Inggris, MC Seni Budaya, Tari Remo</strong></p>
-          </div>
-          <div className="pt-2 border-t">
-            <button
-              onClick={onNavigateToProfileEdit}
-              className="w-full border-2 border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white font-bold py-1.5 text-[10px] uppercase tracking-wider cursor-pointer"
-            >
-              Kelola Portofolio & Keaktifan
-            </button>
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <DollarSign className="w-7 h-7" />
           </div>
         </div>
       </div>
@@ -171,122 +109,89 @@ export function TalentDashboard({
   );
 }
 
-// ==========================================
-// 10. HALAMAN PENUGASAN SAYA
-// ==========================================
+// ============================================================================
+// 2. HALAMAN PENUGASAN SAYA (10 Data Dummy + Klik Aksi Buka Detail)
+// ============================================================================
 interface TalentAssignmentsProps {
   talent: User;
   penugasanList: Penugasan[];
   onSelectPenugasan: (id: string) => void;
-  onBackToDashboard?: () => void;
 }
 
-export function TalentAssignments({ talent, penugasanList, onSelectPenugasan, onBackToDashboard }: TalentAssignmentsProps) {
-  const myPenugasan = penugasanList.filter(p => p.talentId === talent.id);
-
-  const getStatusBadge = (p: Penugasan) => {
-    switch (p.status) {
-      case 'Dikonfirmasi':
-        return (
-          <span className="bg-amber-50 text-amber-800 border border-amber-300 font-mono text-[10px] px-2 py-0.5 uppercase tracking-wide font-bold animate-pulse">
-            Tugas Selesai (Siap Lapor)
-          </span>
-        );
-      case 'Selesai':
-        if (p.laporanStatus === 'Menunggu Validasi') {
-          return (
-            <span className="bg-indigo-50 text-indigo-800 border border-indigo-300 font-mono text-[10px] px-2 py-0.5 uppercase tracking-wide font-bold">
-              Laporan Terkirim (Menunggu Validasi SDM)
-            </span>
-          );
-        }
-        return (
-          <span className="bg-green-50 text-green-800 border border-green-300 font-mono text-[10px] px-2 py-0.5 uppercase tracking-wide font-bold">
-            Selesai (Laporan Disetujui)
-          </span>
-        );
-      case 'Ditolak':
-        return <span className="bg-red-50 text-red-800 border border-red-300 font-mono text-[10px] px-2 py-0.5 uppercase tracking-wide font-bold">Ditolak</span>;
-      default:
-        return <span className="bg-blue-50 text-blue-800 border border-blue-300 font-mono text-[10px] px-2 py-0.5 uppercase tracking-wide font-bold">Menunggu Konfirmasi Anda</span>;
-    }
-  };
+export function TalentAssignments({
+  talent,
+  penugasanList,
+  onSelectPenugasan
+}: TalentAssignmentsProps) {
+  // 10 data dummy
+  const list10 = penugasanList.slice(0, 10);
 
   return (
-    <div className="space-y-6 font-sans">
-      <div className="border-b border-[#E0E0E0] pb-4 flex justify-between items-end">
-        <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Agenda Penugasan Saya</h2>
-          <p className="text-xs text-slate-500">Berikut adalah daftar mandat penugasan resmi Anda.</p>
-        </div>
-        {onBackToDashboard && (
-          <button
-            onClick={onBackToDashboard}
-            className="border-2 border-slate-300 bg-white text-slate-700 font-bold py-1 px-3 text-xs uppercase cursor-pointer"
-          >
-            Dashboard
-          </button>
-        )}
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="border-b border-slate-200 pb-4">
+        <h2 className="text-2xl font-black text-[#1A3C5E]">Penugasan Saya</h2>
+        <p className="text-xs text-slate-500 mt-0.5">Tabel 10 agenda penugasan yang diberikan kepada Anda selaku Duta Wisata Surabaya.</p>
       </div>
 
-      <div className="bg-white border-2 border-[#1A3C5E] p-4">
-        {myPenugasan.length === 0 ? (
-          <div className="text-center py-12 border border-dashed border-[#E0E0E0] text-slate-500 text-xs bg-slate-50">
-            Anda belum memiliki riwayat atau rencana penugasan di sistem saat ini.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-100 border-b-2 border-[#1A3C5E]">
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Nama Kegiatan</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Tanggal Agenda</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Lokasi / Tempat</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Status Mandat</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E] text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E0E0E0]">
-                {myPenugasan.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50">
-                    <td className="p-2.5 font-bold text-slate-800">{p.kegiatanNama}</td>
-                    <td className="p-2.5 font-mono text-slate-600">{p.tanggal}</td>
-                    <td className="p-2.5 text-slate-600">{p.lokasi}</td>
-                    <td className="p-2.5">{getStatusBadge(p)}</td>
-                    <td className="p-2.5 text-center">
+      {/* Tabel dengan kolom: Nama Kegiatan, Tanggal, Lokasi, Status, Aksi */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                <th className="p-3.5 w-12 text-center">No</th>
+                <th className="p-3.5">Nama Kegiatan</th>
+                <th className="p-3.5">Tanggal</th>
+                <th className="p-3.5">Lokasi</th>
+                <th className="p-3.5 text-center">Status</th>
+                <th className="p-3.5 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {list10.map((item, idx) => {
+                let badgeClass = 'bg-blue-50 text-[#1A3C5E] border-blue-200';
+                if (item.status === 'Selesai') badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                if (item.status === 'Dikonfirmasi') badgeClass = 'bg-indigo-50 text-indigo-800 border-indigo-200';
+                if (item.status === 'Menunggu Konfirmasi') badgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
+
+                return (
+                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                    <td className="p-3.5 font-bold text-[#1A3C5E] max-w-xs">{item.kegiatanNama}</td>
+                    <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{item.tanggal}</td>
+                    <td className="p-3.5 text-slate-600">{item.lokasi}</td>
+                    <td className="p-3.5 text-center">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border inline-block ${badgeClass}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-center">
                       <button
-                        onClick={() => onSelectPenugasan(p.id)}
-                        className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold px-3 py-1 text-[11px] uppercase tracking-wide cursor-pointer"
+                        onClick={() => onSelectPenugasan(item.id)}
+                        className="px-3 py-1.5 rounded-lg bg-[#1A3C5E] hover:bg-slate-800 text-white font-semibold text-xs flex items-center gap-1 mx-auto shadow-xs cursor-pointer transition-colors"
                       >
-                        Lihat Detail
+                        <Eye className="w-3.5 h-3.5" /> Detail
                       </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <div className="p-4 bg-slate-50 border border-[#E0E0E0]">
-        <h4 className="text-xs font-bold text-[#1A3C5E] uppercase mb-1">Informasi Hak Pengumuman Talent:</h4>
-        <p className="text-[11px] text-slate-600 leading-relaxed">
-          Setiap penugasan baru wajib dikonfirmasi secepatnya demi kelancaran koordinasi dengan Klien/Instansi terkait. Jika Anda berhalangan hadir, harap pilih tombol <strong>Tolak</strong> disertai alasan yang valid agar bagian SDM dapat segera mem-plotting ulang talent pengganti.
-        </p>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
 
-// ==========================================
-// 11. HALAMAN DETAIL PENUGASAN
-// ==========================================
+// ============================================================================
+// 3. HALAMAN DETAIL PENUGASAN (Tombol Hijau Terima & Merah Tolak Tugas)
+// ============================================================================
 interface TalentDetailProps {
   penugasanId: string;
   penugasanList: Penugasan[];
-  onRespondAssignment: (id: string, accept: boolean) => void;
-  onNavigateToReport: (id: string) => void;
+  onRespondAssignment: (penugasanId: string, accept: boolean) => void;
+  onNavigateToReport: (penugasanId: string) => void;
   onBack: () => void;
 }
 
@@ -297,218 +202,123 @@ export function TalentDetail({
   onNavigateToReport,
   onBack
 }: TalentDetailProps) {
-  const p = penugasanList.find(x => x.id === penugasanId);
+  const item = penugasanList.find(p => p.id === penugasanId) || penugasanList[0];
+  const [responseNotice, setResponseNotice] = useState<string | null>(null);
 
-  if (!p) {
+  if (!item) {
     return (
-      <div className="space-y-4 text-center py-12 font-sans border-2 border-[#1A3C5E]">
-        <p className="text-xs text-slate-500">Penugasan tidak ditemukan. Pilih penugasan dari daftar terlebih dahulu.</p>
-        <button onClick={onBack} className="text-[#1A3C5E] font-bold text-xs underline cursor-pointer">
-          Kembali ke Daftar Penugasan
+      <div className="p-8 text-center bg-white rounded-2xl border border-slate-200">
+        <p className="text-sm text-slate-500">Penugasan tidak ditemukan.</p>
+        <button onClick={onBack} className="mt-3 px-4 py-2 bg-[#1A3C5E] text-white rounded-lg text-xs font-bold">
+          Kembali
         </button>
       </div>
     );
   }
 
+  const handleAction = (accept: boolean) => {
+    onRespondAssignment(item.id, accept);
+    setResponseNotice(`Anda telah ${accept ? 'MENERIMA TUGAS' : 'MENOLAK TUGAS'}. Respon telah terkirim ke Sie SDM.`);
+  };
+
   return (
-    <div className="space-y-6 font-sans">
-      {/* Header and Back Button */}
-      <div className="flex items-center gap-3 border-b border-[#E0E0E0] pb-4">
-        <button 
-          onClick={onBack}
-          className="p-1 hover:bg-slate-100 border border-slate-300 text-slate-700 cursor-pointer"
-          title="Kembali"
-        >
-          <ArrowLeft className="w-4 h-4" />
+    <div className="space-y-6 animate-fade-in font-sans max-w-4xl">
+      <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+        <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 cursor-pointer">
+          <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Detail Informasi Penugasan</h2>
-          <p className="text-xs text-slate-500">Mandat Kegiatan: <strong>{p.kegiatanNama}</strong></p>
+          <h2 className="text-2xl font-black text-[#1A3C5E]">Detail Penugasan</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Informasi mandat kegiatan resmi duta wisata.</p>
         </div>
       </div>
 
-      {/* Detail Block */}
-      <div className="bg-white border-2 border-[#1A3C5E] p-6 space-y-6">
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">Nama Agenda Kegiatan</span>
-              <span className="text-sm font-bold text-[#1A3C5E]">{p.kegiatanNama}</span>
-            </div>
-            
-            <div className="flex gap-6">
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">Tanggal Pelaksanaan</span>
-                <span className="text-xs font-mono font-bold text-slate-800 flex items-center gap-1 mt-0.5">
-                  <Calendar className="w-3.5 h-3.5" /> {p.tanggal}
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">Lokasi / Tempat</span>
-                <span className="text-xs font-bold text-slate-800 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5" /> {p.lokasi}
-                </span>
-              </div>
-            </div>
+      {responseNotice && (
+        <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-[#1A3C5E] text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" />
+          <span>{responseNotice}</span>
+        </div>
+      )}
 
-            <div>
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">Instruksi & Dresscode</span>
-              <p className="text-xs text-slate-600 mt-1 leading-relaxed bg-slate-50 p-2 border">
-                Pakaian: Kebaya/Beskap Lengkap (Pakaian Resmi Duta Wisata Surabaya). Hadir di lokasi 30 menit sebelum acara untuk briefing.
-              </p>
-            </div>
+      {/* Card Info Detail Kegiatan */}
+      <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <span className="text-xs font-bold text-amber-600 uppercase tracking-wider block mb-1">Agenda Penugasan Duta</span>
+            <h3 className="text-xl font-bold text-[#1A3C5E]">{item.kegiatanNama}</h3>
+            <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-slate-400" /> {item.tanggal} &bull; Pukul 08.00 WIB s/d Selesai
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#1A3C5E] border border-blue-200">
+            {item.status}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px] block">Lokasi Kegiatan</span>
+            <p className="font-semibold text-slate-800 flex items-center gap-1.5 text-sm">
+              <MapPin className="w-4 h-4 text-red-500 shrink-0" /> {item.lokasi}
+            </p>
           </div>
 
-          <div className="border-l border-[#E0E0E0] pl-6 space-y-4">
-            <div>
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">Status Penerimaan Anda</span>
-              <div className="mt-1.5">
-                {p.status === 'Menunggu Konfirmasi' && (
-                  <span className="bg-amber-50 text-amber-800 border border-amber-300 font-mono text-[10px] px-2.5 py-1 uppercase tracking-wide font-bold">
-                    Menunggu Jawaban Anda
-                  </span>
-                )}
-                {p.status === 'Dikonfirmasi' && (
-                  <span className="bg-green-50 text-green-800 border border-green-300 font-mono text-[10px] px-2.5 py-1 uppercase tracking-wide font-bold flex items-center gap-1 w-max">
-                    <CheckCircle className="w-4 h-4" /> Telah Anda Setujui
-                  </span>
-                )}
-                {p.status === 'Selesai' && (
-                  <span className="bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[10px] px-2.5 py-1 uppercase tracking-wide font-bold flex items-center gap-1 w-max">
-                    <CheckCircle className="w-4 h-4 text-slate-500" /> Selesai & Laporan Terkirim
-                  </span>
-                )}
-                {p.status === 'Ditolak' && (
-                  <span className="bg-red-50 text-red-800 border border-red-300 font-mono text-[10px] px-2.5 py-1 uppercase tracking-wide font-bold flex items-center gap-1 w-max">
-                    <XCircle className="w-4 h-4" /> Penugasan Ditolak
-                  </span>
-                )}
-              </div>
-            </div>
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px] block">Dresscode Pakaian Adat</span>
+            <p className="font-semibold text-slate-800 text-sm">
+              Cak: Beskap Lengkap &bull; Ning: Kebaya Selendang Khas Surabaya
+            </p>
+          </div>
 
-            {p.honor !== undefined && (
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">Rincian Honorarium</span>
-                <p className="text-sm font-bold font-mono text-emerald-800 mt-0.5">
-                  Rp {(p.honor ?? 0).toLocaleString('id-ID')}
-                </p>
-                <p className="text-[10px] text-slate-500">Status Pembayaran: <strong className="uppercase font-mono text-amber-700">{p.statusBayar}</strong></p>
-              </div>
-            )}
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px] block">Honorarium</span>
+            <p className="font-mono font-bold text-emerald-700 text-base">
+              Rp {(item.honor || 350000).toLocaleString('id-ID')}
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+            <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px] block">Narahubung Lapangan (LO)</span>
+            <p className="font-semibold text-slate-800 text-sm">Cak Dimas Rahmad (0812-3456-7801)</p>
           </div>
         </div>
 
-        {/* Visual Timeline Stepper to Clarify Assignment Flow */}
-        <div className="bg-slate-50 border border-slate-200 p-4 rounded-lg space-y-3">
-          <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">Alur Kerja Penugasan Duta Wisata</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Step 1 */}
-            <div className={`p-3 border rounded ${p.status !== 'Menunggu Konfirmasi' ? 'border-green-200 bg-green-50/50' : 'border-amber-200 bg-amber-50/50'} text-xs space-y-1`}>
-              <div className="flex items-center gap-1.5 font-bold">
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono text-white ${p.status !== 'Menunggu Konfirmasi' ? 'bg-green-600' : 'bg-amber-600 animate-pulse'}`}>1</span>
-                <span className={p.status !== 'Menunggu Konfirmasi' ? 'text-green-800' : 'text-amber-800'}>Plotting & Konfirmasi</span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                {p.status === 'Menunggu Konfirmasi' 
-                  ? 'Menunggu jawaban persetujuan Anda di bawah.' 
-                  : `Telah disetujui pada jadwal ${p.tanggal}.`}
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className={`p-3 border rounded ${p.status === 'Selesai' ? 'border-green-200 bg-green-50/50' : (p.status === 'Dikonfirmasi' ? 'border-blue-200 bg-blue-50/50 animate-pulse' : 'border-slate-200 bg-white')} text-xs space-y-1`}>
-              <div className="flex items-center gap-1.5 font-bold">
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono text-white ${p.status === 'Selesai' ? 'bg-green-600' : (p.status === 'Dikonfirmasi' ? 'bg-blue-600' : 'bg-slate-400')}`}>2</span>
-                <span className={p.status === 'Selesai' ? 'text-green-800' : (p.status === 'Dikonfirmasi' ? 'text-blue-800' : 'text-slate-500')}>Pelaksanaan di Lapangan</span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                {p.status === 'Selesai' 
-                  ? 'Tugas sukses dilaksanakan.' 
-                  : (p.status === 'Dikonfirmasi' 
-                    ? `Sedang bertugas lapangan pada tanggal ${p.tanggal}.` 
-                    : 'Menunggu konfirmasi tugas.')}
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className={`p-3 border rounded ${p.status === 'Selesai' ? 'border-green-200 bg-green-50/50' : (p.status === 'Dikonfirmasi' ? 'border-amber-200 bg-amber-50/50 font-bold' : 'border-slate-200 bg-white')} text-xs space-y-1`}>
-              <div className="flex items-center gap-1.5 font-bold">
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono text-white ${p.status === 'Selesai' ? 'bg-green-600' : (p.status === 'Dikonfirmasi' ? 'bg-amber-600' : 'bg-slate-400')}`}>3</span>
-                <span className={p.status === 'Selesai' ? 'text-green-800' : (p.status === 'Dikonfirmasi' ? 'text-amber-800' : 'text-slate-500')}>Unggah Laporan Kegiatan</span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                {p.status === 'Selesai' 
-                  ? 'Laporan diarsip & menunggu validasi SDM.' 
-                  : (p.status === 'Dikonfirmasi' 
-                    ? 'Wajib diisi setelah kegiatan selesai dilaksanakan.' 
-                    : 'Tersedia setelah menyetujui mandat.')}
-              </p>
-            </div>
+        {/* Tombol Warna Hijau "Terima Tugas" dan Merah "Tolak Tugas" */}
+        <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleAction(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl text-xs flex items-center gap-1.5 shadow-sm cursor-pointer transition-all"
+            >
+              <CheckCircle2 className="w-4 h-4" /> Terima Tugas
+            </button>
+            <button
+              onClick={() => handleAction(false)}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-xl text-xs flex items-center gap-1.5 shadow-sm cursor-pointer transition-all"
+            >
+              <XCircle className="w-4 h-4" /> Tolak Tugas
+            </button>
           </div>
-        </div>
 
-        {/* Action Buttons based on status */}
-        <div className="pt-5 border-t border-[#E0E0E0] flex justify-end gap-3">
-          {p.status === 'Menunggu Konfirmasi' && (
-            <>
-              <button
-                onClick={() => {
-                  if (confirm('Tolak penugasan ini? Bagian SDM akan mendapat notifikasi.')) {
-                    onRespondAssignment(p.id, false);
-                  }
-                }}
-                className="bg-red-700 hover:bg-slate-800 text-white font-bold py-2 px-6 text-xs uppercase tracking-wider cursor-pointer border-none"
-              >
-                Tolak Penugasan
-              </button>
-              <button
-                onClick={() => {
-                  onRespondAssignment(p.id, true);
-                }}
-                className="bg-[#2E7D32] hover:bg-slate-800 text-white font-bold py-2 px-6 text-xs uppercase tracking-wider cursor-pointer border-none"
-              >
-                Terima Penugasan
-              </button>
-            </>
-          )}
-
-          {p.status === 'Dikonfirmasi' && (
-            <div className="w-full text-right space-y-2">
-              <p className="text-[11px] text-amber-700 italic font-medium">
-                ⓘ Anda sedang berada dalam masa menjalankan tugas lapangan. Setelah agenda selesai, silakan mengisi laporan pertanggungjawaban:
-              </p>
-              <button
-                onClick={() => onNavigateToReport(p.id)}
-                className="bg-indigo-700 hover:bg-slate-800 text-white font-bold py-2 px-6 text-xs uppercase tracking-wider cursor-pointer border-none flex items-center gap-1.5 ml-auto"
-              >
-                <CheckCircle className="w-4 h-4" /> Selesaikan Tugas & Unggah Laporan
-              </button>
-            </div>
-          )}
-
-          {p.status === 'Selesai' && p.laporanDeskripsi && (
-            <div className="w-full bg-slate-50 p-4 border text-xs text-slate-700 space-y-1">
-              <span className="text-[9px] font-bold text-slate-400 uppercase">Dokumentasi Laporan Anda:</span>
-              <p className="font-medium">"{p.laporanDeskripsi}"</p>
-              <p className="font-mono text-[10px] text-slate-500">Bukti Upload: {p.laporanBuktiLink || 'bukti_kehadiran.jpg'}</p>
-              {p.laporanStatus && (
-                <p className="text-xs mt-1.5">Status Persetujuan SDM: <strong className="uppercase">{p.laporanStatus}</strong></p>
-              )}
-            </div>
-          )}
+          <button
+            onClick={() => onNavigateToReport(item.id)}
+            className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm cursor-pointer transition-all"
+          >
+            <FileText className="w-4 h-4" /> Buat Laporan Kegiatan
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-// ==========================================
-// 12. FORM LAPORAN KEGIATAN
-// ==========================================
+// ============================================================================
+// 4. HALAMAN BUAT LAPORAN (Form Upload Foto, Textarea Deskripsi, Tombol Kirim)
+// ============================================================================
 interface TalentReportFormProps {
   penugasanId: string;
   penugasanList: Penugasan[];
-  onSubmitReport: (id: string, deskripsi: string, fileLabel: string) => void;
+  onSubmitReport: (penugasanId: string, desc: string, fileLabel: string) => void;
   onCancel: () => void;
 }
 
@@ -518,449 +328,366 @@ export function TalentReportForm({
   onSubmitReport,
   onCancel
 }: TalentReportFormProps) {
-  const p = penugasanList.find(x => x.id === penugasanId) || penugasanList[0];
-
+  const item = penugasanList.find(p => p.id === penugasanId) || penugasanList[0];
   const [deskripsi, setDeskripsi] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [fotoFile, setFotoFile] = useState('dokumentasi_kegiatan_cakning.jpg');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!deskripsi.trim()) {
-      alert('Deskripsi laporan wajib diisi!');
+      alert('Mohon isi deskripsi kegiatan!');
       return;
     }
-    const finalFile = fileName || 'bukti_laporan_kehadiran.pdf';
-    onSubmitReport(p.id, deskripsi.trim(), finalFile);
-    alert('Laporan berhasil terkirim! Status kegiatan kini dialihkan ke SDM untuk proses validasi.');
-  };
-
-  const triggerMockUpload = () => {
-    const mockFiles = [
-      'dokumentasi_rujak_uleg_final.jpg',
-      'surabaya_vaganza_tunjungan.png',
-      'laporan_pemateri_duta.pdf',
-      'absen_presensi_kegiatan_pariwisata.jpg'
-    ];
-    const rand = mockFiles[Math.floor(Math.random() * mockFiles.length)];
-    setFileName(rand);
+    onSubmitReport(item.id, deskripsi, fotoFile);
   };
 
   return (
-    <div className="max-w-[600px] mx-auto font-sans p-6 bg-white border-2 border-[#1A3C5E]">
-      <div className="mb-6 flex justify-between items-center text-[10px] font-mono border-b pb-4">
-        <div className="flex items-center gap-1 text-slate-500 font-bold">
-          <span className="w-4 h-4 rounded-full bg-slate-400 text-white flex items-center justify-center text-[8px]">1</span>
-          <span>Selesai Tugas Lapangan</span>
-        </div>
-        <div className="text-slate-400">➔</div>
-        <div className="flex items-center gap-1 text-indigo-700 font-bold">
-          <span className="w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[8px]">2</span>
-          <span>Isi Laporan (Sekarang)</span>
-        </div>
-        <div className="text-slate-400">➔</div>
-        <div className="flex items-center gap-1 text-slate-400">
-          <span className="w-4 h-4 rounded-full bg-slate-300 text-white flex items-center justify-center text-[8px]">3</span>
-          <span>Validasi Pengurus</span>
+    <div className="space-y-6 animate-fade-in font-sans max-w-3xl">
+      <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+        <button onClick={onCancel} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600 cursor-pointer">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <div>
+          <h2 className="text-2xl font-black text-[#1A3C5E]">Buat Laporan Penugasan</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Unggah bukti foto dan deskripsi kegiatan yang telah Anda laksanakan.</p>
         </div>
       </div>
 
-      <div className="border-b border-[#E0E0E0] pb-3 mb-5">
-        <h2 className="text-base font-bold uppercase tracking-tight text-[#1A3C5E]">Buat Laporan Kegiatan</h2>
-        <p className="text-xs text-slate-500">Formulir pelaporan mandat tugas yang telah diselesaikan di lapangan.</p>
+      <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-6 text-xs">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <span className="text-[10px] text-slate-400 font-bold uppercase block">Kegiatan</span>
+          <strong className="text-slate-800 text-sm block mt-0.5">{item.kegiatanNama}</strong>
+          <span className="text-slate-500">{item.tanggal} &bull; {item.lokasi}</span>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form Upload Foto */}
+          <div>
+            <label className="block text-slate-700 font-bold mb-2">Upload Foto Kegiatan *</label>
+            <div className="border-2 border-dashed border-slate-300 hover:border-[#1A3C5E] rounded-xl p-6 text-center bg-slate-50 transition-colors">
+              <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+              <p className="font-semibold text-slate-700">Pilih berkas foto dokumentasi bertugas</p>
+              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded bg-blue-50 border border-blue-200 text-[#1A3C5E] font-mono text-[11px]">
+                <FileCheck className="w-3.5 h-3.5" /> {fotoFile}
+              </div>
+            </div>
+          </div>
+
+          {/* Textarea Deskripsi Kegiatan */}
+          <div>
+            <label className="block text-slate-700 font-bold mb-1">Deskripsi Kegiatan *</label>
+            <textarea
+              rows={5}
+              required
+              placeholder="Ceritakan jalannya acara penugasan, siapa saja tamu yang disambut, serta evaluasi lapangan..."
+              value={deskripsi}
+              onChange={(e) => setDeskripsi(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-[#1A3C5E] leading-relaxed"
+            />
+          </div>
+
+          {/* Tombol Kirim Laporan */}
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2.5 rounded-xl bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+            >
+              <Check className="w-4 h-4" /> Kirim Laporan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// 5. HALAMAN RIWAYAT (Tab Riwayat Kegiatan & Tab Riwayat Honor Masing-Masing 10 Data)
+// ============================================================================
+interface TalentHistoryProps {
+  talent: User;
+  penugasanList: Penugasan[];
+}
+
+export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
+  const [activeTab, setActiveTab] = useState<'kegiatan' | 'honor'>('kegiatan');
+  const [confirmedList, setConfirmedList] = useState<Record<string, boolean>>({});
+
+  // 10 Data Dummy Riwayat Kegiatan
+  const riwayatKegiatan = [
+    { id: 'rk1', nama: 'Festival Rujak Uleg Surabaya 2026', tanggal: '2026-05-20', lokasi: 'Jl. Kembang Jepun', status: 'Selesai' },
+    { id: 'rk2', nama: 'Parade Bunga Surabaya Vaganza 2026', tanggal: '2026-05-31', lokasi: 'Jl. Tunjungan - Balai Pemuda', status: 'Selesai' },
+    { id: 'rk3', nama: 'Cak & Ning Goes to School SMAN 2', tanggal: '2026-06-15', lokasi: 'Aula SMAN 2 Surabaya', status: 'Selesai' },
+    { id: 'rk4', nama: 'Gala Dinner ASITA se-Indonesia', tanggal: '2026-06-22', lokasi: 'Balai Kota Surabaya', status: 'Selesai' },
+    { id: 'rk5', nama: 'Promosi Surabaya Heritage TP 3', tanggal: '2026-06-29', lokasi: 'Atrium Tunjungan Plaza 3', status: 'Selesai' },
+    { id: 'rk6', nama: 'Grand Final Pemilihan Putera Puteri', tanggal: '2026-06-28', lokasi: 'Grand City Convention', status: 'Selesai' },
+    { id: 'rk7', nama: 'Penyambutan Delegasi Sister City Kitakyushu', tanggal: '2026-07-02', lokasi: 'Balai Kota Surabaya', status: 'Selesai' },
+    { id: 'rk8', nama: 'Bakti Sosial Panti Asuhan Don Bosco', tanggal: '2026-06-01', lokasi: 'Jl. Tidar Surabaya', status: 'Selesai' },
+    { id: 'rk9', nama: 'Aksi Bersih Susur Kalimas Surabaya', tanggal: '2026-06-12', lokasi: 'Taman Prestasi Surabaya', status: 'Selesai' },
+    { id: 'rk10', nama: 'Penyambutan Konjen Jepang & Australia', tanggal: '2026-06-18', lokasi: 'Hotel Bumi Surabaya', status: 'Selesai' },
+  ];
+
+  // 10 Data Dummy Riwayat Honor
+  const riwayatHonor = [
+    { id: 'rh1', kegiatan: 'Festival Rujak Uleg Surabaya 2026', nominal: 350000, tanggal: '2026-05-22', status: 'Lunas' },
+    { id: 'rh2', kegiatan: 'Parade Bunga Surabaya Vaganza 2026', nominal: 400000, tanggal: '2026-06-02', status: 'Lunas' },
+    { id: 'rh3', kegiatan: 'Cak & Ning Goes to School SMAN 2', nominal: 350000, tanggal: '2026-06-18', status: 'Lunas' },
+    { id: 'rh4', kegiatan: 'Gala Dinner ASITA se-Indonesia', nominal: 350000, tanggal: '2026-06-24', status: 'Lunas' },
+    { id: 'rh5', kegiatan: 'Promosi Surabaya Heritage TP 3', nominal: 350000, tanggal: '2026-06-30', status: 'Lunas' },
+    { id: 'rh6', kegiatan: 'Grand Final Pemilihan Putera Puteri', nominal: 400000, tanggal: '2026-06-29', status: 'Lunas' },
+    { id: 'rh7', kegiatan: 'Penyambutan Konjen Jepang & Australia', nominal: 350000, tanggal: '2026-06-20', status: 'Lunas' },
+    { id: 'rh8', kegiatan: 'Bakti Sosial Panti Asuhan Don Bosco', nominal: 300000, tanggal: '2026-06-03', status: 'Lunas' },
+    { id: 'rh9', kegiatan: 'Aksi Bersih Susur Kalimas Surabaya', nominal: 300000, tanggal: '2026-06-14', status: 'Lunas' },
+    { id: 'rh10', kegiatan: 'Penyambutan Delegasi Sister City Kitakyushu', nominal: 350000, tanggal: '2026-07-03', status: 'Lunas' },
+  ];
+
+  const handleConfirm = (id: string, nama: string) => {
+    setConfirmedList(prev => ({ ...prev, [id]: true }));
+    alert(`Terima kasih! Konfirmasi terima honor untuk kegiatan "${nama}" berhasil dicatat.`);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="border-b border-slate-200 pb-4">
+        <h2 className="text-2xl font-black text-[#1A3C5E]">Riwayat Kegiatan & Honor</h2>
+        <p className="text-xs text-slate-500 mt-0.5">Arsip seluruh penugasan pariwisata yang telah selesai serta rekapitulasi pencairan honor.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Prefilled and Disabled Info */}
-        <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 border text-xs">
+      {/* Tab Switcher */}
+      <div className="flex border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab('kegiatan')}
+          className={`py-3 px-6 font-bold text-xs border-b-2 cursor-pointer transition-colors flex items-center gap-2 ${
+            activeTab === 'kegiatan'
+              ? 'border-[#1A3C5E] text-[#1A3C5E]'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <Calendar className="w-4 h-4" /> Tab Riwayat Kegiatan (10 Data)
+        </button>
+        <button
+          onClick={() => setActiveTab('honor')}
+          className={`py-3 px-6 font-bold text-xs border-b-2 cursor-pointer transition-colors flex items-center gap-2 ${
+            activeTab === 'honor'
+              ? 'border-emerald-600 text-emerald-700'
+              : 'border-transparent text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <DollarSign className="w-4 h-4" /> Tab Riwayat Honor (10 Data)
+        </button>
+      </div>
+
+      {/* TAB 1: RIWAYAT KEGIATAN */}
+      {activeTab === 'kegiatan' && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                  <th className="p-3.5 w-12 text-center">No</th>
+                  <th className="p-3.5">Nama Kegiatan</th>
+                  <th className="p-3.5">Tanggal</th>
+                  <th className="p-3.5">Lokasi Tempat</th>
+                  <th className="p-3.5 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {riwayatKegiatan.map((rk, idx) => (
+                  <tr key={rk.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                    <td className="p-3.5 font-bold text-[#1A3C5E]">{rk.nama}</td>
+                    <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{rk.tanggal}</td>
+                    <td className="p-3.5 text-slate-600">{rk.lokasi}</td>
+                    <td className="p-3.5 text-center">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-block">
+                        {rk.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: RIWAYAT HONOR (Ada Tombol "Konfirmasi Terima") */}
+      {activeTab === 'honor' && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                  <th className="p-3.5 w-12 text-center">No</th>
+                  <th className="p-3.5">Nama Kegiatan</th>
+                  <th className="p-3.5">Tanggal Pencairan</th>
+                  <th className="p-3.5 text-right">Nominal Honor</th>
+                  <th className="p-3.5 text-center">Status</th>
+                  <th className="p-3.5 text-center">Aksi Konfirmasi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                {riwayatHonor.map((rh, idx) => {
+                  const isConfirmed = confirmedList[rh.id] || false;
+                  return (
+                    <tr key={rh.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                      <td className="p-3.5 font-bold text-[#1A3C5E] max-w-xs">{rh.kegiatan}</td>
+                      <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{rh.tanggal}</td>
+                      <td className="p-3.5 font-mono font-bold text-emerald-700 text-right">
+                        Rp {rh.nominal.toLocaleString('id-ID')}
+                      </td>
+                      <td className="p-3.5 text-center">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-block">
+                          {rh.status}
+                        </span>
+                      </td>
+                      <td className="p-3.5 text-center">
+                        {isConfirmed ? (
+                          <span className="text-emerald-700 font-bold text-[11px] flex items-center justify-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Diterima
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleConfirm(rh.id, rh.kegiatan)}
+                            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow-xs cursor-pointer transition-colors"
+                          >
+                            Konfirmasi Terima
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// 6. HALAMAN RATING & PROFIL (Skor Rating Bintang/Angka, Form Upload Portofolio, Toggle Keaktifan)
+// ============================================================================
+interface TalentRatingProfileProps {
+  talent: User;
+  onUpdateProfile?: (updated: User) => void;
+}
+
+export function TalentRatingAndProfile({ talent, onUpdateProfile }: TalentRatingProfileProps) {
+  const [isActive, setIsActive] = useState(talent.status === 'Aktif');
+  const [portofolioFile, setPortofolioFile] = useState(talent.portofolioLink || 'portofolio_cak_aditya_2026.pdf');
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleToggle = () => {
+    const nextStatus = !isActive;
+    setIsActive(nextStatus);
+    if (onUpdateProfile) {
+      onUpdateProfile({ ...talent, status: nextStatus ? 'Aktif' : 'Nonaktif' });
+    }
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 3000);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in font-sans max-w-4xl">
+      <div className="border-b border-slate-200 pb-4">
+        <h2 className="text-2xl font-black text-[#1A3C5E]">Rating & Profil Talent</h2>
+        <p className="text-xs text-slate-500 mt-0.5">Skor evaluasi penugasan, portofolio digital, dan pengaturan status kesediaan bertugas.</p>
+      </div>
+
+      {isSaved && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>Status keaktifan Anda berhasil diperbarui di sistem!</span>
+        </div>
+      )}
+
+      {/* Skor Rating (Bintang / Angka) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-[#1A3C5E] to-[#244E7A] text-white rounded-2xl p-6 shadow-md flex flex-col justify-between">
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">Skor Rating Performa</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-black font-mono tracking-tight">{talent.rating || 4.95}</span>
+              <span className="text-slate-300 text-sm">/ 5.0</span>
+            </div>
+            <div className="flex items-center gap-1 text-amber-400 py-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star key={star} className="w-5 h-5 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+          </div>
+          <span className="mt-4 px-2.5 py-1 rounded bg-amber-400 text-slate-900 font-bold text-xs inline-block self-start">
+            Grade: Duta Teladan Utama
+          </span>
+        </div>
+
+        {/* Toggle Status Keaktifan */}
+        <div className="md:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
           <div>
-            <span className="text-[10px] text-slate-400 uppercase font-bold block">Nama Agenda Kegiatan</span>
-            <span className="font-bold text-slate-700">{p ? p.kegiatanNama : '[Nama Kegiatan]'}</span>
+            <h3 className="font-bold text-sm text-[#1A3C5E] mb-1">Status Keaktifan Bertugas</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Atur ketersediaan jadwal Anda. Bila nonaktif (cuti/kuliah), Sie SDM tidak akan mem-plotting jadwal tugas baru untuk Anda.
+            </p>
           </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-bold block">Tanggal Tugas</span>
-            <span className="font-mono font-bold text-slate-700">{p ? p.tanggal : '[Tanggal]'}</span>
+
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">Ketersediaan Saat Ini:</span>
+              <span className={`text-sm font-bold ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}>
+                {isActive ? 'Aktif (Siap Menerima Mandat)' : 'Nonaktif (Cuti Penugasan)'}
+              </span>
+            </div>
+
+            {/* Toggle Button */}
+            <button
+              type="button"
+              onClick={handleToggle}
+              className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out ${
+                isActive ? 'bg-emerald-600 justify-end' : 'bg-slate-300 justify-start'
+              }`}
+            >
+              <div className="bg-white w-5 h-5 rounded-full shadow-md transform transition-transform" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Form Upload Portofolio */}
+      <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-4 text-xs">
+        <h3 className="font-bold text-base text-[#1A3C5E] border-b border-slate-100 pb-3">
+          Upload Portofolio & CV Duta Wisata
+        </h3>
+
+        <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-slate-50/50 space-y-2">
+          <Upload className="w-8 h-8 text-slate-400 mx-auto" />
+          <p className="font-semibold text-slate-700 text-xs">Unggah berkas CV Duta, Portofolio Foto Busana Adat, atau Sertifikat (PDF)</p>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-blue-50 border border-blue-200 text-[#1A3C5E] font-mono text-[11px]">
+            <FileCheck className="w-3.5 h-3.5" /> Berkas Aktif: {portofolioFile}
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-bold text-[#1A3C5E] uppercase mb-1">Deskripsi & Catatan Kegiatan</label>
-          <textarea
-            rows={4}
-            value={deskripsi}
-            onChange={(e) => setDeskripsi(e.target.value)}
-            placeholder="Jelaskan kontribusi Anda pada kegiatan ini, kendala yang dihadapi, atau testimoni singkat..."
-            className="w-full p-2.5 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs font-sans"
-            required
-          />
-        </div>
-
-        {/* Custom Mock Drag and Drop */}
-        <div>
-          <label className="block text-xs font-bold text-[#1A3C5E] uppercase mb-1">Upload Bukti Kehadiran / Foto Tugas</label>
-          <div
-            onClick={triggerMockUpload}
-            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-            onDragLeave={() => setIsDragOver(false)}
-            onDrop={(e) => { e.preventDefault(); setIsDragOver(false); triggerMockUpload(); }}
-            className={`border-2 border-dashed p-6 text-center cursor-pointer transition-all ${
-              isDragOver ? 'border-emerald-600 bg-emerald-50' : 'border-[#1A3C5E] hover:bg-slate-50'
-            }`}
-          >
-            <Upload className="w-8 h-8 text-[#1A3C5E] mx-auto mb-2" />
-            <span className="text-xs font-bold text-slate-800 block">
-              {fileName ? '✓ File Terpilih' : 'Pilih File atau Tarik (Drag & Drop) ke Sini'}
-            </span>
-            <span className="text-[10px] text-slate-500 block mt-0.5 font-mono">
-              {fileName ? fileName : 'Maksimal ukuran file: 10 MB (Format: .JPG, .PNG, .PDF)'}
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-400 mt-1 italic">Klik area kotak di atas untuk mensimulasikan upload file.</p>
-        </div>
-
-        {/* Buttons */}
-        <div className="pt-3 border-t border-[#E0E0E0] flex justify-end gap-2.5">
+        <div className="flex justify-end">
           <button
             type="button"
-            onClick={onCancel}
-            className="border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold py-1.5 px-5 text-xs uppercase tracking-wider cursor-pointer"
+            onClick={() => {
+              const newFile = prompt('Ganti nama file portofolio baru:', portofolioFile);
+              if (newFile) setPortofolioFile(newFile);
+            }}
+            className="px-5 py-2.5 rounded-xl bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-sm transition-all"
           >
-            Batal
+            Pilih Berkas Portofolio Baru
           </button>
-          <button
-            type="submit"
-            className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-1.5 px-5 text-xs uppercase tracking-wider cursor-pointer border-none"
-          >
-            Kirim Laporan
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-// ==========================================
-// NEW: TALENT RIWAYAT KEGIATAN
-// ==========================================
-interface TalentRiwayatKegiatanProps {
-  talent: User;
-  penugasanList: Penugasan[];
-  onBack: () => void;
-}
-
-export function TalentRiwayatKegiatan({ talent, penugasanList, onBack }: TalentRiwayatKegiatanProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  const riwayat = penugasanList.filter(
-    p => p.talentId === talent.id && (p.status === 'Selesai' || p.status === 'Dikonfirmasi')
-  );
-
-  const filteredRiwayat = riwayat.filter(r => 
-    r.kegiatanNama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    r.lokasi.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-6 font-sans">
-      <div className="flex justify-between items-center border-b border-[#E0E0E0] pb-4">
-        <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Riwayat & Portofolio Tugas</h2>
-          <p className="text-xs text-slate-500">Semua riwayat pengabdian tugas duta wisata yang telah terlaksana.</p>
-        </div>
-        <button
-          onClick={onBack}
-          className="border-2 border-slate-300 bg-white text-slate-700 font-bold py-1 px-3 text-xs uppercase cursor-pointer"
-        >
-          Kembali ke Dashboard
-        </button>
-      </div>
-
-      <div className="bg-white border-2 border-[#1A3C5E] p-4 space-y-4">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-bold text-[#1A3C5E] uppercase font-mono">Total Tercatat: {riwayat.length} Kegiatan</span>
-          <input
-            type="text"
-            placeholder="Cari riwayat nama kegiatan..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="p-1 px-3 border-2 border-[#1A3C5E] text-xs max-w-xs w-full focus:outline-none"
-          />
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-100 border-b-2 border-[#1A3C5E]">
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Nama Kegiatan</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Tanggal Agenda</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Lokasi</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Status Validasi</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E] text-center">Unduh Sertifikat</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E0E0E0]">
-              {filteredRiwayat.map((r) => (
-                <tr key={r.id} className="hover:bg-slate-50">
-                  <td className="p-2.5 font-bold text-slate-800">{r.kegiatanNama}</td>
-                  <td className="p-2.5 font-mono text-slate-500">{r.tanggal}</td>
-                  <td className="p-2.5 text-slate-600">{r.lokasi}</td>
-                  <td className="p-2.5">
-                    <span className="bg-green-50 text-green-800 border border-green-200 text-[10px] font-mono px-2 py-0.5 uppercase font-bold">
-                      {r.laporanStatus || 'Disetujui'}
-                    </span>
-                  </td>
-                  <td className="p-2.5 text-center">
-                    <button
-                      onClick={() => alert(`[Simulasi Sertifikat]\n\nSertifikat Penghargaan Digital untuk kegiatan "${r.kegiatanNama}" siap diunduh oleh ${talent.nama}.`)}
-                      className="bg-[#2E7D32] hover:bg-green-800 text-white font-bold py-1 px-2.5 text-[10px] uppercase cursor-pointer"
-                    >
-                      Unduh PDF
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filteredRiwayat.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="text-center py-8 text-slate-400 italic">Tidak ada riwayat pengabdian kegiatan yang ditemukan.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// NEW: TALENT RIWAYAT HONOR
-// ==========================================
-interface TalentRiwayatHonorProps {
-  talent: User;
-  penugasanList: Penugasan[];
-  onBack: () => void;
-}
-
-export function TalentRiwayatHonor({ talent, penugasanList, onBack }: TalentRiwayatHonorProps) {
-  const honorPenugasan = penugasanList.filter(p => p.talentId === talent.id && p.honor);
-
-  return (
-    <div className="space-y-6 font-sans">
-      <div className="flex justify-between items-center border-b border-[#E0E0E0] pb-4">
-        <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Riwayat Pembayaran Honor</h2>
-          <p className="text-xs text-slate-500">Pantau nominal honorarium dan unduh slip bukti transfer bank dari bendahara.</p>
-        </div>
-        <button
-          onClick={onBack}
-          className="border-2 border-slate-300 bg-white text-slate-700 font-bold py-1 px-3 text-xs uppercase cursor-pointer"
-        >
-          Kembali ke Dashboard
-        </button>
-      </div>
-
-      <div className="bg-white border-2 border-[#1A3C5E] p-4">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-100 border-b-2 border-[#1A3C5E]">
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Kegiatan Resmi</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Tanggal Transfer</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Nominal Kotor (Gross)</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Status Pembayaran</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E] text-center">Keterangan Penerimaan</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E0E0E0]">
-              {honorPenugasan.map((hp) => (
-                <tr key={hp.id} className="hover:bg-slate-50">
-                  <td className="p-2.5 font-bold text-slate-800">{hp.kegiatanNama}</td>
-                  <td className="p-2.5 font-mono text-slate-500">{hp.tanggalBayar || 'Belum Ditransfer'}</td>
-                  <td className="p-2.5 font-mono text-[#2E7D32] font-bold">Rp {(hp.honor ?? 0).toLocaleString('id-ID')}</td>
-                  <td className="p-2.5">
-                    <span className={`px-2 py-0.5 text-[10px] font-mono uppercase font-bold border ${
-                      hp.statusBayar === 'Lunas' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-800'
-                    }`}>
-                      {hp.statusBayar}
-                    </span>
-                  </td>
-                  <td className="p-2.5 text-center text-xs font-medium text-slate-600">
-                    {hp.statusBayar === 'Lunas' ? (
-                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 border border-emerald-200 uppercase text-[9px] font-mono inline-block">
-                        Sudah Masuk Rekening (Bank Jatim)
-                      </span>
-                    ) : (
-                      <span className="text-slate-400 font-mono text-[10px] italic">Selesaikan Laporan & Tunggu Transfer</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {honorPenugasan.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="text-center py-8 text-slate-400 italic">Belum ada rincian honor yang terdaftar di sistem.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// NEW: TALENT PROFILE & PORTFOLIO EDIT
-// ==========================================
-interface TalentProfileEditProps {
-  talent: User;
-  onSaveProfile: (updated: User) => void;
-  onBack: () => void;
-}
-
-export function TalentProfileEdit({ talent, onSaveProfile, onBack }: TalentProfileEditProps) {
-  const [nama, setNama] = useState(talent.nama);
-  const [email, setEmail] = useState(talent.email);
-  const [telepon, setTelepon] = useState(talent.telepon);
-  const [status, setStatus] = useState(talent.status);
-  const [bio, setBio] = useState('Duta Wisata yang berfokus pada pelestarian kuliner lokal dan tarian tradisional Surabaya.');
-  const [portofolioLink, setPortofolioLink] = useState('https://behance.net/cak_ning_surabaya');
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    const updated: User = {
-      ...talent,
-      nama,
-      email,
-      telepon,
-      status
-    };
-    onSaveProfile(updated);
-    alert('Portofolio & profil keanggotaan berhasil diperbarui!');
-  };
-
-  return (
-    <div className="space-y-6 font-sans">
-      <div className="flex justify-between items-center border-b border-[#E0E0E0] pb-4">
-        <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Profil Keanggotaan & Portofolio</h2>
-          <p className="text-xs text-slate-500">Kelola informasi publik, biografi kepariwisataan, dan ketersediaan plotting.</p>
-        </div>
-        <button
-          onClick={onBack}
-          className="border-2 border-slate-300 bg-white text-slate-700 font-bold py-1 px-3 text-xs uppercase cursor-pointer"
-        >
-          Kembali ke Dashboard
-        </button>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6">
-        {/* Left column info */}
-        <div className="col-span-2 bg-white border-2 border-[#1A3C5E] p-6">
-          <form onSubmit={handleSave} className="space-y-4">
-            <h3 className="font-bold text-xs uppercase text-[#1A3C5E] border-b pb-2">Edit Informasi Umum</h3>
-            
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Lengkap</label>
-                <input
-                  type="text"
-                  value={nama}
-                  onChange={(e) => setNama(e.target.value)}
-                  className="w-full p-2 border bg-slate-50 focus:bg-white focus:outline-none focus:border-[#1A3C5E]"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Angkatan Duta Wisata</label>
-                <input
-                  type="text"
-                  value={talent.angkatan || 'Cak/Ning'}
-                  className="w-full p-2 border bg-slate-100 text-slate-400 font-mono"
-                  disabled
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-2 border bg-slate-50 focus:bg-white"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nomor Telepon / WA</label>
-                <input
-                  type="text"
-                  value={telepon}
-                  onChange={(e) => setTelepon(e.target.value)}
-                  className="w-full p-2 border bg-slate-50 focus:bg-white"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5 pt-2 text-xs">
-              <label className="block text-[10px] font-bold text-slate-500 uppercase">Biografi Singkat (Publik)</label>
-              <textarea
-                rows={3}
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="w-full p-2 border bg-slate-50 focus:bg-white"
-              />
-            </div>
-
-            <div className="space-y-1.5 text-xs">
-              <label className="block text-[10px] font-bold text-slate-500 uppercase">Tautan Link Portofolio Seni/Sosmed</label>
-              <input
-                type="url"
-                value={portofolioLink}
-                onChange={(e) => setPortofolioLink(e.target.value)}
-                className="w-full p-2 border bg-slate-50 focus:bg-white font-mono"
-              />
-            </div>
-
-            <div className="pt-2 border-t flex justify-end">
-              <button
-                type="submit"
-                className="bg-[#2E7D32] hover:bg-green-800 text-white font-bold py-2 px-6 text-xs uppercase tracking-wider cursor-pointer border-none flex items-center gap-1.5"
-              >
-                <Save className="w-4 h-4" /> Simpan Portofolio
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Right column keaktifan toggle */}
-        <div className="bg-white border-2 border-[#1A3C5E] p-6 text-xs text-slate-700 space-y-4">
-          <h3 className="font-bold text-xs uppercase text-[#1A3C5E] border-b pb-2">Status Ketersediaan Plotting</h3>
-          <p className="text-slate-500 leading-relaxed text-[11px]">
-            Jika Anda sedang berhalangan bertugas karena ujian akademik, sakit, atau urusan dinas luar kota, ubah status Anda menjadi <strong>Nonaktif</strong> agar sistem SDM secara otomatis melewati profil Anda saat plotting.
-          </p>
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-slate-500 uppercase">Status Keaktifan Saat Ini:</label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setStatus('Aktif')}
-                className={`flex-1 py-2 border font-bold text-xs uppercase cursor-pointer ${
-                  status === 'Aktif' ? 'bg-green-700 text-white border-green-700' : 'bg-slate-50 border-slate-200'
-                }`}
-              >
-                Aktif / Bersedia
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatus('Nonaktif')}
-                className={`flex-1 py-2 border font-bold text-xs uppercase cursor-pointer ${
-                  status === 'Nonaktif' ? 'bg-red-700 text-white border-red-700' : 'bg-slate-50 border-slate-200'
-                }`}
-              >
-                Nonaktif / Cuti
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

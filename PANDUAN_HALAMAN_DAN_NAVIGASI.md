@@ -73,34 +73,30 @@ Sistem dirancang menggunakan pendekatan **Role-Based Access Control (RBAC)** den
 
 ## 3. Komponen Navigasi Global & Kontroler Prototipe
 
-### 3.1. Header Atas (Top Bar Dashboard Internal)
-Muncul pada seluruh tampilan peran internal (SDM, Humas, Talent, Bendahara).
-- **Branding "Cak Ning"**: Logo identitas sistem dan sub-judul instansi Disbudparpora Kota Surabaya.
-- **Tombol Ikon Lonceng (Notifikasi)**:
-  - *Fungsi*: Menampilkan jumlah lencana (*badge pulse*) notifikasi baru yang belum dibaca.
-  - *Navigasi*: Mengarahkan langsung ke halaman `ALL_NOTIFICATIONS`.
-- **Card Profil Akun Pengguna**:
-  - *Fungsi*: Menampilkan inisial avatar dinamis, nama lengkap, dan peran akun aktif.
-  - *Navigasi*: Mengarahkan ke halaman `ALL_PROFILE`.
-- **Tombol Logout Cepat (Ikon Pintu Merah)**:
-  - *Fungsi*: Menghapus sesi login pengguna aktif dan mereset peran menjadi `Guest`.
-  - *Navigasi*: Mengarahkan ke halaman `GUEST_HOME`.
+### 3.1. Header Atas (Top Bar Dashboard Internal) & Unified Profile Dropdown
+Muncul pada seluruh tampilan peran internal (SDM, Humas, Talent, Bendahara, Ketua Umum).
+- **Branding "Cak Ning"**: Logo identitas sistem, sub-judul instansi Disbudparpora Kota Surabaya, dan indikator area peran aktif.
+- **Tombol Reset Data**: Mengembalikan seluruh data simulasi (tabel klien, penugasan, kas) ke kondisi awal.
+- **Integrated Profile & Account Dropdown (Menyatukan Profil, Notifikasi, Switch Role, & Logout)**:
+  - *Tombol Avatar & Nama*: Menampilkan nama pengguna, peran aktif, avatar inisial, lencana notifikasi baru (*unread pulse badge*), dan ikon dropdown.
+  - *Header Akun*: Menampilkan foto/inisial, nama lengkap, email resmi, dan tag peran.
+  - *Menu "Update Profil Saya"*: Mengarahkan ke halaman `PROFILE` untuk memperbarui biodata, spesialisasi, media sosial, dan kata sandi.
+  - *Menu "Pusat Notifikasi"*: Menampilkan jumlah notifikasi belum dibaca (*badge*) dan mengarahkan ke halaman `NOTIFICATIONS`.
+  - *Pill "Ganti Peran Aktif"*: Shortcut 1-klik untuk berganti peran seketika (SDM, Humas, Talent, Bendahara).
+  - *Tombol "Keluar (Logout)" (Aksen Merah)*: Mengakhiri sesi aktif pengguna, menampilkan pesan konfirmasi logout, dan mengarahkan ke halaman `LOGIN`.
 
 ### 3.2. Sidebar Kiri (Drawer Sidebar Internal)
-Menyediakan akses menu navigasi terstruktur sesuai peran yang sedang aktif.
+Menyediakan akses menu navigasi terstruktur yang **secara eksklusif HANYA berisi modul milik peran tersebut**:
 - **Tombol Ciutkan/Perluas Menu (Toggle Sidebar)**:
-  - *Fungsi*: Mengubah lebar sidebar antara 256px (tampilan penuh dengan label teks) dan 64px (ikon ringkas).
-- **Daftar Menu Sesuai Peran Aktif**:
-  - Berpindah antar modul utama peran yang bersangkutan (misal: Plotting, Klien, Transaksi, Penugasan).
-- **Shortcut Menu Universal**:
-  - `Profil Akun Saya` ➔ Mengarahkan ke `ALL_PROFILE`.
-  - `Notifikasi` ➔ Mengarahkan ke `ALL_NOTIFICATIONS`.
-- **Tombol "Lihat Publik Site"**:
-  - *Fungsi*: Membuka tampilan beranda publik tanpa mengeluarkan sesi login.
-  - *Navigasi*: Mengarahkan ke `GUEST_HOME`.
-- **Tombol "Log Out"**:
-  - *Fungsi*: Mengakhiri sesi pengguna aktif dan mengembalikan pengguna ke portal umum.
-  - *Navigasi*: Mengarahkan ke `GUEST_HOME`.
+  - *Fungsi*: Mengubah lebar sidebar antara tampilan penuh dan tampilan ringkas.
+- **Daftar Menu Bersih Sesuai Peran Aktif**:
+  - *Humas*: Dashboard, Kelola Client, Kelola Sponsor, Pengajuan Penugasan, Lihat Talent.
+  - *SDM*: Dashboard, Manajemen User, Daftar Talent, Penugasan Talent, Validasi Laporan.
+  - *Talent*: Dashboard, Penugasan Saya, Riwayat (Kegiatan & Honor), Rating & Profil.
+  - *Bendahara*: Dashboard, Daftar Pembayaran.
+  - *Ketua Umum*: Dashboard Pengawasan Eksekutif.
+- **Footer Sidebar**:
+  - Teks identitas paguyuban & hak cipta (tanpa tombol redundan ke publik, karena perpindahan ke portal publik sudah terakomodasi di Prototype Navigator).
 
 ### 3.3. Figma-Style Prototype Controller (Widget Melayang Kanan Bawah)
 Komponen penguji purwarupa untuk berpindah peran dan meloncat langsung ke seluruh 33 layar tanpa batasan alur otentikasi.

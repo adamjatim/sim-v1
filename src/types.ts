@@ -1,4 +1,4 @@
-export type Role = 'Guest' | 'SDM' | 'Humas' | 'Talent' | 'Bendahara';
+export type Role = 'Guest' | 'SDM' | 'Humas' | 'Talent' | 'Bendahara' | 'Ketua Umum';
 
 export interface User {
   id: string;
@@ -8,8 +8,14 @@ export interface User {
   telepon: string;
   peran: Role;
   status: 'Aktif' | 'Nonaktif';
-  angkatan?: string; // Khusus Talent
+  angkatan?: string; // Khusus Talent: 'Cak Ning 2021', 'Cak Ning 2022', etc.
   foto?: string;
+  keaktifan30Hari?: number; // Keaktifan tugas dlm 30 hari (e.g. 6x)
+  totalHonor30Hari?: number; // Akumulasi honor dlm 30 hari (e.g. Rp 2.100.000)
+  spesialisasi?: string; // e.g. 'MC Protokoler & Bilingue', 'Pemandu Sejarah Heritage'
+  rating?: number; // e.g. 4.95
+  bio?: string;
+  portofolioLink?: string;
 }
 
 export interface Client {
@@ -17,6 +23,8 @@ export interface Client {
   namaInstansi: string;
   kontakPerson: string;
   telepon: string;
+  email: string;
+  alamat: string;
   status: 'Aktif' | 'Nonaktif';
   catatanInteraksi: string[];
 }
@@ -27,6 +35,9 @@ export interface Sponsor {
   kontakPerson: string;
   jenisSponsorship: 'Utama' | 'Pendukung' | 'Media Partner' | 'Lainnya';
   telepon: string;
+  email?: string;
+  nominalDukungan?: number;
+  keterangan?: string;
 }
 
 export interface BlogArticle {
@@ -55,6 +66,18 @@ export interface Kegiatan {
   status: 'Butuh Plotting' | 'Sedang Berjalan' | 'Selesai' | 'Dibatalkan';
 }
 
+export interface PengajuanPenugasan {
+  id: string;
+  namaKegiatan: string;
+  tanggal: string;
+  client: string;
+  status: 'Draft Usulan' | 'Diajukan ke SDM' | 'Disetujui' | 'Dibatalkan';
+  lokasi?: string;
+  kebutuhanTalent?: number;
+  usulanTalentNama?: string[];
+  keterangan?: string;
+}
+
 export interface Penugasan {
   id: string;
   kegiatanId: string;
@@ -68,10 +91,13 @@ export interface Penugasan {
   statusBayar?: 'Belum Dibayar' | 'Proses Bayar' | 'Lunas';
   tanggalBayar?: string;
   buktiBayar?: string;
+  rekeningTujuan?: string;
+  bankTujuan?: string;
   laporanDeskripsi?: string;
   laporanBuktiLink?: string;
   laporanTanggal?: string;
-  laporanStatus?: 'Menunggu Validasi' | 'Disetujui';
+  laporanStatus?: 'Menunggu Validasi' | 'Disetujui' | 'Revisi';
+  catatanSdm?: string;
 }
 
 export interface Notification {

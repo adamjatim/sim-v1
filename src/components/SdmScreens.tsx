@@ -1,957 +1,162 @@
 import React, { useState } from 'react';
-import { User, Kegiatan, Penugasan, Role, Notification } from '../types';
-import { Users, FileText, CheckSquare, Plus, Edit2, Trash2, Eye, UserPlus, ShieldAlert, CheckCircle, XCircle, Calendar, MapPin, DollarSign, Award, ThumbsUp, ThumbsDown, Clipboard, Check, RefreshCw } from 'lucide-react';
-import { WireframeImage } from './CommonScreens';
+import { User, Penugasan, Kegiatan, Role } from '../types';
+import { 
+  Users, 
+  UserCheck, 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  Search, 
+  Filter, 
+  Calendar, 
+  FileText, 
+  CheckCircle2, 
+  XCircle, 
+  Eye, 
+  ShieldCheck, 
+  Clock, 
+  DollarSign, 
+  AlertTriangle,
+  X,
+  ChevronRight,
+  ClipboardList
+} from 'lucide-react';
 
-// ==========================================
-// 2. DASHBOARD SDM SCREEN
-// ==========================================
+// ============================================================================
+// 1. DASHBOARD SDM (4 Kartu Statistik + Tabel Kegiatan Butuh Plotting 5 Data)
+// ============================================================================
 interface SdmDashboardProps {
   users: User[];
-  kegiatanList: Kegiatan[];
   penugasanList: Penugasan[];
-  onNavigateToPlotting: (kegiatanId: string) => void;
-  onNavigateToUserManagement: () => void;
-  onNavigateToPenugasanManagement?: () => void;
-  onNavigateToReportValidation?: () => void;
+  kegiatanList: Kegiatan[];
+  onNavigateToScreen: (screenId: string) => void;
 }
 
-export function SdmDashboard({ 
-  users, 
-  kegiatanList, 
-  penugasanList, 
-  onNavigateToPlotting,
-  onNavigateToUserManagement,
-  onNavigateToPenugasanManagement,
-  onNavigateToReportValidation
+export function SdmDashboard({
+  users,
+  penugasanList,
+  kegiatanList,
+  onNavigateToScreen
 }: SdmDashboardProps) {
-  // Stats calculations
-  const totalTalents = users.filter(u => u.peran === 'Talent').length;
+  const talents = users.filter(u => u.peran === 'Talent');
   const activeAssignments = penugasanList.filter(p => p.status === 'Dikonfirmasi').length;
   const waitingConfirmations = penugasanList.filter(p => p.status === 'Menunggu Konfirmasi').length;
   const reportsPendingValidation = penugasanList.filter(p => p.laporanStatus === 'Menunggu Validasi').length;
 
-  const butuhPlottingKegiatan = kegiatanList.filter(k => k.status === 'Butuh Plotting');
+  // 5 Data Kegiatan Butuh Plotting
+  const butuhPlotting = kegiatanList.slice(0, 5);
 
   return (
-    <div className="space-y-6 font-sans">
-      {/* Title */}
-      <div className="border-b border-[#E0E0E0] pb-4 flex justify-between items-end">
-        <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Dashboard SDM (Diklat)</h2>
-          <p className="text-xs text-slate-500">Pemantauan ketersediaan talent, pengumuman, dan plotting penugasan aktif.</p>
-        </div>
-        <div className="flex gap-2 text-xs">
-          <button 
-            onClick={onNavigateToPenugasanManagement}
-            className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-1.5 px-3 uppercase tracking-wider cursor-pointer"
-          >
-            Manajemen Penugasan
-          </button>
-          <button 
-            onClick={onNavigateToReportValidation}
-            className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-1.5 px-3 uppercase tracking-wider cursor-pointer flex items-center gap-1"
-          >
-            Validasi Laporan ({reportsPendingValidation})
-          </button>
-        </div>
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="border-b border-slate-200 pb-4">
+        <h2 className="text-2xl font-black text-[#1A3C5E]">Dashboard SDM (Diklat)</h2>
+        <p className="text-xs text-slate-500 mt-0.5">Pemantauan ketersediaan duta wisata, penugasan aktif, dan antrean validasi laporan.</p>
       </div>
 
-      {/* 4 Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white border-2 border-[#1A3C5E] p-4 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Database Talent</span>
-            <span className="text-xl font-bold text-[#1A3C5E] block font-mono">{totalTalents} Orang</span>
-          </div>
-          <div className="bg-slate-100 border border-[#1A3C5E] p-1.5 text-[#1A3C5E]">
-            <Users className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-[#1A3C5E] p-4 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Penugasan Berjalan</span>
-            <span className="text-xl font-bold text-[#2E7D32] block font-mono">{activeAssignments} Tugas</span>
-          </div>
-          <div className="bg-slate-100 border border-[#1A3C5E] p-1.5 text-[#2E7D32]">
-            <CheckSquare className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-[#1A3C5E] p-4 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Menunggu Konfirmasi</span>
-            <span className="text-xl font-bold text-amber-600 block font-mono">{waitingConfirmations} Tugas</span>
-          </div>
-          <div className="bg-slate-100 border border-[#1A3C5E] p-1.5 text-amber-600">
-            <FileText className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-amber-600 p-4 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Laporan Baru</span>
-            <span className="text-xl font-bold text-amber-700 block font-mono">{reportsPendingValidation} Menunggu</span>
-          </div>
-          <div className="bg-amber-50 border border-amber-600 p-1.5 text-amber-700">
-            <Clipboard className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
-      {/* Table: Kegiatan Butuh Plotting */}
-      <div className="bg-white border-2 border-[#1A3C5E] p-5">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-sm uppercase tracking-tight text-[#1A3C5E]">Daftar Kegiatan Butuh Plotting</h3>
-          <span className="text-[11px] font-mono text-slate-500">
-            Total: {butuhPlottingKegiatan.length} Kegiatan
-          </span>
-        </div>
-
-        {butuhPlottingKegiatan.length === 0 ? (
-          <div className="text-center py-8 text-xs border border-dashed border-[#E0E0E0] text-slate-500 bg-slate-50">
-            Tidak ada kegiatan baru yang membutuhkan plotting talent saat ini.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-100 border-b-2 border-[#1A3C5E]">
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Nama Kegiatan</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Tanggal Pelaksanaan</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Lokasi</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Status Penugasan</th>
-                  <th className="p-2.5 font-bold uppercase text-[#1A3C5E] text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E0E0E0]">
-                {butuhPlottingKegiatan.map((k) => (
-                  <tr key={k.id} className="hover:bg-slate-50">
-                    <td className="p-2.5 font-bold text-slate-800">{k.namaKegiatan}</td>
-                    <td className="p-2.5 font-mono text-slate-600">{k.tanggal}</td>
-                    <td className="p-2.5 text-slate-600">{k.lokasi}</td>
-                    <td className="p-2.5">
-                      <span className="bg-amber-50 text-amber-800 border border-amber-300 font-mono text-[9px] px-2 py-0.5 uppercase tracking-wide font-bold">
-                        Belum Diplotting
-                      </span>
-                    </td>
-                    <td className="p-2.5 text-center">
-                      <button
-                        onClick={() => onNavigateToPlotting(k.id)}
-                        className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold px-3 py-1 text-[11px] cursor-pointer uppercase transition-colors"
-                      >
-                        Mulai Plotting
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Shortcuts/Guide panel */}
-      <div className="border border-[#E0E0E0] p-4 bg-slate-50 grid grid-cols-2 gap-4">
-        <div>
-          <h4 className="text-xs font-bold text-[#1A3C5E] uppercase mb-1">Panduan Alur Kerja SDM:</h4>
-          <ul className="list-decimal pl-4 text-[11px] space-y-1.5 text-slate-600">
-            <li>Humas memasukkan agenda kegiatan eksternal atau permintaan klien.</li>
-            <li>Kegiatan tersebut muncul pada tabel "Butuh Plotting" di atas.</li>
-            <li>SDM memilih bakat (talent) yang berstatus <strong>Tersedia</strong> sesuai kuota.</li>
-            <li>Talent melakukan konfirmasi (Terima/Tolak), melapor, dan SDM memvalidasi laporannya.</li>
-          </ul>
-        </div>
-        <div className="flex flex-col justify-center items-end border-l border-[#E0E0E0] pl-4">
-          <p className="text-[11px] text-slate-500 mb-2.5 text-right">Perlu mendaftarkan anggota baru atau menyesuaikan otorisasi peran?</p>
-          <button
-            onClick={onNavigateToUserManagement}
-            className="border-2 border-[#1A3C5E] hover:bg-[#1A3C5E] hover:text-white text-[#1A3C5E] font-bold py-1.5 px-4 text-xs uppercase tracking-wider cursor-pointer transition-colors"
-          >
-            Kelola User Akun
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// 3. HALAMAN PLOTTING TALENT
-// ==========================================
-interface SdmPlottingProps {
-  kegiatanId: string;
-  kegiatanList: Kegiatan[];
-  talents: User[];
-  penugasanList: Penugasan[];
-  onConfirmPlotting: (kegiatanId: string, selectedTalentIds: string[]) => void;
-  onCancel: () => void;
-}
-
-export function SdmPlotting({
-  kegiatanId,
-  kegiatanList,
-  talents,
-  penugasanList,
-  onConfirmPlotting,
-  onCancel
-}: SdmPlottingProps) {
-  const selectedKegiatan = kegiatanList.find(k => k.id === kegiatanId) || kegiatanList[0];
-  const [selectedTalents, setSelectedTalents] = useState<string[]>([]);
-  const [successMsg, setSuccessMsg] = useState('');
-
-  const checkAvailability = (talentId: string) => {
-    const t = talents.find(u => u.id === talentId);
-    if (!t || t.status === 'Nonaktif') return { status: 'Sibuk', reason: 'Anggota Nonaktif' };
-    
-    // Check if talent already has assignment on the same date
-    const hasConflict = penugasanList.some(
-      p => p.talentId === talentId && p.tanggal === selectedKegiatan.tanggal && p.status !== 'Ditolak'
-    );
-    if (hasConflict) return { status: 'Sibuk', reason: 'Ada Agenda Bentrok' };
-    
-    return { status: 'Tersedia', reason: 'Tersedia' };
-  };
-
-  const handleToggleSelect = (talentId: string) => {
-    const availability = checkAvailability(talentId);
-    if (availability.status === 'Sibuk') {
-      alert(`Peringatan: Talent ini berstatus SIBUK (${availability.reason}). Anda masih bisa mengusulkannya untuk simulasi prototyping ini.`);
-    }
-
-    if (selectedTalents.includes(talentId)) {
-      setSelectedTalents(selectedTalents.filter(id => id !== talentId));
-    } else {
-      setSelectedTalents([...selectedTalents, talentId]);
-    }
-  };
-
-  const handleConfirm = () => {
-    if (selectedTalents.length === 0) {
-      alert('Pilih minimal 1 talent sebelum melakukan konfirmasi!');
-      return;
-    }
-    onConfirmPlotting(selectedKegiatan.id, selectedTalents);
-    setSuccessMsg('Plotting berhasil disimpan! Notifikasi penugasan dikirim ke masing-masing talent.');
-  };
-
-  return (
-    <div className="space-y-6 font-sans">
-      {/* Title */}
-      <div className="border-b border-[#E0E0E0] pb-4">
-        <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Plotting Talent Surabaya</h2>
-        <p className="text-xs text-slate-500">Penugasan mandiri Duta Wisata Cak & Ning ke agenda kegiatan.</p>
-      </div>
-
-      {successMsg && (
-        <div className="bg-green-50 text-green-800 border border-green-300 p-3 text-xs font-mono flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-green-700" />
-          <span>{successMsg}</span>
-        </div>
-      )}
-
-      {/* Info Box Kegiatan */}
-      <div className="bg-slate-50 border-2 border-[#1A3C5E] p-4 space-y-2">
-        <span className="text-[10px] font-bold bg-[#1A3C5E] text-white px-2 py-0.5 uppercase font-mono">Informasi Kegiatan</span>
-        <div className="grid grid-cols-3 gap-4 pt-1.5">
-          <div>
-            <span className="text-[10px] text-slate-500 uppercase block font-bold">Nama Kegiatan</span>
-            <span className="text-xs font-bold text-slate-800">{selectedKegiatan?.namaKegiatan}</span>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-500 uppercase block font-bold">Tanggal Pelaksanaan</span>
-            <span className="text-xs font-mono font-bold text-slate-800">{selectedKegiatan?.tanggal}</span>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-500 uppercase block font-bold">Lokasi / Tempat</span>
-            <span className="text-xs font-bold text-slate-800">{selectedKegiatan?.lokasi}</span>
-          </div>
-        </div>
-        <div className="pt-2 border-t border-[#E0E0E0]">
-          <span className="text-[10px] text-slate-500 uppercase block font-bold">Deskripsi Tugas</span>
-          <p className="text-xs text-slate-600 italic mt-0.5">{selectedKegiatan?.deskripsi}</p>
-        </div>
-      </div>
-
-      {/* Selection Summary */}
-      <div className="bg-white border border-[#E0E0E0] p-3 flex justify-between items-center text-xs">
-        <div>
-          <span>Talent terpilih saat ini: </span>
-          <strong className="text-[#1A3C5E] font-mono text-sm bg-slate-100 px-2 py-0.5 ml-1 border">
-            {selectedTalents.length} Talent
-          </strong>
-        </div>
-        <div className="flex gap-2">
-          {selectedTalents.map(id => {
-            const name = talents.find(t => t.id === id)?.nama || '';
-            return (
-              <span key={id} className="bg-slate-100 border border-[#1A3C5E] px-2 py-0.5 text-[10px] font-mono">
-                {name.split(' ')[1] || name}
-              </span>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Table: Daftar Talent */}
-      <div className="bg-white border-2 border-[#1A3C5E] p-4">
-        <h3 className="font-bold text-xs uppercase text-[#1A3C5E] mb-3 tracking-wide">Pilih Talent dari Database Anggota</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-100 border-b-2 border-[#1A3C5E]">
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Nama Talent</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Angkatan</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Kontak</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Status Ketersediaan</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E] text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E0E0E0]">
-              {talents.map((t) => {
-                const avail = checkAvailability(t.id);
-                const isChecked = selectedTalents.includes(t.id);
-                return (
-                  <tr key={t.id} className={`hover:bg-slate-50 ${isChecked ? 'bg-blue-50/50' : ''}`}>
-                    <td className="p-2.5 font-bold text-slate-800">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => handleToggleSelect(t.id)}
-                          className="accent-[#1A3C5E] cursor-pointer"
-                        />
-                        <span>{t.nama}</span>
-                      </div>
-                    </td>
-                    <td className="p-2.5 font-mono text-slate-600">{t.angkatan || 'Cak Ning'}</td>
-                    <td className="p-2.5 text-slate-500 font-mono text-[11px]">{t.telepon}</td>
-                    <td className="p-2.5">
-                      {avail.status === 'Tersedia' ? (
-                        <span className="text-green-700 font-bold flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5" /> Tersedia
-                        </span>
-                      ) : (
-                        <span className="text-red-700 font-bold flex items-center gap-1" title={avail.reason}>
-                          <XCircle className="w-3.5 h-3.5" /> Sibuk ({avail.reason})
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-2.5 text-center">
-                      <button
-                        onClick={() => handleToggleSelect(t.id)}
-                        className={`font-bold px-3 py-1 text-[10px] uppercase cursor-pointer border ${
-                          isChecked 
-                            ? 'bg-red-50 hover:bg-red-100 border-red-300 text-red-700' 
-                            : 'bg-white hover:bg-slate-100 border-[#1A3C5E] text-[#1A3C5E]'
-                        }`}
-                      >
-                        {isChecked ? 'Batalkan' : 'Pilih'}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-end gap-3 pt-2">
-        <button
-          onClick={onCancel}
-          className="border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold py-2 px-6 text-xs uppercase tracking-wider cursor-pointer"
+      {/* 4 Kartu Statistik (Total Talent, Penugasan Aktif, Menunggu Konfirmasi, Laporan Masuk) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div 
+          onClick={() => onNavigateToScreen('SDM_TALENT_LIST')}
+          className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
         >
-          Batal
-        </button>
-        <button
-          onClick={handleConfirm}
-          className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2 px-6 text-xs uppercase tracking-wider cursor-pointer border-none"
+          <div className="space-y-1">
+            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Talent</span>
+            <span className="text-2xl font-black text-[#1A3C5E] font-mono block">15 Orang</span>
+            <p className="text-[11px] text-slate-400">Angkatan 2021 &mdash; 2025</p>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1A3C5E] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Users className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div 
+          onClick={() => onNavigateToScreen('SDM_PENUGASAN_MGMT')}
+          className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
         >
-          Konfirmasi Plotting
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ==========================================
-// 4. HALAMAN MANAJEMEN USER (DENGAN EDIT)
-// ==========================================
-interface SdmUserProps {
-  users: User[];
-  onAddUser: (u: User) => void;
-  onUpdateUser?: (u: User) => void;
-  onDeleteUser: (id: string) => void;
-}
-
-export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }: SdmUserProps) {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [viewingUser, setViewingUser] = useState<User | null>(null);
-  
-  // Form states
-  const [nama, setNama] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [telepon, setTelepon] = useState('');
-  const [peran, setPeran] = useState<Role>('Talent');
-  const [angkatan, setAngkatan] = useState('Cak Ning 2025');
-  const [status, setStatus] = useState<'Aktif' | 'Nonaktif'>('Aktif');
-
-  // Open edit mode
-  const handleStartEdit = (user: User) => {
-    setEditingUser(user);
-    setNama(user.nama);
-    setUsername(user.username);
-    setEmail(user.email);
-    setTelepon(user.telepon);
-    setPeran(user.peran);
-    setStatus(user.status);
-    setAngkatan(user.angkatan || 'Cak Ning 2025');
-    setShowAddForm(false);
-  };
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nama || !username || !email || !telepon) {
-      alert('Mohon isi semua bidang form!');
-      return;
-    }
-
-    if (editingUser) {
-      const updated: User = {
-        ...editingUser,
-        nama,
-        username: username.toLowerCase().trim().replace(/\s+/g, '_'),
-        email,
-        telepon,
-        peran,
-        status,
-        angkatan: peran === 'Talent' ? angkatan : undefined
-      };
-      if (onUpdateUser) onUpdateUser(updated);
-      alert('User berhasil diperbarui!');
-      setEditingUser(null);
-    } else {
-      const newUser: User = {
-        id: 'u_' + Date.now(),
-        username: username.toLowerCase().trim().replace(/\s+/g, '_'),
-        nama,
-        email,
-        telepon,
-        peran,
-        status: 'Aktif',
-        angkatan: peran === 'Talent' ? angkatan : undefined,
-      };
-      onAddUser(newUser);
-      alert('User berhasil didaftarkan!');
-      setShowAddForm(false);
-    }
-    
-    // reset
-    setNama('');
-    setUsername('');
-    setEmail('');
-    setTelepon('');
-    setStatus('Aktif');
-  };
-
-  return (
-    <div className="space-y-6 font-sans">
-      {/* Title */}
-      <div className="flex justify-between items-center border-b border-[#E0E0E0] pb-4">
-        <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Manajemen User Akun</h2>
-          <p className="text-xs text-slate-500">Kelola kredensial login, data identitas, dan otorisasi peran sistem.</p>
+          <div className="space-y-1">
+            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Penugasan Aktif</span>
+            <span className="text-2xl font-black text-emerald-700 font-mono block">8 Tugas</span>
+            <p className="text-[11px] text-slate-400">Terkonfirmasi di Lapangan</p>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Calendar className="w-6 h-6" />
+          </div>
         </div>
-        <button
-          onClick={() => {
-            setEditingUser(null);
-            setShowAddForm(!showAddForm);
-            // reset form fields
-            setNama('');
-            setUsername('');
-            setEmail('');
-            setTelepon('');
-            setPeran('Talent');
-            setAngkatan('Cak Ning 2025');
-          }}
-          className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2 px-4 text-xs uppercase tracking-wider flex items-center gap-1.5 cursor-pointer border-none"
+
+        <div 
+          onClick={() => onNavigateToScreen('SDM_PENUGASAN_MGMT')}
+          className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
         >
-          <UserPlus className="w-4 h-4" /> {showAddForm ? 'Tutup Form' : 'Tambah User Baru'}
-        </button>
-      </div>
-
-      {/* Wireframe Add/Edit Form */}
-      {(showAddForm || editingUser) && (
-        <form onSubmit={handleSave} className="bg-slate-50 border-2 border-[#1A3C5E] p-5 space-y-4">
-          <h3 className="font-bold text-xs uppercase text-[#1A3C5E] tracking-wide border-b border-slate-300 pb-2">
-            {editingUser ? `Edit Akun User: ${editingUser.nama}` : 'Form Tambah User Baru'}
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Nama Lengkap</label>
-              <input
-                type="text"
-                placeholder="misal: Cak Ahmad Dhani"
-                value={nama}
-                onChange={(e) => setNama(e.target.value)}
-                className="w-full p-2 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs bg-white"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Username Login</label>
-              <input
-                type="text"
-                placeholder="misal: ahmad_dhani"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-2 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs bg-white"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Alamat Email</label>
-              <input
-                type="email"
-                placeholder="misal: ahmad@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs bg-white"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Nomor Telepon</label>
-              <input
-                type="text"
-                placeholder="misal: 08123456789"
-                value={telepon}
-                onChange={(e) => setTelepon(e.target.value)}
-                className="w-full p-2 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs bg-white"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Peran Akses (Role)</label>
-              <select
-                value={peran}
-                onChange={(e) => setPeran(e.target.value as Role)}
-                className="w-full p-2 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs bg-white"
-              >
-                <option value="Talent">Talent (Cak/Ning)</option>
-                <option value="SDM">SDM (Diklat)</option>
-                <option value="Humas">Humas</option>
-                <option value="Bendahara">Bendahara</option>
-              </select>
-            </div>
-            {editingUser && (
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Status Keaktifan</label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as 'Aktif' | 'Nonaktif')}
-                  className="w-full p-2 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs bg-white"
-                >
-                  <option value="Aktif">Aktif</option>
-                  <option value="Nonaktif">Nonaktif</option>
-                </select>
-              </div>
-            )}
-            {peran === 'Talent' && (
-              <div>
-                <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Angkatan Duta Wisata</label>
-                <input
-                  type="text"
-                  placeholder="misal: Cak Ning 2025"
-                  value={angkatan}
-                  onChange={(e) => setAngkatan(e.target.value)}
-                  className="w-full p-2 border-2 border-[#E0E0E0] focus:border-[#1A3C5E] focus:outline-none text-xs bg-white"
-                />
-              </div>
-            )}
+          <div className="space-y-1">
+            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Menunggu Konfirmasi</span>
+            <span className="text-2xl font-black text-amber-600 font-mono block">3 Tugas</span>
+            <p className="text-[11px] text-slate-400">Belum Direspons Talent</p>
           </div>
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-300">
-            <button
-              type="button"
-              onClick={() => {
-                setShowAddForm(false);
-                setEditingUser(null);
-              }}
-              className="border-2 border-slate-300 hover:bg-slate-200 font-bold px-4 py-1.5 text-xs cursor-pointer text-slate-700 bg-white"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold px-4 py-1.5 text-xs cursor-pointer border-none"
-            >
-              {editingUser ? 'Simpan Perubahan' : 'Daftarkan Akun'}
-            </button>
+          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Clock className="w-6 h-6" />
           </div>
-        </form>
-      )}
+        </div>
 
-      {/* User Database Table */}
-      <div className="bg-white border-2 border-[#1A3C5E] p-4">
-        <h3 className="font-bold text-xs uppercase text-[#1A3C5E] mb-3 tracking-wide">Daftar Akun Pengguna</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-100 border-b-2 border-[#1A3C5E]">
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Nama Lengkap</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Username</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Email / Telepon</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Peran</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Status Akun</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E] text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E0E0E0]">
-              {users.map((u) => (
-                <tr key={u.id} className="hover:bg-slate-50">
-                  <td className="p-2.5 font-bold text-slate-800">
-                    <div className="flex flex-col">
-                      <span>{u.nama}</span>
-                      {u.angkatan && <span className="text-[10px] text-slate-500 font-mono italic">{u.angkatan}</span>}
-                    </div>
-                  </td>
-                  <td className="p-2.5 font-mono text-slate-600">{u.username}</td>
-                  <td className="p-2.5 text-slate-600">
-                    <div className="flex flex-col font-mono text-[11px]">
-                      <span>{u.email}</span>
-                      <span className="text-slate-400">{u.telepon}</span>
-                    </div>
-                  </td>
-                  <td className="p-2.5">
-                    <span className={`px-2 py-0.5 text-[10px] font-mono uppercase border ${
-                      u.peran === 'SDM' ? 'bg-[#1A3C5E] text-white border-[#1A3C5E]' :
-                      u.peran === 'Humas' ? 'bg-indigo-50 border-indigo-200 text-indigo-800' :
-                      u.peran === 'Bendahara' ? 'bg-amber-50 border-amber-200 text-amber-800' :
-                      'bg-emerald-50 border-emerald-200 text-emerald-800'
-                    }`}>
-                      {u.peran}
-                    </span>
-                  </td>
-                  <td className="p-2.5">
-                    <span className={`font-bold font-mono text-[10px] ${u.status === 'Aktif' ? 'text-green-700' : 'text-slate-400'}`}>
-                      ● {u.status}
-                    </span>
-                  </td>
-                  <td className="p-2.5 text-center">
-                    <div className="flex justify-center gap-1.5">
-                      <button 
-                        onClick={() => setViewingUser(u)}
-                        title="Lihat Detail Profil" 
-                        className="p-1 hover:bg-slate-100 border border-slate-300 text-slate-700 cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      <button 
-                        onClick={() => handleStartEdit(u)}
-                        title="Edit User" 
-                        className="p-1 hover:bg-slate-100 border border-slate-300 text-slate-700 cursor-pointer"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          if (confirm(`Apakah Anda yakin ingin menghapus user ${u.nama} dari simulasi?`)) {
-                            onDeleteUser(u.id);
-                          }
-                        }}
-                        title="Hapus User" 
-                        className="p-1 hover:bg-red-50 border border-red-200 text-red-600 cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div 
+          onClick={() => onNavigateToScreen('SDM_VALIDATION_MGMT')}
+          className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+        >
+          <div className="space-y-1">
+            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Laporan Masuk</span>
+            <span className="text-2xl font-black text-purple-700 font-mono block">8 LPJ</span>
+            <p className="text-[11px] text-slate-400">Siap Ditinjau & Divalidasi</p>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
         </div>
       </div>
 
-      {/* VIEW DETAILS MODAL */}
-      {viewingUser && (
-        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-6 z-50">
-          <div className="bg-white border-2 border-[#1A3C5E] max-w-md w-full p-6 space-y-4 font-sans">
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="font-extrabold text-sm uppercase text-[#1A3C5E]">Profil Akun Pengguna</h3>
-              <button onClick={() => setViewingUser(null)} className="p-1 hover:bg-slate-100 border cursor-pointer"><XCircle className="w-4 h-4" /></button>
-            </div>
-            
-            <div className="space-y-3 text-xs">
-              <div className="flex justify-center mb-3">
-                <WireframeImage label={`Avatar: ${viewingUser.nama}`} className="w-24 h-24 border border-[#1A3C5E]" />
-              </div>
-              <div className="grid grid-cols-3 py-1.5 border-b font-mono">
-                <span className="text-slate-400 font-bold">NAMA</span>
-                <span className="col-span-2 text-slate-800 font-sans font-bold">{viewingUser.nama}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1.5 border-b font-mono">
-                <span className="text-slate-400 font-bold">USERNAME</span>
-                <span className="col-span-2 text-slate-800">{viewingUser.username}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1.5 border-b font-mono">
-                <span className="text-slate-400 font-bold">ROLE</span>
-                <span className="col-span-2 text-slate-800 font-bold text-[#1A3C5E] uppercase">{viewingUser.peran}</span>
-              </div>
-              {viewingUser.angkatan && (
-                <div className="grid grid-cols-3 py-1.5 border-b font-mono">
-                  <span className="text-slate-400 font-bold">ANGKATAN</span>
-                  <span className="col-span-2 text-slate-800 font-sans">{viewingUser.angkatan}</span>
-                </div>
-              )}
-              <div className="grid grid-cols-3 py-1.5 border-b font-mono">
-                <span className="text-slate-400 font-bold">EMAIL</span>
-                <span className="col-span-2 text-slate-800">{viewingUser.email}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1.5 border-b font-mono">
-                <span className="text-slate-400 font-bold">TELEPON</span>
-                <span className="col-span-2 text-slate-800">{viewingUser.telepon}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1.5 font-mono">
-                <span className="text-slate-400 font-bold">STATUS</span>
-                <span className={`col-span-2 font-bold ${viewingUser.status === 'Aktif' ? 'text-green-700' : 'text-slate-400'}`}>{viewingUser.status.toUpperCase()}</span>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t flex justify-end">
-              <button onClick={() => setViewingUser(null)} className="bg-[#1A3C5E] text-white font-bold text-xs uppercase px-4 py-1.5 cursor-pointer">
-                Tutup Profil
-              </button>
-            </div>
+      {/* Tabel "Kegiatan Butuh Plotting" (5 Data) */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-sm text-[#1A3C5E]">Kegiatan Butuh Plotting Talent</h3>
+            <p className="text-[11px] text-slate-500">5 agenda penting mendatang yang memerlukan penugasan Cak & Ning segera.</p>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ==========================================
-// NEW: DAFTAR PENUGASAN (SDM)
-// ==========================================
-interface SdmPenugasanManagementProps {
-  penugasanList: Penugasan[];
-  kegiatanList: Kegiatan[];
-  talents: User[];
-  onAddPenugasan: (p: Penugasan) => void;
-  onDeletePenugasan: (id: string) => void;
-  onBack: () => void;
-}
-
-export function SdmPenugasanManagement({ 
-  penugasanList, 
-  kegiatanList, 
-  talents, 
-  onAddPenugasan, 
-  onDeletePenugasan,
-  onBack 
-}: SdmPenugasanManagementProps) {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<string>('Semua');
-
-  // Form states
-  const [selectedKegiatanId, setSelectedKegiatanId] = useState('');
-  const [selectedTalentId, setSelectedTalentId] = useState('');
-  const [honorNominal, setHonorNominal] = useState(500000);
-
-  const handleCreatePenugasan = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedKegiatanId || !selectedTalentId) {
-      alert('Mohon pilih kegiatan dan talent!');
-      return;
-    }
-
-    const keg = kegiatanList.find(k => k.id === selectedKegiatanId);
-    const tal = talents.find(t => t.id === selectedTalentId);
-
-    if (!keg || !tal) return;
-
-    // Check conflict
-    const conflict = penugasanList.some(p => p.talentId === selectedTalentId && p.tanggal === keg.tanggal && p.status !== 'Ditolak');
-    if (conflict) {
-      alert(`Peringatan: ${tal.nama} memiliki agenda bentrok pada tanggal ${keg.tanggal}!`);
-    }
-
-    const newPenugasan: Penugasan = {
-      id: 'p_' + Date.now(),
-      kegiatanId: keg.id,
-      kegiatanNama: keg.namaKegiatan,
-      tanggal: keg.tanggal,
-      lokasi: keg.lokasi,
-      talentId: tal.id,
-      talentNama: tal.nama,
-      status: 'Menunggu Konfirmasi',
-      honor: honorNominal,
-      statusBayar: 'Belum Dibayar',
-    };
-
-    onAddPenugasan(newPenugasan);
-    alert('Penugasan berhasil ditambahkan!');
-    setShowAddForm(false);
-  };
-
-  const filteredList = penugasanList.filter(p => {
-    if (filterStatus === 'Semua') return true;
-    return p.status === filterStatus;
-  });
-
-  return (
-    <div className="space-y-6 font-sans">
-      <div className="flex justify-between items-center border-b border-[#E0E0E0] pb-4">
-        <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Manajemen Penugasan Talent</h2>
-          <p className="text-xs text-slate-500">Buat penugasan baru, hapus plotting, atau pantau status respon konfirmasi anggota.</p>
-        </div>
-        <div className="flex gap-2">
           <button
-            onClick={onBack}
-            className="border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold py-1.5 px-4 text-xs uppercase cursor-pointer"
+            onClick={() => onNavigateToScreen('SDM_PENUGASAN_MGMT')}
+            className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer"
           >
-            Kembali ke Dashboard
+            Buka Penugasan <ChevronRight className="w-3.5 h-3.5" />
           </button>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-1.5 px-4 text-xs uppercase flex items-center gap-1 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" /> {showAddForm ? 'Tutup Form' : 'Tambah Penugasan'}
-          </button>
-        </div>
-      </div>
-
-      {showAddForm && (
-        <form onSubmit={handleCreatePenugasan} className="bg-slate-50 border-2 border-[#1A3C5E] p-5 space-y-4">
-          <h3 className="font-bold text-xs uppercase text-[#1A3C5E] border-b border-slate-300 pb-2">Manual Form Penugasan</h3>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Pilih Kegiatan Agenda</label>
-              <select
-                value={selectedKegiatanId}
-                onChange={(e) => setSelectedKegiatanId(e.target.value)}
-                className="w-full p-2 border-2 border-[#E0E0E0] text-xs bg-white"
-                required
-              >
-                <option value="">-- Pilih Kegiatan --</option>
-                {kegiatanList.map(k => (
-                  <option key={k.id} value={k.id}>{k.namaKegiatan} ({k.tanggal})</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Pilih Talent (Cak/Ning)</label>
-              <select
-                value={selectedTalentId}
-                onChange={(e) => setSelectedTalentId(e.target.value)}
-                className="w-full p-2 border-2 border-[#E0E0E0] text-xs bg-white"
-                required
-              >
-                <option value="">-- Pilih Anggota --</option>
-                {talents.map(t => (
-                  <option key={t.id} value={t.id}>{t.nama} ({t.status})</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">Estimasi Honorarium (Rp)</label>
-              <input
-                type="number"
-                value={honorNominal}
-                onChange={(e) => setHonorNominal(Number(e.target.value))}
-                className="w-full p-2 border-2 border-[#E0E0E0] text-xs bg-white font-mono"
-                required
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2 border-t border-slate-300">
-            <button
-              type="button"
-              onClick={() => setShowAddForm(false)}
-              className="border-2 border-slate-300 bg-white text-slate-700 font-bold px-4 py-1.5 text-xs cursor-pointer"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              className="bg-[#1A3C5E] text-white font-bold px-4 py-1.5 text-xs cursor-pointer"
-            >
-              Simpan Plotting
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* Filter and Content */}
-      <div className="bg-white border-2 border-[#1A3C5E] p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-xs uppercase text-[#1A3C5E] tracking-wide">Daftar Plotting Penugasan</h3>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase">Filter Status:</span>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="p-1 border text-xs bg-white font-mono"
-            >
-              <option value="Semua">Semua Respon</option>
-              <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
-              <option value="Dikonfirmasi">Dikonfirmasi (Aktif)</option>
-              <option value="Ditolak">Ditolak</option>
-              <option value="Selesai">Selesai (Laporan Masuk)</option>
-            </select>
-          </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-100 border-b-2 border-[#1A3C5E]">
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Kegiatan</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Tanggal & Lokasi</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Talent Pengisi</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Honor</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E]">Status Respon</th>
-                <th className="p-2.5 font-bold uppercase text-[#1A3C5E] text-center">Aksi</th>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                <th className="p-3.5 w-12 text-center">No</th>
+                <th className="p-3.5">Nama Kegiatan</th>
+                <th className="p-3.5">Tanggal</th>
+                <th className="p-3.5">Lokasi Tempat</th>
+                <th className="p-3.5 text-center">Status</th>
+                <th className="p-3.5 text-center">Aksi Plotting</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E0E0E0]">
-              {filteredList.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50">
-                  <td className="p-2.5 font-bold text-slate-800">{p.kegiatanNama}</td>
-                  <td className="p-2.5">
-                    <div className="flex flex-col text-[11px] font-mono">
-                      <span>{p.tanggal}</span>
-                      <span className="text-slate-400">{p.lokasi}</span>
-                    </div>
-                  </td>
-                  <td className="p-2.5 font-sans font-bold text-[#1A3C5E]">{p.talentNama}</td>
-                  <td className="p-2.5 font-mono text-slate-700">Rp {(p.honor ?? 0).toLocaleString('id-ID')}</td>
-                  <td className="p-2.5">
-                    <span className={`px-2 py-0.5 text-[10px] font-mono uppercase font-bold border ${
-                      p.status === 'Dikonfirmasi' ? 'bg-green-50 border-green-200 text-green-800' :
-                      p.status === 'Ditolak' ? 'bg-red-50 border-red-200 text-red-800' :
-                      p.status === 'Selesai' ? 'bg-blue-50 border-blue-200 text-blue-800' :
-                      'bg-amber-50 border-amber-200 text-amber-800'
-                    }`}>
-                      {p.status}
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {butuhPlotting.map((k, idx) => (
+                <tr key={k.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                  <td className="p-3.5 font-bold text-[#1A3C5E] max-w-xs">{k.namaKegiatan}</td>
+                  <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{k.tanggal}</td>
+                  <td className="p-3.5 text-slate-600">{k.lokasi}</td>
+                  <td className="p-3.5 text-center">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 inline-block">
+                      {k.status}
                     </span>
                   </td>
-                  <td className="p-2.5 text-center">
+                  <td className="p-3.5 text-center">
                     <button
-                      onClick={() => {
-                        if (confirm(`Apakah Anda yakin ingin membatalkan/menghapus penugasan ${p.talentNama} pada ${p.kegiatanNama}?`)) {
-                          onDeletePenugasan(p.id);
-                        }
-                      }}
-                      className="p-1 hover:bg-red-50 border border-red-200 text-red-600 cursor-pointer flex items-center gap-1 mx-auto"
+                      onClick={() => onNavigateToScreen('SDM_PENUGASAN_MGMT')}
+                      className="px-3 py-1 rounded-lg bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold text-[11px] shadow-xs cursor-pointer transition-colors"
                     >
-                      <Trash2 className="w-3.5 h-3.5" /> Hapus Plot
+                      Plotting Talent
                     </button>
                   </td>
                 </tr>
@@ -964,160 +169,810 @@ export function SdmPenugasanManagement({
   );
 }
 
-// ==========================================
-// NEW: VALIDASI LAPORAN KEGIATAN
-// ==========================================
-interface SdmReportValidationProps {
-  penugasanList: Penugasan[];
-  onValidateReport: (penugasanId: string, statusLaporan: 'Disetujui' | 'Revisi', catatanSdm?: string) => void;
-  onBack: () => void;
+// ============================================================================
+// 2. HALAMAN MANAJEMEN USER (15 Data Dummy + CRUD)
+// ============================================================================
+interface SdmUserManagementProps {
+  users: User[];
+  onAddUser: (u: User) => void;
+  onUpdateUser: (u: User) => void;
+  onDeleteUser: (id: string) => void;
 }
 
-export function SdmReportValidation({ 
-  penugasanList, 
-  onValidateReport, 
-  onBack 
-}: SdmReportValidationProps) {
-  const [selectedPenugasan, setSelectedPenugasan] = useState<Penugasan | null>(null);
-  const [catatan, setCatatan] = useState('');
+export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }: SdmUserManagementProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
-  const waitingReports = penugasanList.filter(p => p.laporanStatus === 'Menunggu Validasi');
+  const [formNama, setFormNama] = useState('');
+  const [formUsername, setFormUsername] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formRole, setFormRole] = useState<Role>('Talent');
+  const [formStatus, setFormStatus] = useState<'Aktif' | 'Nonaktif'>('Aktif');
 
-  const handleApprove = (id: string) => {
-    onValidateReport(id, 'Disetujui', catatan || 'Laporan tervalidasi dengan baik oleh SDM Diklat.');
-    alert('Laporan berhasil DISETUJUI dan diarsipkan.');
-    setSelectedPenugasan(null);
-    setCatatan('');
+  // 15 data dummy users
+  const userList = users.slice(0, 15);
+  const filtered = userList.filter(u => 
+    u.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleOpenAdd = () => {
+    setEditingUser(null);
+    setFormNama('');
+    setFormUsername('');
+    setFormEmail('');
+    setFormRole('Talent');
+    setFormStatus('Aktif');
+    setIsModalOpen(true);
   };
 
-  const handleReject = (id: string) => {
-    if (!catatan) {
-      alert('Mohon tulis catatan revisi atau alasan penolakan laporan!');
+  const handleOpenEdit = (u: User) => {
+    setEditingUser(u);
+    setFormNama(u.nama);
+    setFormUsername(u.username);
+    setFormEmail(u.email);
+    setFormRole(u.peran);
+    setFormStatus(u.status);
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formNama || !formEmail) {
+      alert('Mohon isi field nama dan email!');
       return;
     }
-    onValidateReport(id, 'Revisi', catatan);
-    alert('Laporan dikirim kembali ke talent untuk REVISI.');
-    setSelectedPenugasan(null);
-    setCatatan('');
+
+    if (editingUser) {
+      onUpdateUser({
+        ...editingUser,
+        nama: formNama,
+        username: formUsername || formEmail.split('@')[0],
+        email: formEmail,
+        peran: formRole,
+        status: formStatus
+      });
+    } else {
+      onAddUser({
+        id: 'u_' + Date.now(),
+        nama: formNama,
+        username: formUsername || formEmail.split('@')[0],
+        email: formEmail,
+        telepon: '0812-3456-7890',
+        peran: formRole,
+        status: formStatus
+      });
+    }
+    setIsModalOpen(false);
   };
 
   return (
-    <div className="space-y-6 font-sans">
-      <div className="flex justify-between items-center border-b border-[#E0E0E0] pb-4">
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Validasi Laporan Kegiatan</h2>
-          <p className="text-xs text-slate-500">Periksa dan validasi dokumen pertanggungjawaban dari para talent pasca-kegiatan.</p>
+          <h2 className="text-2xl font-black text-[#1A3C5E]">Manajemen User</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Tabel 15 akun pengguna sistem informasi Cak & Ning Surabaya.</p>
         </div>
         <button
-          onClick={onBack}
-          className="border-2 border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold py-1.5 px-4 text-xs uppercase cursor-pointer"
+          onClick={handleOpenAdd}
+          className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
         >
-          Kembali ke Dashboard
+          <Plus className="w-4 h-4" /> + Tambah User
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* Left Side: Waiting List */}
-        <div className="col-span-2 bg-white border-2 border-[#1A3C5E] p-4">
-          <h3 className="font-bold text-xs uppercase text-[#1A3C5E] mb-3 border-b pb-1.5">Laporan Menunggu Validasi ({waitingReports.length})</h3>
-          
-          {waitingReports.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 text-xs italic">
-              Saat ini tidak ada laporan kegiatan baru yang membutuhkan validasi.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {waitingReports.map(p => (
-                <div 
-                  key={p.id} 
-                  onClick={() => { setSelectedPenugasan(p); setCatatan(''); }}
-                  className={`p-4 border-2 transition-all cursor-pointer flex justify-between items-center ${
-                    selectedPenugasan?.id === p.id ? 'border-[#1A3C5E] bg-blue-50/50' : 'border-[#E0E0E0] hover:border-slate-500 bg-slate-50'
-                  }`}
-                >
-                  <div className="space-y-1">
-                    <strong className="text-xs text-slate-800 uppercase block">{p.kegiatanNama}</strong>
-                    <p className="text-[11px] text-slate-500 font-mono">Talent: <strong>{p.talentNama}</strong> | Selesai pada: {p.laporanTanggal || p.tanggal}</p>
-                  </div>
-                  <span className="text-[10px] font-mono bg-amber-50 text-amber-800 border border-amber-300 px-2 py-0.5 font-bold uppercase">
-                    Butuh Verifikasi
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="relative w-72">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Cari nama, username, email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
+          />
         </div>
+        <span className="text-xs text-slate-500 font-mono">Tampil: <strong>{filtered.length}</strong> Akun</span>
+      </div>
 
-        {/* Right Side: Validation Detail Form */}
-        <div className="bg-white border-2 border-[#1A3C5E] p-4 h-fit">
-          <h3 className="font-bold text-xs uppercase text-[#1A3C5E] mb-3 border-b pb-1.5 flex items-center gap-1">
-            <Award className="w-4 h-4 text-amber-600" /> Detail & Form Evaluasi
-          </h3>
+      {/* Tabel dengan kolom: No, Nama Lengkap, Username, Email, Peran (Role), Status, Aksi */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                <th className="p-3.5 w-12 text-center">No</th>
+                <th className="p-3.5">Nama Lengkap</th>
+                <th className="p-3.5">Username</th>
+                <th className="p-3.5">Email</th>
+                <th className="p-3.5">Peran (Role)</th>
+                <th className="p-3.5 text-center">Status</th>
+                <th className="p-3.5 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {filtered.map((user, idx) => (
+                <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                  <td className="p-3.5 font-bold text-[#1A3C5E]">{user.nama}</td>
+                  <td className="p-3.5 font-mono text-slate-600">{user.username}</td>
+                  <td className="p-3.5 text-slate-600">{user.email}</td>
+                  <td className="p-3.5">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1A3C5E] border border-blue-200 inline-block">
+                      {user.peran}
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-center">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      user.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-center">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <button
+                        onClick={() => handleOpenEdit(user)}
+                        className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <Edit2 className="w-3 h-3" /> Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Hapus akun ${user.nama}?`)) {
+                            onDeleteUser(user.id);
+                          }
+                        }}
+                        className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" /> Hapus
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-          {selectedPenugasan ? (
-            <div className="space-y-4 text-xs">
-              <div className="p-2.5 bg-slate-100 border font-mono text-[11px] space-y-1">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">INFORMASI TUGAS</p>
-                <p>Kegiatan: <strong>{selectedPenugasan.kegiatanNama}</strong></p>
-                <p>Talent: <strong>{selectedPenugasan.talentNama}</strong></p>
-                <p>Tanggal Lapor: {selectedPenugasan.laporanTanggal}</p>
-              </div>
+      {/* Modal CRUD User */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-base text-[#1A3C5E]">
+                {editingUser ? 'Edit Akun Pengguna' : 'Tambah User Baru'}
+              </h3>
+              <button onClick={() => setIsModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Isi Rangkuman Laporan</span>
-                <p className="p-3 border bg-white rounded-none italic text-slate-700 leading-relaxed max-h-40 overflow-y-auto">
-                  "{selectedPenugasan.laporanDeskripsi || 'Tidak ada deskripsi tertulis.'}"
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Lampiran Bukti Kegiatan</span>
-                <div className="p-2 border bg-slate-50 font-mono flex items-center justify-between">
-                  <span className="truncate">{selectedPenugasan.laporanBuktiLink || 'dokumen_tidak_terlampir.pdf'}</span>
-                  <button 
-                    onClick={() => alert('Membuka file lampiran pertanggungjawaban talent (Simulasi)')}
-                    className="text-[10px] bg-[#1A3C5E] text-white px-2 py-0.5 font-bold uppercase hover:bg-slate-800 cursor-pointer"
-                  >
-                    Buka File
-                  </button>
-                </div>
-              </div>
-
-              {/* Catatan SDM Form */}
-              <div className="space-y-1.5 pt-2 border-t">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase">Catatan / Feedback SDM</label>
-                <textarea
-                  rows={3}
-                  placeholder="Berikan umpan balik atau instruksi revisi..."
-                  value={catatan}
-                  onChange={(e) => setCatatan(e.target.value)}
-                  className="w-full p-2 border-2 border-[#E0E0E0] text-xs focus:outline-none focus:border-[#1A3C5E]"
+            <form onSubmit={handleSubmit} className="py-4 space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Nama Lengkap *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: Cak Kevin Surya"
+                  value={formNama}
+                  onChange={(e) => setFormNama(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
                 />
               </div>
 
-              {/* Approve/Reject Buttons */}
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Username *</label>
+                <input
+                  type="text"
+                  placeholder="kevin_surya"
+                  value={formUsername}
+                  onChange={(e) => setFormUsername(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Email *</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="kevin@cakning.org"
+                  value={formEmail}
+                  onChange={(e) => setFormEmail(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Peran (Role) *</label>
+                  <select
+                    value={formRole}
+                    onChange={(e: any) => setFormRole(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-medium focus:outline-none focus:border-[#1A3C5E]"
+                  >
+                    <option value="Talent">Talent</option>
+                    <option value="SDM">SDM</option>
+                    <option value="Humas">Humas</option>
+                    <option value="Bendahara">Bendahara</option>
+                    <option value="Ketua Umum">Ketua Umum</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Status Akun</label>
+                  <select
+                    value={formStatus}
+                    onChange={(e: any) => setFormStatus(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-medium focus:outline-none focus:border-[#1A3C5E]"
+                  >
+                    <option value="Aktif">Aktif</option>
+                    <option value="Nonaktif">Nonaktif</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
-                  onClick={() => handleReject(selectedPenugasan.id)}
-                  className="bg-red-700 hover:bg-red-800 text-white font-bold py-2 text-[11px] uppercase tracking-wider cursor-pointer flex items-center justify-center gap-1.5 border-none"
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
                 >
-                  <ThumbsDown className="w-3.5 h-3.5" /> Tolak / Revisi
+                  Batal
                 </button>
                 <button
-                  onClick={() => handleApprove(selectedPenugasan.id)}
-                  className="bg-[#2E7D32] hover:bg-green-800 text-white font-bold py-2 text-[11px] uppercase tracking-wider cursor-pointer flex items-center justify-center gap-1.5 border-none"
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-[#1A3C5E] hover:bg-slate-800 text-white font-semibold cursor-pointer"
                 >
-                  <ThumbsUp className="w-3.5 h-3.5" /> Setujui Laporan
+                  Simpan Akun
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// 3. HALAMAN DAFTAR TALENT KHUSUS SDM (15 Data + Filter Angkatan & Keaktifan)
+// ============================================================================
+interface SdmTalentListProps {
+  talents: User[];
+}
+
+export function SdmTalentList({ talents }: SdmTalentListProps) {
+  const [filterAngkatan, setFilterAngkatan] = useState('Semua');
+  const [filterKeaktifan, setFilterKeaktifan] = useState('Semua');
+
+  // 15 data dummy talent
+  const talentList = talents.filter(u => u.peran === 'Talent').slice(0, 15);
+  const filtered = talentList.filter(t => {
+    const matchAngkatan = filterAngkatan === 'Semua' || t.angkatan === filterAngkatan;
+    let matchKeaktifan = true;
+    if (filterKeaktifan === 'Aktif Tinggi') {
+      matchKeaktifan = (t.keaktifan30Hari || 0) >= 6;
+    } else if (filterKeaktifan === 'Aktif Sedang') {
+      matchKeaktifan = (t.keaktifan30Hari || 0) >= 3 && (t.keaktifan30Hari || 0) < 6;
+    } else if (filterKeaktifan === 'Rendah') {
+      matchKeaktifan = (t.keaktifan30Hari || 0) < 3;
+    }
+    return matchAngkatan && matchKeaktifan;
+  });
+
+  return (
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="border-b border-slate-200 pb-4">
+        <h2 className="text-2xl font-black text-[#1A3C5E]">Daftar Talent (Khusus SDM)</h2>
+        <p className="text-xs text-slate-500 mt-0.5">Tabel 15 talent mengenai keaktifan bertugas 30 hari terakhir dan honorarium yang diterima.</p>
+      </div>
+
+      {/* Dropdown Filter di Atas Tabel */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500 font-semibold">Filter Angkatan:</span>
+            <select
+              value={filterAngkatan}
+              onChange={(e) => setFilterAngkatan(e.target.value)}
+              className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
+            >
+              <option value="Semua">Semua Angkatan</option>
+              <option value="Cak Ning 2025">Cak Ning 2025</option>
+              <option value="Cak Ning 2024">Cak Ning 2024</option>
+              <option value="Cak Ning 2023">Cak Ning 2023</option>
+              <option value="Cak Ning 2022">Cak Ning 2022</option>
+              <option value="Cak Ning 2021">Cak Ning 2021</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500 font-semibold">Tingkat Keaktifan:</span>
+            <select
+              value={filterKeaktifan}
+              onChange={(e) => setFilterKeaktifan(e.target.value)}
+              className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
+            >
+              <option value="Semua">Semua Keaktifan</option>
+              <option value="Aktif Tinggi">Tinggi (&ge; 6x Tugas)</option>
+              <option value="Aktif Sedang">Sedang (3-5x Tugas)</option>
+              <option value="Rendah">Rendah (&lt; 3x Tugas)</option>
+            </select>
+          </div>
+        </div>
+
+        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Talent</span>
+      </div>
+
+      {/* Tabel dengan kolom: Nama, Angkatan, Keaktifan 30 Hari (Angka), Honor 30 Hari (Rp), Aksi */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                <th className="p-3.5 w-12 text-center">No</th>
+                <th className="p-3.5">Nama Talent</th>
+                <th className="p-3.5">Angkatan</th>
+                <th className="p-3.5 text-center">Keaktifan 30 Hari</th>
+                <th className="p-3.5 text-right">Honor 30 Hari</th>
+                <th className="p-3.5 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {filtered.map((t, idx) => (
+                <tr key={t.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                  <td className="p-3.5 font-bold text-[#1A3C5E]">{t.nama}</td>
+                  <td className="p-3.5 font-mono text-slate-600">{t.angkatan}</td>
+                  <td className="p-3.5 text-center">
+                    <span className="font-mono font-bold text-[#1A3C5E] px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 inline-block">
+                      {t.keaktifan30Hari || 5} Tugas
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-right font-mono font-bold text-emerald-700">
+                    Rp {(t.totalHonor30Hari || 1750000).toLocaleString('id-ID')}
+                  </td>
+                  <td className="p-3.5 text-center">
+                    <button
+                      onClick={() => alert(`Detail profil ${t.nama} (${t.angkatan})\nSpesialisasi: ${t.spesialisasi || 'MC & Protokoler'}`)}
+                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] cursor-pointer"
+                    >
+                      Lihat Rincian
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// 4. HALAMAN PENUGASAN TALENT (12 Data Dummy + CRUD)
+// ============================================================================
+interface SdmPenugasanManagementProps {
+  penugasanList: Penugasan[];
+  kegiatanList: Kegiatan[];
+  talents: User[];
+  onAddPenugasan: (p: Penugasan) => void;
+  onUpdatePenugasan: (p: Penugasan) => void;
+  onDeletePenugasan: (id: string) => void;
+}
+
+export function SdmPenugasanManagement({
+  penugasanList,
+  kegiatanList,
+  talents,
+  onAddPenugasan,
+  onUpdatePenugasan,
+  onDeletePenugasan
+}: SdmPenugasanManagementProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Penugasan | null>(null);
+
+  const [formKegiatanNama, setFormKegiatanNama] = useState('');
+  const [formTanggal, setFormTanggal] = useState('');
+  const [formTalentNama, setFormTalentNama] = useState('');
+  const [formStatus, setFormStatus] = useState<'Menunggu Konfirmasi' | 'Dikonfirmasi' | 'Selesai' | 'Ditolak'>('Menunggu Konfirmasi');
+
+  // 12 data dummy
+  const list12 = penugasanList.slice(0, 12);
+  const filtered = list12.filter(p => 
+    p.kegiatanNama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.talentNama.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleOpenAdd = () => {
+    setEditingItem(null);
+    setFormKegiatanNama(kegiatanList[0]?.namaKegiatan || 'Penyambutan Tamu di Balai Kota');
+    setFormTanggal(new Date().toISOString().split('T')[0]);
+    setFormTalentNama(talents[0]?.nama || 'Cak Aditya Pratama');
+    setFormStatus('Menunggu Konfirmasi');
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (p: Penugasan) => {
+    setEditingItem(p);
+    setFormKegiatanNama(p.kegiatanNama);
+    setFormTanggal(p.tanggal);
+    setFormTalentNama(p.talentNama);
+    setFormStatus(p.status);
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formKegiatanNama || !formTalentNama) {
+      alert('Mohon lengkapi field nama kegiatan dan talent!');
+      return;
+    }
+
+    if (editingItem) {
+      onUpdatePenugasan({
+        ...editingItem,
+        kegiatanNama: formKegiatanNama,
+        tanggal: formTanggal,
+        talentNama: formTalentNama,
+        status: formStatus
+      });
+    } else {
+      onAddPenugasan({
+        id: 'p_' + Date.now(),
+        kegiatanId: 'k1',
+        kegiatanNama: formKegiatanNama,
+        tanggal: formTanggal,
+        lokasi: 'Balai Kota Surabaya',
+        talentId: 'u4',
+        talentNama: formTalentNama,
+        status: formStatus,
+        honor: 350000,
+        statusBayar: 'Belum Dibayar'
+      });
+    }
+    setIsModalOpen(false);
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h2 className="text-2xl font-black text-[#1A3C5E]">Penugasan Talent</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Tabel 12 jadwal penugasan dan status respon duta wisata.</p>
+        </div>
+        <button
+          onClick={handleOpenAdd}
+          className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4" /> + Buat Penugasan Baru
+        </button>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+        <div className="relative w-72">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Cari kegiatan atau nama talent..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
+          />
+        </div>
+        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Penugasan</span>
+      </div>
+
+      {/* Tabel dengan kolom: Nama Kegiatan, Tanggal, Talent Terpilih, Status Penugasan, Aksi */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                <th className="p-3.5 w-12 text-center">No</th>
+                <th className="p-3.5">Nama Kegiatan</th>
+                <th className="p-3.5">Tanggal</th>
+                <th className="p-3.5">Talent Terpilih</th>
+                <th className="p-3.5 text-center">Status Penugasan</th>
+                <th className="p-3.5 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {filtered.map((item, idx) => {
+                let badgeClass = 'bg-blue-50 text-[#1A3C5E] border-blue-200';
+                if (item.status === 'Selesai') badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+                if (item.status === 'Dikonfirmasi') badgeClass = 'bg-indigo-50 text-indigo-800 border-indigo-200';
+                if (item.status === 'Menunggu Konfirmasi') badgeClass = 'bg-amber-50 text-amber-800 border-amber-200';
+                if (item.status === 'Ditolak') badgeClass = 'bg-red-50 text-red-800 border-red-200';
+
+                return (
+                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                    <td className="p-3.5 font-bold text-[#1A3C5E] max-w-xs">{item.kegiatanNama}</td>
+                    <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{item.tanggal}</td>
+                    <td className="p-3.5 font-bold text-slate-800">{item.talentNama}</td>
+                    <td className="p-3.5 text-center">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border inline-block ${badgeClass}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="p-3.5 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => handleOpenEdit(item)}
+                          className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                        >
+                          <Edit2 className="w-3 h-3" /> Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Hapus penugasan ${item.talentNama}?`)) {
+                              onDeletePenugasan(item.id);
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3 h-3" /> Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal Penugasan */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-base text-[#1A3C5E]">
+                {editingItem ? 'Edit Penugasan Talent' : 'Buat Penugasan Baru'}
+              </h3>
+              <button onClick={() => setIsModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="py-4 space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Nama Kegiatan *</label>
+                <input
+                  type="text"
+                  required
+                  value={formKegiatanNama}
+                  onChange={(e) => setFormKegiatanNama(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Tanggal *</label>
+                <input
+                  type="date"
+                  required
+                  value={formTanggal}
+                  onChange={(e) => setFormTanggal(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Talent Terpilih *</label>
+                <select
+                  value={formTalentNama}
+                  onChange={(e) => setFormTalentNama(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-medium focus:outline-none focus:border-[#1A3C5E]"
+                >
+                  {talents.map(t => (
+                    <option key={t.id} value={t.nama}>{t.nama} ({t.angkatan})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1">Status Penugasan</label>
+                <select
+                  value={formStatus}
+                  onChange={(e: any) => setFormStatus(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-medium focus:outline-none focus:border-[#1A3C5E]"
+                >
+                  <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
+                  <option value="Dikonfirmasi">Dikonfirmasi</option>
+                  <option value="Selesai">Selesai</option>
+                  <option value="Ditolak">Ditolak</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-[#1A3C5E] hover:bg-slate-800 text-white font-semibold cursor-pointer"
+                >
+                  Simpan Penugasan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// 5. HALAMAN VALIDASI LAPORAN (List Card 8 Data Dummy + Tombol Lihat Detail & Validasi)
+// ============================================================================
+interface SdmReportValidationProps {
+  penugasanList: Penugasan[];
+  onValidateReport: (penugasanId: string, status: 'Disetujui' | 'Revisi', catatan?: string) => void;
+}
+
+export function SdmReportValidation({ penugasanList, onValidateReport }: SdmReportValidationProps) {
+  const [selectedReport, setSelectedReport] = useState<Penugasan | null>(null);
+
+  // 8 Data dummy laporan
+  const reports = penugasanList.filter(p => p.laporanDeskripsi || p.laporanStatus).slice(0, 8);
+
+  const handleApprove = (id: string) => {
+    onValidateReport(id, 'Disetujui');
+    alert('Laporan berhasil disetujui! Status otomatis diteruskan ke Bendahara.');
+    setSelectedReport(null);
+  };
+
+  const handleReject = (id: string) => {
+    const catatan = prompt('Tuliskan alasan penolakan / catatan revisi untuk talent:');
+    if (catatan) {
+      onValidateReport(id, 'Revisi', catatan);
+      alert('Laporan dikembalikan ke talent untuk revisi.');
+      setSelectedReport(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in font-sans">
+      <div className="border-b border-slate-200 pb-4">
+        <h2 className="text-2xl font-black text-[#1A3C5E]">Validasi Laporan Penugasan</h2>
+        <p className="text-xs text-slate-500 mt-0.5">Daftar 8 laporan pertanggungjawaban (LPJ) kegiatan dari duta wisata yang membutuhkan verifikasi.</p>
+      </div>
+
+      {/* List Card Laporan (Nama Talent, Nama Kegiatan, Tanggal Upload) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {reports.map((r) => {
+          const isPending = r.laporanStatus === 'Menunggu Validasi';
+          const isApproved = r.laporanStatus === 'Disetujui';
+
+          return (
+            <div 
+              key={r.id} 
+              className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] transition-all flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-bold text-base text-[#1A3C5E]">{r.talentNama}</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                    isApproved ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200'
+                  }`}>
+                    {r.laporanStatus || 'Menunggu Validasi'}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Nama Kegiatan</span>
+                  <p className="font-semibold text-xs text-slate-800">{r.kegiatanNama}</p>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs text-slate-500 font-mono pt-1">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" /> Upload: {r.laporanTanggal || r.tanggal}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <FileText className="w-3.5 h-3.5 text-slate-400" /> {r.laporanBuktiLink || 'lpj_kegiatan.pdf'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tombol "Lihat Detail & Validasi" di setiap card */}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end">
+                <button
+                  onClick={() => setSelectedReport(r)}
+                  className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
+                >
+                  <Eye className="w-3.5 h-3.5" /> Lihat Detail & Validasi
                 </button>
               </div>
             </div>
-          ) : (
-            <div className="text-center py-16 text-slate-400 text-xs italic">
-              Silakan pilih salah satu laporan di daftar sebelah kiri untuk memulai verifikasi evaluasi.
-            </div>
-          )}
-        </div>
+          );
+        })}
       </div>
+
+      {/* Modal Detail & Validasi */}
+      {selectedReport && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="font-bold text-base text-[#1A3C5E]">Verifikasi Laporan Kegiatan</h3>
+                <p className="text-xs text-slate-500">{selectedReport.kegiatanNama}</p>
+              </div>
+              <button onClick={() => setSelectedReport(null)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Nama Talent</span>
+                  <strong className="text-slate-800 text-sm">{selectedReport.talentNama}</strong>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Tanggal Kegiatan</span>
+                  <span className="font-mono text-slate-700 text-sm">{selectedReport.tanggal}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Deskripsi Kegiatan</span>
+                <p className="text-slate-700 p-3 rounded-xl bg-slate-50 border border-slate-200 leading-relaxed">
+                  {selectedReport.laporanDeskripsi || 'Telah melaksanakan tugas penyambutan tamu dengan lancar dan berbusana adat lengkap.'}
+                </p>
+              </div>
+
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Dokumentasi / Bukti Foto</span>
+                <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-[#1A3C5E] font-mono flex items-center justify-between">
+                  <span>{selectedReport.laporanBuktiLink || 'bukti_dokumentasi_foto.jpg'}</span>
+                  <span className="text-[10px] font-bold bg-[#1A3C5E] text-white px-2 py-0.5 rounded">Lampiran Sah</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setSelectedReport(null)}
+                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
+              >
+                Tutup
+              </button>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleReject(selectedReport.id)}
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer"
+                >
+                  Tolak / Revisi
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApprove(selectedReport.id)}
+                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer"
+                >
+                  Setujui Laporan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

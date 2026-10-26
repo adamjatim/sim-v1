@@ -45,7 +45,7 @@ export default function LofiLayoutGuideScreen({ onBackToApp, onNavigateToScreen 
   }) => (
     <div className={`relative border-2 border-black bg-white flex flex-col items-center justify-center p-3 text-center overflow-hidden ${height} ${className}`}>
       {/* SVG Blueprint Cross */}
-      <svg class="absolute inset-0 w-full h-full pointer-events-none text-slate-300 opacity-60" preserveAspectRatio="none">
+      <svg className="absolute inset-0 w-full h-full pointer-events-none text-slate-300 opacity-60" preserveAspectRatio="none">
         <line x1="0" y1="0" x2="100%" y2="100%" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
         <line x1="100%" y1="0" x2="0" y2="100%" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
       </svg>
