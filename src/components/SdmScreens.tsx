@@ -18,7 +18,15 @@ import {
   AlertTriangle,
   X,
   ChevronRight,
-  ClipboardList
+  ClipboardList,
+  Send,
+  ArrowLeft,
+  AlertCircle,
+  MessageSquare,
+  Award,
+  Sparkles,
+  Phone,
+  Mail
 } from 'lucide-react';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 
@@ -165,6 +173,88 @@ export function SdmDashboard({
           </table>
         </div>
       </div>
+
+      {/* Modal Rincian Profil & Keaktifan Talent */}
+      {selectedTalentProfile && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-[#1A3C5E] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  {selectedTalentProfile.nama.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-[#1A3C5E]">Rincian Profil Talent</h3>
+                  <p className="text-[11px] text-slate-500">{selectedTalentProfile.angkatan || 'Cak & Ning Surabaya'}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedTalentProfile(null)} 
+                className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer rounded-lg hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-4 text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Nama Lengkap:</span>
+                  <span className="font-bold text-slate-800 text-sm">{selectedTalentProfile.nama}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Status Keanggotaan:</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {selectedTalentProfile.status || 'Aktif'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-medium">Spesialisasi:</span>
+                  <span className="font-semibold text-[#1A3C5E] bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
+                    {selectedTalentProfile.spesialisasi || 'MC & Protokoler Tamu VIP'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100 text-center">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Keaktifan (30 Hari)</span>
+                  <span className="text-lg font-black text-[#1A3C5E]">
+                    {selectedTalentProfile.keaktifan30Hari || 5} <span className="text-xs font-normal text-slate-600">Tugas</span>
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-center">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Total Honor (30 Hari)</span>
+                  <span className="text-sm font-black text-emerald-700 font-mono">
+                    Rp {(selectedTalentProfile.totalHonor30Hari || 1750000).toLocaleString('id-ID')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 text-slate-600">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100">
+                  <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="font-mono text-[11px] truncate">{selectedTalentProfile.email}</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100">
+                  <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="font-mono text-[11px]">{selectedTalentProfile.telepon || '0812-3456-7890'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setSelectedTalentProfile(null)}
+                className="px-4 py-2 rounded-lg bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-xs transition-colors"
+              >
+                Tutup Rincian
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -189,6 +279,7 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
   const [formEmail, setFormEmail] = useState('');
   const [formRole, setFormRole] = useState<Role>('Talent');
   const [formStatus, setFormStatus] = useState<'Aktif' | 'Nonaktif'>('Aktif');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // 15 data dummy users
   const userList = users.slice(0, 15);
@@ -201,6 +292,7 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
     setFormEmail('');
     setFormRole('Talent');
     setFormStatus('Aktif');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
@@ -211,13 +303,14 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
     setFormEmail(u.email);
     setFormRole(u.peran);
     setFormStatus(u.status);
+    setFormError(null);
     setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formNama || !formEmail) {
-      alert('Mohon isi field nama dan email!');
+    if (!formNama.trim() || !formEmail.trim()) {
+      setFormError('Mohon lengkapi field nama lengkap dan email akun!');
       return;
     }
 
@@ -241,6 +334,7 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
         status: formStatus
       });
     }
+    setFormError(null);
     setIsModalOpen(false);
   };
 
@@ -335,6 +429,12 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
             </div>
 
             <form onSubmit={handleSubmit} className="py-4 space-y-3 text-xs">
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Nama Lengkap *</label>
                 <input
@@ -448,6 +548,7 @@ interface SdmTalentListProps {
 export function SdmTalentList({ talents }: SdmTalentListProps) {
   const [filterAngkatan, setFilterAngkatan] = useState('Semua');
   const [filterKeaktifan, setFilterKeaktifan] = useState('Semua');
+  const [selectedTalentProfile, setSelectedTalentProfile] = useState<User | null>(null);
 
   // 15 data dummy talent
   const talentList = talents.filter(u => u.peran === 'Talent').slice(0, 15);
@@ -538,8 +639,8 @@ export function SdmTalentList({ talents }: SdmTalentListProps) {
                   </td>
                   <td className="p-3.5 text-center">
                     <button
-                      onClick={() => alert(`Detail profil ${t.nama} (${t.angkatan})\nSpesialisasi: ${t.spesialisasi || 'MC & Protokoler'}`)}
-                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] cursor-pointer"
+                      onClick={() => setSelectedTalentProfile(t)}
+                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-[#1A3C5E] hover:text-white text-slate-700 font-semibold text-[11px] cursor-pointer transition-colors"
                     >
                       Lihat Rincian
                     </button>
@@ -582,6 +683,7 @@ export function SdmPenugasanManagement({
   const [formTanggal, setFormTanggal] = useState('');
   const [formTalentNama, setFormTalentNama] = useState('');
   const [formStatus, setFormStatus] = useState<'Menunggu Konfirmasi' | 'Dikonfirmasi' | 'Selesai' | 'Ditolak'>('Menunggu Konfirmasi');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // 12 data dummy
   const list12 = penugasanList.slice(0, 12);
@@ -593,6 +695,7 @@ export function SdmPenugasanManagement({
     setFormTanggal(new Date().toISOString().split('T')[0]);
     setFormTalentNama(talents[0]?.nama || 'Cak Aditya Pratama');
     setFormStatus('Menunggu Konfirmasi');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
@@ -602,13 +705,14 @@ export function SdmPenugasanManagement({
     setFormTanggal(p.tanggal);
     setFormTalentNama(p.talentNama);
     setFormStatus(p.status);
+    setFormError(null);
     setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formKegiatanNama || !formTalentNama) {
-      alert('Mohon lengkapi field nama kegiatan dan talent!');
+    if (!formKegiatanNama.trim() || !formTalentNama.trim()) {
+      setFormError('Mohon lengkapi field nama kegiatan dan pilih talent!');
       return;
     }
 
@@ -728,6 +832,12 @@ export function SdmPenugasanManagement({
             </div>
 
             <form onSubmit={handleSubmit} className="py-4 space-y-3 text-xs">
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Nama Kegiatan *</label>
                 <input
@@ -827,27 +937,84 @@ interface SdmReportValidationProps {
 
 export function SdmReportValidation({ penugasanList, onValidateReport }: SdmReportValidationProps) {
   const [selectedReport, setSelectedReport] = useState<Penugasan | null>(null);
+  const [modalMode, setModalMode] = useState<'DETAIL' | 'REVISION_FORM'>('DETAIL');
+  const [catatanRevisi, setCatatanRevisi] = useState('');
+  const [revisionError, setRevisionError] = useState<string | null>(null);
+  const [sendNotificationToTalent, setSendNotificationToTalent] = useState(true);
+  const [deadlineRevisi, setDeadlineRevisi] = useState('2x24 Jam');
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'warning' } | null>(null);
+
+  // Template catatan revisi cepat yang dapat diklik
+  const QUICK_REVISION_TAGS = [
+    'Foto dokumentasi kegiatan belum diunggah',
+    'Foto tidak mengenakan busana adat lengkap / selempang',
+    'Uraian tugas dan hasil kegiatan terlalu singkat',
+    'Bukti presensi/kehadiran belum dilampirkan',
+    'Format berkas LPJ tidak sesuai petunjuk teknis'
+  ];
 
   // 8 Data dummy laporan
   const reports = penugasanList.filter(p => p.laporanDeskripsi || p.laporanStatus).slice(0, 8);
 
-  const handleApprove = (id: string) => {
-    onValidateReport(id, 'Disetujui');
-    alert('Laporan berhasil disetujui! Status otomatis diteruskan ke Bendahara.');
-    setSelectedReport(null);
+  const handleOpenDetail = (r: Penugasan) => {
+    setSelectedReport(r);
+    setModalMode('DETAIL');
+    setCatatanRevisi(r.catatanSdm || '');
+    setRevisionError(null);
   };
 
-  const handleReject = (id: string) => {
-    const catatan = prompt('Tuliskan alasan penolakan / catatan revisi untuk talent:');
-    if (catatan) {
-      onValidateReport(id, 'Revisi', catatan);
-      alert('Laporan dikembalikan ke talent untuk revisi.');
-      setSelectedReport(null);
+  const handleApprove = (id: string, r: Penugasan) => {
+    onValidateReport(id, 'Disetujui');
+    setSelectedReport(null);
+    setModalMode('DETAIL');
+    setToastMessage({
+      text: `Laporan kegiatan "${r.kegiatanNama}" oleh ${r.talentNama} disetujui! Status otomatis diteruskan ke Bendahara.`,
+      type: 'success'
+    });
+    setTimeout(() => setToastMessage(null), 4500);
+  };
+
+  const handleOpenRevisionForm = () => {
+    setModalMode('REVISION_FORM');
+    setRevisionError(null);
+    if (!catatanRevisi && selectedReport?.catatanSdm) {
+      setCatatanRevisi(selectedReport.catatanSdm);
     }
   };
 
+  const handleToggleTag = (tag: string) => {
+    setCatatanRevisi(prev => {
+      if (prev.includes(tag)) {
+        return prev.replace(tag, '').replace(/^[,\s-]+|[,\s-]+$/g, '').trim();
+      }
+      return prev ? `${prev}. ${tag}` : tag;
+    });
+    setRevisionError(null);
+  };
+
+  const handleSubmitRevision = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedReport) return;
+
+    if (!catatanRevisi.trim()) {
+      setRevisionError('Catatan revisi wajib diisi agar talent mengetahui poin perbaikan yang harus dipenuhi!');
+      return;
+    }
+
+    onValidateReport(selectedReport.id, 'Revisi', catatanRevisi.trim());
+    const talentName = selectedReport.talentNama;
+    setSelectedReport(null);
+    setModalMode('DETAIL');
+    setCatatanRevisi('');
+    setToastMessage({
+      text: `Catatan revisi berhasil dikirim ke ${talentName}. Status laporan telah diubah menjadi "Perlu Revisi".`,
+      type: 'warning'
+    });
+    setTimeout(() => setToastMessage(null), 4500);
+  };
+
   return (
-    <div className="space-y-6 animate-fade-in font-sans">
+    <div className="space-y-6 animate-fade-in font-sans relative">
       <div className="border-b border-slate-200 pb-4">
         <h2 className="text-2xl font-black text-[#1A3C5E]">Validasi Laporan Penugasan</h2>
         <p className="text-xs text-slate-500 mt-0.5">Daftar 8 laporan pertanggungjawaban (LPJ) kegiatan dari duta wisata yang membutuhkan verifikasi.</p>
@@ -856,8 +1023,8 @@ export function SdmReportValidation({ penugasanList, onValidateReport }: SdmRepo
       {/* List Card Laporan (Nama Talent, Nama Kegiatan, Tanggal Upload) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reports.map((r) => {
-          const isPending = r.laporanStatus === 'Menunggu Validasi';
           const isApproved = r.laporanStatus === 'Disetujui';
+          const isRevision = r.laporanStatus === 'Revisi';
 
           return (
             <div 
@@ -866,11 +1033,18 @@ export function SdmReportValidation({ penugasanList, onValidateReport }: SdmRepo
             >
               <div className="space-y-2">
                 <div className="flex items-start justify-between gap-2">
-                  <span className="font-bold text-base text-[#1A3C5E]">{r.talentNama}</span>
+                  <div>
+                    <span className="font-bold text-base text-[#1A3C5E] block">{r.talentNama}</span>
+                    <span className="text-[11px] text-slate-400 font-mono">ID: {r.id}</span>
+                  </div>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                    isApproved ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200'
+                    isApproved 
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                      : isRevision
+                      ? 'bg-rose-50 text-rose-800 border-rose-200'
+                      : 'bg-amber-50 text-amber-800 border-amber-200'
                   }`}>
-                    {r.laporanStatus || 'Menunggu Validasi'}
+                    {r.laporanStatus === 'Revisi' ? 'Perlu Revisi' : r.laporanStatus || 'Menunggu Validasi'}
                   </span>
                 </div>
 
@@ -878,6 +1052,16 @@ export function SdmReportValidation({ penugasanList, onValidateReport }: SdmRepo
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Nama Kegiatan</span>
                   <p className="font-semibold text-xs text-slate-800">{r.kegiatanNama}</p>
                 </div>
+
+                {isRevision && r.catatanSdm && (
+                  <div className="p-2.5 rounded-xl bg-rose-50/70 border border-rose-200 text-rose-800 text-[11px] flex items-start gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="font-bold block text-[10px] uppercase text-rose-700">Catatan Revisi SDM:</strong>
+                      <span>{r.catatanSdm}</span>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-3 text-xs text-slate-500 font-mono pt-1">
                   <span className="flex items-center gap-1">
@@ -892,7 +1076,7 @@ export function SdmReportValidation({ penugasanList, onValidateReport }: SdmRepo
               {/* Tombol "Lihat Detail & Validasi" di setiap card */}
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end">
                 <button
-                  onClick={() => setSelectedReport(r)}
+                  onClick={() => handleOpenDetail(r)}
                   className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
                 >
                   <Eye className="w-3.5 h-3.5" /> Lihat Detail & Validasi
@@ -903,75 +1087,254 @@ export function SdmReportValidation({ penugasanList, onValidateReport }: SdmRepo
         })}
       </div>
 
-      {/* Modal Detail & Validasi */}
+      {/* Modal Detail & Validasi / Form Revisi (Single Container Multi-step untuk menghindari tabrakan modal) */}
       {selectedReport && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            {modalMode === 'DETAIL' ? (
+              // ==================== MODE 1: PENINJAUAN LAPORAN ====================
               <div>
-                <h3 className="font-bold text-base text-[#1A3C5E]">Verifikasi Laporan Kegiatan</h3>
-                <p className="text-xs text-slate-500">{selectedReport.kegiatanNama}</p>
-              </div>
-              <button onClick={() => setSelectedReport(null)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="py-4 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Nama Talent</span>
-                  <strong className="text-slate-800 text-sm">{selectedReport.talentNama}</strong>
+                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-base text-[#1A3C5E]">Verifikasi Laporan Kegiatan</h3>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        selectedReport.laporanStatus === 'Disetujui' ? 'bg-emerald-100 text-emerald-800' :
+                        selectedReport.laporanStatus === 'Revisi' ? 'bg-rose-100 text-rose-800' :
+                        'bg-amber-100 text-amber-800'
+                      }`}>
+                        {selectedReport.laporanStatus || 'Menunggu Validasi'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">{selectedReport.kegiatanNama}</p>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedReport(null)} 
+                    className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer rounded-lg hover:bg-slate-100"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Tanggal Kegiatan</span>
-                  <span className="font-mono text-slate-700 text-sm">{selectedReport.tanggal}</span>
+
+                <div className="py-4 space-y-4 text-xs">
+                  <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Nama Talent</span>
+                      <strong className="text-slate-800 text-sm block">{selectedReport.talentNama}</strong>
+                      <span className="text-[10px] text-slate-500">Duta Wisata Cak & Ning</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Tanggal Kegiatan</span>
+                      <span className="font-mono text-slate-700 text-sm font-semibold block">{selectedReport.tanggal}</span>
+                      <span className="text-[10px] text-slate-500">Waktu Pelaksanaan</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Deskripsi Kegiatan</span>
+                    <p className="text-slate-700 p-3 rounded-xl bg-slate-50 border border-slate-200 leading-relaxed text-xs">
+                      {selectedReport.laporanDeskripsi || 'Telah melaksanakan tugas penyambutan tamu dengan lancar dan berbusana adat lengkap.'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Dokumentasi / Bukti Foto</span>
+                    <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-[#1A3C5E] font-mono flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-[#1A3C5E] shrink-0" />
+                        <span className="text-xs font-semibold">{selectedReport.laporanBuktiLink || 'bukti_dokumentasi_foto.jpg'}</span>
+                      </div>
+                      <span className="text-[10px] font-bold bg-[#1A3C5E] text-white px-2 py-0.5 rounded">Lampiran Sah</span>
+                    </div>
+                  </div>
+
+                  {selectedReport.catatanSdm && (
+                    <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
+                      <span className="text-[10px] font-bold uppercase block text-amber-700 mb-0.5">Catatan Revisi Sebelumnya:</span>
+                      <p className="text-xs leading-relaxed">{selectedReport.catatanSdm}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReport(null)}
+                    className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer text-xs"
+                  >
+                    Tutup
+                  </button>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleOpenRevisionForm}
+                      className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" /> Tolak / Minta Revisi
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApprove(selectedReport.id, selectedReport)}
+                      className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Setujui Laporan
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Deskripsi Kegiatan</span>
-                <p className="text-slate-700 p-3 rounded-xl bg-slate-50 border border-slate-200 leading-relaxed">
-                  {selectedReport.laporanDeskripsi || 'Telah melaksanakan tugas penyambutan tamu dengan lancar dan berbusana adat lengkap.'}
-                </p>
-              </div>
-
-              <div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Dokumentasi / Bukti Foto</span>
-                <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-[#1A3C5E] font-mono flex items-center justify-between">
-                  <span>{selectedReport.laporanBuktiLink || 'bukti_dokumentasi_foto.jpg'}</span>
-                  <span className="text-[10px] font-bold bg-[#1A3C5E] text-white px-2 py-0.5 rounded">Lampiran Sah</span>
+            ) : (
+              // ==================== MODE 2: FORM CATATAN REVISI (INLINE MODAL) ====================
+              <form onSubmit={handleSubmitRevision} className="space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-base text-red-700">Formulir Catatan Revisi Laporan</h3>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">
+                        Perlu Perbaikan Talent
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Kegiatan: <strong className="text-slate-700">{selectedReport.kegiatanNama}</strong> &bull; Talent: <strong className="text-slate-700">{selectedReport.talentNama}</strong>
+                    </p>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setModalMode('DETAIL')} 
+                    className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer rounded-lg hover:bg-slate-100"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-              </div>
-            </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setSelectedReport(null)}
-                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer"
-              >
-                Tutup
-              </button>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleReject(selectedReport.id)}
-                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer"
-                >
-                  Tolak / Revisi
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleApprove(selectedReport.id)}
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer"
-                >
-                  Setujui Laporan
-                </button>
-              </div>
-            </div>
+                <div className="p-3 bg-red-50/80 border border-red-200 rounded-xl text-red-800 text-xs flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">
+                    Tuliskan instruksi atau alasan penolakan secara jelas. Laporan akan dikembalikan ke dashboard talent agar dapat diperbaiki sebelum honor diajukan ke Bendahara.
+                  </p>
+                </div>
+
+                {/* Error Banner */}
+                {revisionError && (
+                  <div className="p-3 bg-red-100 border border-red-300 text-red-900 rounded-xl text-xs font-semibold flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-red-700 shrink-0" />
+                    <span>{revisionError}</span>
+                  </div>
+                )}
+
+                {/* Template Catatan Cepat (Quick Select Chips) */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-600 font-bold text-xs">
+                    Template Catatan Cepat <span className="text-[10px] font-normal text-slate-400">(Klik untuk menambahkan ke catatan):</span>
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {QUICK_REVISION_TAGS.map((tag, idx) => {
+                      const isSelected = catatanRevisi.includes(tag);
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleToggleTag(tag)}
+                          className={`text-[11px] px-2.5 py-1 rounded-lg border text-left cursor-pointer transition-all ${
+                            isSelected
+                              ? 'bg-red-600 text-white border-red-600 font-semibold shadow-xs'
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                          }`}
+                        >
+                          + {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Input Textarea Catatan Revisi */}
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-slate-700 font-bold text-xs">Catatan / Alasan Revisi untuk Talent *</label>
+                    <span className="text-[10px] font-mono text-slate-400">{catatanRevisi.length} karakter</span>
+                  </div>
+                  <textarea
+                    rows={4}
+                    required
+                    value={catatanRevisi}
+                    onChange={(e) => {
+                      setCatatanRevisi(e.target.value);
+                      if (e.target.value.trim()) setRevisionError(null);
+                    }}
+                    placeholder="Contoh: Mohon unggah ulang foto dokumentasi saat bertugas dengan seragam adat lengkap dan lampirkan lembar presensi acara yang sudah ditandatangani panitia."
+                    className="w-full p-3 rounded-xl border border-slate-300 text-xs text-slate-800 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600"
+                  />
+                </div>
+
+                {/* Opsi Tambahan Form */}
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sendNotificationToTalent}
+                      onChange={(e) => setSendNotificationToTalent(e.target.checked)}
+                      className="rounded text-[#1A3C5E] focus:ring-[#1A3C5E]"
+                    />
+                    <span className="text-slate-700 font-medium">Kirim notifikasi otomatis ke akun talent terkait</span>
+                  </label>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                    <span className="text-slate-600 text-[11px] font-medium">Batas Waktu Perbaikan:</span>
+                    <select
+                      value={deadlineRevisi}
+                      onChange={(e) => setDeadlineRevisi(e.target.value)}
+                      className="text-xs py-1 px-2.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E]"
+                    >
+                      <option value="1x24 Jam">1x24 Jam (Mendesak)</option>
+                      <option value="2x24 Jam">2x24 Jam (Standar Paguyuban)</option>
+                      <option value="3x24 Jam">3x24 Jam (Fleksibel)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setModalMode('DETAIL')}
+                    className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer text-xs flex items-center gap-1.5 transition-colors"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Peninjauan
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                  >
+                    <Send className="w-3.5 h-3.5" /> Kirim Catatan Revisi ke Talent
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification (Ganti alert bawaan) */}
+      {toastMessage && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl shadow-2xl border text-xs flex items-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-200 ${
+          toastMessage.type === 'success' 
+            ? 'bg-[#1A3C5E] text-white border-emerald-400' 
+            : 'bg-rose-900 text-white border-rose-400'
+        }`}>
+          {toastMessage.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-300 shrink-0" />
+          )}
+          <span className="font-semibold">{toastMessage.text}</span>
+          <button 
+            onClick={() => setToastMessage(null)}
+            className="text-slate-300 hover:text-white p-0.5 rounded cursor-pointer ml-1"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
     </div>

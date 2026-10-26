@@ -189,6 +189,7 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
   const [formTelepon, setFormTelepon] = useState('');
   const [formEmail, setFormEmail] = useState('');
   const [formAlamat, setFormAlamat] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // 12 data dummy
   const clientList = clients.slice(0, 12);
@@ -201,6 +202,7 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
     setFormTelepon('');
     setFormEmail('');
     setFormAlamat('');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
@@ -211,15 +213,17 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
     setFormTelepon(c.telepon);
     setFormEmail(c.email);
     setFormAlamat(c.alamat);
+    setFormError(null);
     setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formInstansi || !formKontak || !formTelepon || !formEmail) {
-      alert('Mohon lengkapi field wajib!');
+    if (!formInstansi.trim() || !formKontak.trim() || !formTelepon.trim() || !formEmail.trim()) {
+      setFormError('Mohon lengkapi seluruh field wajib data client mitra!');
       return;
     }
+    setFormError(null);
 
     if (editingClient) {
       onUpdateClient({
@@ -326,6 +330,12 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
             </div>
 
             <form onSubmit={handleSubmit} className="py-4 space-y-3 text-xs">
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Nama Instansi *</label>
                 <input
@@ -444,6 +454,7 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
   const [formSponsor, setFormSponsor] = useState('');
   const [formJenis, setFormJenis] = useState<'Uang' | 'Barang' | 'Media'>('Uang');
   const [formKontak, setFormKontak] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // 10 data dummy
   const sponsorList = sponsors.slice(0, 10);
@@ -454,6 +465,7 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
     setFormSponsor('');
     setFormJenis('Uang');
     setFormKontak('');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
@@ -464,15 +476,17 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
     const jenis = s.jenisSponsorship === 'Media Partner' ? 'Media' : s.jenisSponsorship === 'Pendukung' ? 'Barang' : 'Uang';
     setFormJenis(jenis);
     setFormKontak(s.kontakPerson + ' (' + s.telepon + ')');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formSponsor || !formKontak) {
-      alert('Mohon isi field sponsor!');
+    if (!formSponsor.trim() || !formKontak.trim()) {
+      setFormError('Mohon isi nama perusahaan sponsor dan kontak PIC!');
       return;
     }
+    setFormError(null);
 
     if (editingSponsor) {
       onUpdateSponsor({
@@ -585,6 +599,12 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
             </div>
 
             <form onSubmit={handleSubmit} className="py-4 space-y-3 text-xs">
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Nama Perusahaan Sponsor *</label>
                 <input
@@ -686,6 +706,7 @@ export function HumasPengajuanPenugasan({
   const [formNama, setFormNama] = useState('');
   const [formTanggal, setFormTanggal] = useState('');
   const [formClient, setFormClient] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // 10 data dummy
   const list10 = pengajuanList.slice(0, 10);
@@ -696,6 +717,7 @@ export function HumasPengajuanPenugasan({
     setFormNama('');
     setFormTanggal(new Date().toISOString().split('T')[0]);
     setFormClient('Dinas Pariwisata Kota Surabaya');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
@@ -704,15 +726,17 @@ export function HumasPengajuanPenugasan({
     setFormNama(p.namaKegiatan);
     setFormTanggal(p.tanggal);
     setFormClient(p.client);
+    setFormError(null);
     setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formNama || !formTanggal || !formClient) {
-      alert('Mohon isi field pengajuan!');
+    if (!formNama.trim() || !formTanggal.trim() || !formClient.trim()) {
+      setFormError('Mohon lengkapi nama kegiatan, tanggal, dan client pemohon!');
       return;
     }
+    setFormError(null);
 
     if (editingItem) {
       onUpdatePengajuan({
@@ -827,6 +851,12 @@ export function HumasPengajuanPenugasan({
             </div>
 
             <form onSubmit={handleSubmit} className="py-4 space-y-3 text-xs">
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Nama Kegiatan *</label>
                 <input
