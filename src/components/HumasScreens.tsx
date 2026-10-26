@@ -1052,7 +1052,7 @@ export function HumasTalentInfo({ talents, penugasanList = [] }: HumasTalentInfo
       </div>
 
       {/* Petunjuk Interaktif Humas */}
-      <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 flex items-start gap-3 text-xs text-blue-900">
+      {/* <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 flex items-start gap-3 text-xs text-blue-900">
         <Sparkles className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
         <div className="leading-relaxed">
           <strong className="font-bold text-[#1A3C5E]">Fitur Eksplorasi Portofolio Talent:</strong>
@@ -1060,7 +1060,7 @@ export function HumasTalentInfo({ talents, penugasanList = [] }: HumasTalentInfo
             Tekan pada <strong className="text-[#1A3C5E]">Nama Talent</strong> atau tombol <strong className="text-amber-800">"Lihat Portofolio"</strong> untuk membuka detail lengkap profil, kontak resmi, dan riwayat penugasan yang pernah diikuti guna meninjau perkembangan jam terbang duta wisata.
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Filter / Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
