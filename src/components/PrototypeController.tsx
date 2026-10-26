@@ -39,44 +39,36 @@ export const SCREEN_LIST: ScreenGroup[] = [
   {
     category: '3. SDM (DIKLAT) FLOW',
     screens: [
-      { id: 'SDM_DASHBOARD', name: 'SDM - Dashboard Utama', number: 10 },
-      { id: 'SDM_PLOTTING', name: 'SDM - Plotting Talent', number: 11 },
-      { id: 'SDM_USER_MANAGEMENT', name: 'SDM - Manajemen User', number: 12 },
-      { id: 'SDM_PENUGASAN_MGMT', name: 'SDM - Daftar Penugasan', number: 13 },
-      { id: 'SDM_VALIDATION_MGMT', name: 'SDM - Validasi Laporan', number: 14 },
+      { id: 'SDM_USER_MANAGEMENT', name: 'SDM - Manajemen User', number: 10 },
+      { id: 'SDM_TALENT_LIST', name: 'SDM - Daftar Talent', number: 11 },
+      { id: 'SDM_PENUGASAN_MGMT', name: 'SDM - Daftar Penugasan', number: 12 },
+      { id: 'SDM_VALIDATION_MGMT', name: 'SDM - Validasi Laporan', number: 13 },
     ]
   },
   {
     category: '4. HUMAS FLOW',
     screens: [
-      { id: 'HUMAS_DASHBOARD', name: 'Humas - Dashboard Utama', number: 15 },
-      { id: 'HUMAS_CLIENTS', name: 'Humas - Kelola Client', number: 16 },
-      { id: 'HUMAS_SPONSORS', name: 'Humas - Kelola Sponsor', number: 17 },
-      { id: 'HUMAS_BLOGS', name: 'Humas - Kelola Blog', number: 18 },
-      { id: 'HUMAS_GALLERY', name: 'Humas - Kelola Galeri / Media', number: 19 },
-      { id: 'HUMAS_KEGIATAN', name: 'Humas - Kelola Kegiatan', number: 20 },
-      { id: 'HUMAS_PROPOSE', name: 'Humas - Usulkan Talent', number: 21 },
-      { id: 'HUMAS_PENUGASAN', name: 'Humas - Pantau Penugasan', number: 22 },
+      { id: 'HUMAS_CLIENTS', name: 'Humas - Kelola Client Mitra', number: 14 },
+      { id: 'HUMAS_SPONSORS', name: 'Humas - Kelola Sponsor', number: 15 },
+      { id: 'HUMAS_PENGAJUAN', name: 'Humas - Pengajuan Penugasan', number: 16 },
+      { id: 'HUMAS_TALENT_INFO', name: 'Humas - Lihat Talent', number: 17 },
     ]
   },
   {
     category: '5. TALENT FLOW',
     screens: [
-      { id: 'TALENT_DASHBOARD', name: 'Talent - Dashboard', number: 23 },
-      { id: 'TALENT_ASSIGNMENTS', name: 'Talent - Penugasan Saya', number: 24 },
-      { id: 'TALENT_DETAIL', name: 'Talent - Detail Penugasan', number: 25 },
-      { id: 'TALENT_REPORT_FORM', name: 'Talent - Form Laporan', number: 26 },
-      { id: 'TALENT_HISTORY', name: 'Talent - Riwayat Kegiatan', number: 27 },
-      { id: 'TALENT_HONOR', name: 'Talent - Riwayat Honor', number: 28 },
-      { id: 'TALENT_PROFILE_EDIT', name: 'Talent - Edit Portofolio', number: 29 },
+      { id: 'TALENT_ASSIGNMENTS', name: 'Talent - Penugasan Saya', number: 18 },
+      { id: 'TALENT_DETAIL', name: 'Talent - Detail Penugasan', number: 19 },
+      { id: 'TALENT_REPORT_FORM', name: 'Talent - Form Laporan', number: 20 },
+      { id: 'TALENT_HISTORY', name: 'Talent - Riwayat & Honor', number: 21 },
+      { id: 'TALENT_RATING_PROFILE', name: 'Talent - Rating & Profil', number: 22 },
     ]
   },
   {
-    category: '6. BENDAHARA FLOW',
+    category: '6. BENDAHARA & KETUA UMUM FLOW',
     screens: [
-      { id: 'BENDAHARA_DASHBOARD', name: 'Bendahara - Dashboard', number: 30 },
-      { id: 'BENDAHARA_PAYMENT_INPUT', name: 'Bendahara - Input Bayar', number: 31 },
-      { id: 'BENDAHARA_REPORT', name: 'Bendahara - Ekspor Laporan', number: 32 },
+      { id: 'BENDAHARA_PAYMENT_LIST', name: 'Bendahara - Daftar Pembayaran Honor', number: 23 },
+      { id: 'KETUM_MONITORING', name: 'Ketum - Pengawasan Agenda Kota', number: 24 },
     ]
   }
 ];
@@ -138,7 +130,7 @@ export default function PrototypeController({
           <Layers className="w-5 h-5" />
           <div>
             <h4 className="text-xs font-bold tracking-wider uppercase">Figma-style Navigator</h4>
-            <p className="text-[10px] text-slate-200">Prototype 32 Halaman (Iterasi 1)</p>
+            <p className="text-[10px] text-slate-200">Prototype Iterasi 1 (Operasional - Tanpa Dashboard)</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

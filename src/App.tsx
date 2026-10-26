@@ -74,7 +74,6 @@ import {
   Sparkles,
   Layers,
   Compass,
-  LayoutDashboard,
   CheckCircle2,
   Lock,
   LogOut,
@@ -127,13 +126,13 @@ export default function App() {
     setIsProfileDropdownOpen(false);
   };
 
-  const getDashboardScreenForRole = (role: Role): string => {
+  const getDefaultScreenForRole = (role: Role): string => {
     switch (role) {
-      case 'Humas': return 'HUMAS_DASHBOARD';
-      case 'SDM': return 'SDM_DASHBOARD';
-      case 'Talent': return 'TALENT_DASHBOARD';
-      case 'Bendahara': return 'BENDAHARA_DASHBOARD';
-      case 'Ketua Umum': return 'KETUM_DASHBOARD';
+      case 'Humas': return 'HUMAS_CLIENTS';
+      case 'SDM': return 'SDM_USER_MANAGEMENT';
+      case 'Talent': return 'TALENT_ASSIGNMENTS';
+      case 'Bendahara': return 'BENDAHARA_PAYMENT_LIST';
+      case 'Ketua Umum': return 'KETUM_MONITORING';
       default: return 'GUEST_HOME';
     }
   };
@@ -148,8 +147,8 @@ export default function App() {
   const handleLoginSuccess = (user: User) => {
     setCurrentRole(user.peran);
     setLogoutMessage('');
-    const targetDashboard = getDashboardScreenForRole(user.peran);
-    setCurrentScreen(targetDashboard);
+    const targetScreen = getDefaultScreenForRole(user.peran);
+    setCurrentScreen(targetScreen);
   };
 
   // Reset Data Handler
@@ -303,7 +302,7 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => jumpToScreen('SDM', 'SDM_DASHBOARD')}
+              onClick={() => jumpToScreen('SDM', 'SDM_USER_MANAGEMENT')}
               className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3.5 py-2 rounded-xl text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer hidden sm:flex"
               title="Akses Cepat Pengurus SDM"
             >
@@ -317,7 +316,7 @@ export default function App() {
 
   // ============================================================================
   // RENDER INTERNAL SIDEBAR (KHUSUS ROLE INTERNAL: HUMAS, SDM, TALENT, BENDAHARA, KETUA UMUM)
-  // Sidebar isinya HANYA menu untuk peran tersebut!
+  // Sidebar isinya HANYA menu untuk peran tersebut (Dashboard ditiadakan di Iterasi 1)
   // ============================================================================
   const renderInternalSidebar = () => {
     const NavItem = ({ screenId, label, icon: Icon }: { screenId: string; label: string; icon: any }) => {
@@ -365,23 +364,21 @@ export default function App() {
             </div>
           </div>
 
-          {/* MENUS STRICTLY FOR CURRENT ROLE */}
+          {/* MENUS STRICTLY FOR CURRENT ROLE (ITERASI 1: LANGSUNG KE MODUL OPERASIONAL) */}
           <nav className="space-y-1">
-            {/* HUMAS: Dashboard | Client | Sponsor | Pengajuan Penugasan | Lihat Talent */}
+            {/* HUMAS: Client | Sponsor | Pengajuan Penugasan | Lihat Talent */}
             {currentRole === 'Humas' && (
               <>
-                <NavItem screenId="HUMAS_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
-                <NavItem screenId="HUMAS_CLIENTS" label="Client" icon={Building2} />
+                <NavItem screenId="HUMAS_CLIENTS" label="Client Mitra" icon={Building2} />
                 <NavItem screenId="HUMAS_SPONSORS" label="Sponsor" icon={Handshake} />
                 <NavItem screenId="HUMAS_PENGAJUAN" label="Pengajuan Penugasan" icon={Calendar} />
                 <NavItem screenId="HUMAS_TALENT_INFO" label="Lihat Talent" icon={Users} />
               </>
             )}
 
-            {/* SDM: Dashboard | Manajemen User | Daftar Talent | Penugasan | Validasi Laporan */}
+            {/* SDM: Manajemen User | Daftar Talent | Penugasan | Validasi Laporan */}
             {currentRole === 'SDM' && (
               <>
-                <NavItem screenId="SDM_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
                 <NavItem screenId="SDM_USER_MANAGEMENT" label="Manajemen User" icon={UserCheck} />
                 <NavItem screenId="SDM_TALENT_LIST" label="Daftar Talent" icon={Users} />
                 <NavItem screenId="SDM_PENUGASAN_MGMT" label="Penugasan" icon={Calendar} />
@@ -389,28 +386,26 @@ export default function App() {
               </>
             )}
 
-            {/* TALENT: Dashboard | Penugasan Saya | Riwayat | Rating | Profil */}
+            {/* TALENT: Penugasan Saya | Riwayat | Rating & Profil */}
             {currentRole === 'Talent' && (
               <>
-                <NavItem screenId="TALENT_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
                 <NavItem screenId="TALENT_ASSIGNMENTS" label="Penugasan Saya" icon={Calendar} />
                 <NavItem screenId="TALENT_HISTORY" label="Riwayat" icon={History} />
                 <NavItem screenId="TALENT_RATING_PROFILE" label="Rating & Profil" icon={Star} />
               </>
             )}
 
-            {/* BENDAHARA: Dashboard | Daftar Pembayaran */}
+            {/* BENDAHARA: Daftar Pembayaran */}
             {currentRole === 'Bendahara' && (
               <>
-                <NavItem screenId="BENDAHARA_DASHBOARD" label="Dashboard" icon={LayoutDashboard} />
                 <NavItem screenId="BENDAHARA_PAYMENT_LIST" label="Daftar Pembayaran" icon={CreditCard} />
               </>
             )}
 
-            {/* KETUA UMUM: Dashboard Pengawasan */}
+            {/* KETUA UMUM: Pengawasan Agenda & Kegiatan */}
             {currentRole === 'Ketua Umum' && (
               <>
-                <NavItem screenId="KETUM_DASHBOARD" label="Dashboard Pengawasan" icon={Award} />
+                <NavItem screenId="KETUM_MONITORING" label="Pengawasan Agenda & Kegiatan" icon={Award} />
               </>
             )}
           </nav>
@@ -572,38 +567,38 @@ export default function App() {
                         <button
                           onClick={() => {
                             setIsProfileDropdownOpen(false);
-                            jumpToScreen('SDM', 'SDM_DASHBOARD');
+                            jumpToScreen('SDM', 'SDM_USER_MANAGEMENT');
                           }}
                           className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'SDM' ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
                         >
-                          SDM (Diklat)
+                          SDM (User & Diklat)
                         </button>
                         <button
                           onClick={() => {
                             setIsProfileDropdownOpen(false);
-                            jumpToScreen('Humas', 'HUMAS_DASHBOARD');
+                            jumpToScreen('Humas', 'HUMAS_CLIENTS');
                           }}
                           className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'Humas' ? 'bg-amber-50 border-amber-300 text-amber-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
                         >
-                          Humas & Media
+                          Humas & Client
                         </button>
                         <button
                           onClick={() => {
                             setIsProfileDropdownOpen(false);
-                            jumpToScreen('Talent', 'TALENT_DASHBOARD');
+                            jumpToScreen('Talent', 'TALENT_ASSIGNMENTS');
                           }}
                           className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'Talent' ? 'bg-purple-50 border-purple-300 text-purple-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
                         >
-                          Talent (Duta)
+                          Talent (Tugas Saya)
                         </button>
                         <button
                           onClick={() => {
                             setIsProfileDropdownOpen(false);
-                            jumpToScreen('Bendahara', 'BENDAHARA_DASHBOARD');
+                            jumpToScreen('Bendahara', 'BENDAHARA_PAYMENT_LIST');
                           }}
                           className={`p-1.5 rounded-lg border text-left cursor-pointer transition-colors font-medium ${currentRole === 'Bendahara' ? 'bg-indigo-50 border-indigo-300 text-indigo-800 font-bold' : 'hover:bg-slate-50 border-slate-200'}`}
                         >
-                          Bendahara (Kas)
+                          Bendahara (Honor)
                         </button>
                       </div>
                     </div>
@@ -842,8 +837,8 @@ export default function App() {
       );
     }
 
-    // F. KETUA UMUM AREA
-    if (currentScreen === 'KETUM_DASHBOARD') {
+    // F. KETUA UMUM AREA (PENGAWASAN & MONITORING AGENDA)
+    if (currentScreen === 'KETUM_MONITORING' || currentScreen === 'KETUM_DASHBOARD') {
       return (
         <KetuaUmumScreen
           ketumUser={ketumUser}
@@ -904,7 +899,7 @@ export default function App() {
           onSaveProfile={(updated) => {
             setUsers(prev => prev.map(u => u.id === updated.id ? updated : u));
           }}
-          onBackToDashboard={() => setCurrentScreen(getDashboardScreenForRole(currentRole))}
+          onBackToDashboard={() => setCurrentScreen(getDefaultScreenForRole(currentRole))}
         />
       );
     }
@@ -915,7 +910,7 @@ export default function App() {
           onMarkAsRead={(id) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, dibaca: true } : n))}
           onMarkAllAsRead={() => setNotifications(prev => prev.map(n => ({ ...n, dibaca: true })))}
           activeRole={currentRole}
-          onBackToDashboard={() => setCurrentScreen(getDashboardScreenForRole(currentRole))}
+          onBackToDashboard={() => setCurrentScreen(getDefaultScreenForRole(currentRole))}
         />
       );
     }
@@ -983,6 +978,11 @@ export default function App() {
             </div>
 
             <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+              {/* INFO NOTICE: DASHBOARD ITERASI 2 */}
+              <div className="p-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[10px] leading-snug">
+                <strong>📌 Iterasi 1 (Halaman Operasional):</strong> Dashboard per peran ditiadakan pada iterasi ini dan dialihkan ke Iterasi 2. Masing-masing peran langsung membuka modul operasional utama.
+              </div>
+
               {/* 0. AUTH & AKUN */}
               <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-300 space-y-1.5">
                 <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -1025,9 +1025,6 @@ export default function App() {
                   <span className="w-2 h-2 rounded-full bg-amber-500" /> B. Humas Area
                 </span>
                 <div className="grid grid-cols-2 gap-1 text-[11px]">
-                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                    Dashboard
-                  </button>
                   <button onClick={() => jumpToScreen('Humas', 'HUMAS_CLIENTS')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Kelola Client (12)
                   </button>
@@ -1037,7 +1034,7 @@ export default function App() {
                   <button onClick={() => jumpToScreen('Humas', 'HUMAS_PENGAJUAN')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Pengajuan Penugasan
                   </button>
-                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_TALENT_INFO')} className="col-span-2 p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                  <button onClick={() => jumpToScreen('Humas', 'HUMAS_TALENT_INFO')} className="p-1.5 rounded-lg bg-white hover:bg-amber-600 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Lihat Talent (Informasi)
                   </button>
                 </div>
@@ -1049,19 +1046,16 @@ export default function App() {
                   <span className="w-2 h-2 rounded-full bg-emerald-500" /> C. SDM Area (Diklat)
                 </span>
                 <div className="grid grid-cols-2 gap-1 text-[11px]">
-                  <button onClick={() => jumpToScreen('SDM', 'SDM_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                    Dashboard
-                  </button>
                   <button onClick={() => jumpToScreen('SDM', 'SDM_USER_MANAGEMENT')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Manajemen User (15)
                   </button>
                   <button onClick={() => jumpToScreen('SDM', 'SDM_TALENT_LIST')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                    Daftar Talent (Filter)
+                    Daftar Talent
                   </button>
                   <button onClick={() => jumpToScreen('SDM', 'SDM_PENUGASAN_MGMT')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Penugasan Talent (12)
                   </button>
-                  <button onClick={() => jumpToScreen('SDM', 'SDM_VALIDATION_MGMT')} className="col-span-2 p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                  <button onClick={() => jumpToScreen('SDM', 'SDM_VALIDATION_MGMT')} className="p-1.5 rounded-lg bg-white hover:bg-emerald-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Validasi Laporan (8 LPJ)
                   </button>
                 </div>
@@ -1073,9 +1067,6 @@ export default function App() {
                   <span className="w-2 h-2 rounded-full bg-purple-500" /> D. Talent Area
                 </span>
                 <div className="grid grid-cols-2 gap-1 text-[11px]">
-                  <button onClick={() => jumpToScreen('Talent', 'TALENT_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                    Dashboard
-                  </button>
                   <button onClick={() => jumpToScreen('Talent', 'TALENT_ASSIGNMENTS')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Penugasan Saya (10)
                   </button>
@@ -1086,9 +1077,9 @@ export default function App() {
                     Buat Laporan
                   </button>
                   <button onClick={() => jumpToScreen('Talent', 'TALENT_HISTORY')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                    Riwayat (2 Tab)
+                    Riwayat Kegiatan & Honor
                   </button>
-                  <button onClick={() => jumpToScreen('Talent', 'TALENT_RATING_PROFILE')} className="p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                  <button onClick={() => jumpToScreen('Talent', 'TALENT_RATING_PROFILE')} className="col-span-2 p-1.5 rounded-lg bg-white hover:bg-purple-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
                     Rating & Profil
                   </button>
                 </div>
@@ -1099,12 +1090,9 @@ export default function App() {
                 <span className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-indigo-500" /> E. Bendahara Area
                 </span>
-                <div className="grid grid-cols-2 gap-1 text-[11px]">
-                  <button onClick={() => jumpToScreen('Bendahara', 'BENDAHARA_DASHBOARD')} className="p-1.5 rounded-lg bg-white hover:bg-indigo-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                    Dashboard
-                  </button>
+                <div className="grid grid-cols-1 gap-1 text-[11px]">
                   <button onClick={() => jumpToScreen('Bendahara', 'BENDAHARA_PAYMENT_LIST')} className="p-1.5 rounded-lg bg-white hover:bg-indigo-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                    Daftar Pembayaran (12)
+                    Daftar Pembayaran & Honorarium (12)
                   </button>
                 </div>
               </div>
@@ -1114,8 +1102,8 @@ export default function App() {
                 <span className="text-[10px] font-bold text-rose-900 uppercase tracking-wider flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-500" /> F. Ketua Umum
                 </span>
-                <button onClick={() => jumpToScreen('Ketua Umum', 'KETUM_DASHBOARD')} className="w-full p-1.5 rounded-lg bg-white hover:bg-rose-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
-                  Dashboard Pengawasan Eksekutif
+                <button onClick={() => jumpToScreen('Ketua Umum', 'KETUM_MONITORING')} className="w-full p-1.5 rounded-lg bg-white hover:bg-rose-700 hover:text-white text-slate-700 font-semibold border border-slate-200 text-left px-2 cursor-pointer transition-colors truncate">
+                  Pengawasan Agenda & Kegiatan
                 </button>
               </div>
 

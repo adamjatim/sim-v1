@@ -336,7 +336,7 @@ export function ProfileScreen({ user, onSaveProfile, onBackToDashboard }: Profil
             onClick={onBackToDashboard}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#1A3C5E] mb-2 cursor-pointer transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Dashboard
+            <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Halaman Utama
           </button>
           <h2 className="text-xl font-black text-[#1A3C5E] tracking-tight uppercase flex items-center gap-2">
             <UserIcon className="w-5 h-5 text-amber-500" /> Pengaturan & Profil Akun
@@ -640,7 +640,7 @@ export function NotificationScreen({
             onClick={onBackToDashboard}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#1A3C5E] mb-2 cursor-pointer transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Dashboard
+            <ArrowLeft className="w-3.5 h-3.5" /> Kembali ke Halaman Utama
           </button>
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-black text-[#1A3C5E] tracking-tight uppercase flex items-center gap-2">

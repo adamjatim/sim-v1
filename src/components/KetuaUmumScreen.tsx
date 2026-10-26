@@ -54,13 +54,13 @@ export function KetuaUmumScreen({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> Executive Oversight & Governance
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> Mandat & Koordinasi Lintas Bidang
             </div>
             <h2 className="text-2xl md:text-3xl font-black tracking-tight">
-              Dashboard Pengawasan Ketua Umum
+              Pengawasan & Monitoring Agenda Kegiatan
             </h2>
             <p className="text-xs md:text-sm text-slate-200 leading-relaxed">
-              Selamat datang, <strong>{ketumUser?.nama || 'Cak Sandy Wicaksana, S.I.Kom'}</strong>. Pantau kinerja terpadu seluruh bidang (SDM, Humas, Bendahara, dan Duta Wisata) dalam satu ringkasan eksekutif.
+              Selamat datang, <strong>{ketumUser?.nama || 'Cak Sandy Wicaksana, S.I.Kom'}</strong>. Pemantauan langsung 10 agenda strategis tingkat kota, koordinasi mandat penugasan, dan pengawasan kepatuhan paguyuban.
             </p>
           </div>
 
@@ -75,95 +75,55 @@ export function KetuaUmumScreen({
         </div>
       </div>
 
-      {/* 4 Division KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* SDM KPI */}
-        <div 
+      {/* Quick Coordination Links to Divisions */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button
           onClick={() => onNavigate('SDM_TALENT_LIST')}
-          className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group"
+          className="bg-white hover:bg-blue-50/50 p-4 rounded-xl border border-slate-200 hover:border-[#1A3C5E] transition-all text-left flex items-center justify-between group cursor-pointer"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold uppercase">Sie SDM & Diklat</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1A3C5E] flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Users className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#1A3C5E] flex items-center justify-center font-bold">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#1A3C5E]">Koordinasi Sie SDM</h4>
+              <p className="text-[11px] text-slate-500">Periksa daftar duta & ketersediaan talent</p>
             </div>
           </div>
-          <div className="mt-3">
-            <span className="text-2xl font-black text-[#1A3C5E] font-mono">{activeTalents} / {totalTalents}</span>
-            <p className="text-[11px] text-slate-500 mt-0.5">Duta Wisata Aktif Bertugas</p>
-          </div>
-          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span>{pendingReports} LPJ Butuh Validasi</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#1A3C5E]" />
-          </div>
-        </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#1A3C5E]" />
+        </button>
 
-        {/* Humas KPI */}
-        <div 
+        <button
           onClick={() => onNavigate('HUMAS_CLIENTS')}
-          className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group"
+          className="bg-white hover:bg-amber-50/50 p-4 rounded-xl border border-slate-200 hover:border-amber-500 transition-all text-left flex items-center justify-between group cursor-pointer"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold uppercase">Sie Humas & Relasi</span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Building2 className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-800 group-hover:text-amber-700">Koordinasi Sie Humas</h4>
+              <p className="text-[11px] text-slate-500">Periksa kemitraan klien & pengajuan event</p>
             </div>
           </div>
-          <div className="mt-3">
-            <span className="text-2xl font-black text-amber-600 font-mono">{clients.length} Mitra</span>
-            <p className="text-[11px] text-slate-500 mt-0.5">{sponsors.length} Brand Sponsor Terdaftar</p>
-          </div>
-          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span>10 Pengajuan Masuk</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600" />
-          </div>
-        </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600" />
+        </button>
 
-        {/* Bendahara KPI */}
-        <div 
+        <button
           onClick={() => onNavigate('BENDAHARA_PAYMENT_LIST')}
-          className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group"
+          className="bg-white hover:bg-emerald-50/50 p-4 rounded-xl border border-slate-200 hover:border-emerald-600 transition-all text-left flex items-center justify-between group cursor-pointer"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold uppercase">Bendahara Keuangan</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <DollarSign className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+              <DollarSign className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Koordinasi Bendahara</h4>
+              <p className="text-[11px] text-slate-500">Periksa daftar pembayaran & bukti honor</p>
             </div>
           </div>
-          <div className="mt-3">
-            <span className="text-xl font-black text-emerald-700 font-mono">
-              Rp {totalHonorPaid.toLocaleString('id-ID')}
-            </span>
-            <p className="text-[11px] text-slate-500 mt-0.5">Total Honor Telah Dicairkan</p>
-          </div>
-          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span>{pendingPayments} Siap Ditransfer</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700" />
-          </div>
-        </div>
-
-        {/* Duta Wisata Rating KPI */}
-        <div 
-          onClick={() => onNavigate('TALENT_RATING')}
-          className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-[#1A3C5E] hover:shadow-md transition-all cursor-pointer group"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold uppercase">Mutu & Kinerja Duta</span>
-            <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Star className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <span className="text-2xl font-black text-purple-700 font-mono flex items-center gap-1">
-              4.92 <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-            </span>
-            <p className="text-[11px] text-slate-500 mt-0.5">Rata-rata Evaluasi Tamu</p>
-          </div>
-          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span>99.2% Ketepatan Waktu</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-700" />
-          </div>
-        </div>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600" />
+        </button>
       </div>
 
       {/* Agenda Strategis & Pengawasan Mandat Tingkat Kota */}

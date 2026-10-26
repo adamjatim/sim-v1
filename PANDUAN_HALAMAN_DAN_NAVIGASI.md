@@ -32,10 +32,12 @@ Sistem dirancang menggunakan pendekatan **Role-Based Access Control (RBAC)** den
 
 ## 2. Matriks Navigasi & Peta Seluruh Layar (Sitemap)
 
+> **Catatan Arsitektur Iterasi 1**: Seluruh layar **Dashboard** pada masing-masing peran pengguna (SDM, Humas, Talent, Bendahara, Ketua Umum) ditiadakan pada Iterasi 1 dan dialihkan ke pengembangan **Iterasi 2**. Pengguna yang masuk atau berpindah peran langsung diarahkan ke layar kerja operasional utama masing-masing.
+
 | No | ID Layar (*Screen ID*) | Nama Tampilan | Peran Utama | Halaman Tujuan Navigasi Utama |
 |---|---|---|---|---|
 | **0** | `LOFI_LAYOUT_GUIDE` | 📐 Lo-Fi Layout & Component Blueprint | Semua / Publik | `GUEST_HOME` |
-| **1** | `LOGIN` | Halaman Masuk Sistem | Guest / Semua | Sesuai Peran: `SDM_DASHBOARD`, `HUMAS_DASHBOARD`, `TALENT_DASHBOARD`, `BENDAHARA_DASHBOARD` |
+| **1** | `LOGIN` | Halaman Masuk Sistem | Guest / Semua | Sesuai Peran: `SDM_USER_MANAGEMENT`, `HUMAS_CLIENTS`, `TALENT_ASSIGNMENTS`, `BENDAHARA_PAYMENT_LIST`, `KETUM_MONITORING` |
 | **2** | `ALL_PROFILE` | Halaman Profil Akun Pengguna | Pengguna Internal | Menyimpan data akun / Tetap di halaman profil |
 | **3** | `ALL_NOTIFICATIONS` | Pusat Notifikasi Terintegrasi | Pengguna Internal | Menandai notifikasi dibaca |
 | **4** | `GUEST_HOME` | Portal Beranda & Profil Paguyuban | Publik | `GUEST_TALENTS`, `GUEST_KEGIATAN`, `GUEST_CONTACT`, `LOGIN`, `LOFI_LAYOUT_GUIDE` |
@@ -44,30 +46,21 @@ Sistem dirancang menggunakan pendekatan **Role-Based Access Control (RBAC)** den
 | **7** | `GUEST_BLOG` | Portal Berita & Artikel Suroboyoan | Publik | Modal Baca Artikel Lengkap |
 | **8** | `GUEST_GALLERY` | Galeri Dokumentasi Foto & Video | Publik | Filter Kategori Media |
 | **9** | `GUEST_CONTACT` | Formulir Kontak & Pengajuan Kerjasama | Publik | Mengirim Pesan Kolaborasi ke Humas |
-| **10** | `SDM_DASHBOARD` | Dashboard Utama Pengurus SDM | SDM | `SDM_PLOTTING`, `SDM_USER_MANAGEMENT`, `SDM_PENUGASAN_MGMT`, `SDM_VALIDATION_MGMT` |
-| **11** | `SDM_PLOTTING` | Form Plotting Penugasan Talent | SDM | `SDM_DASHBOARD` (Konfirmasi Plotting atau Batal) |
-| **12** | `SDM_USER_MANAGEMENT` | Manajemen Akun & Pengguna | SDM | Modal Tambah/Edit User, `SDM_DASHBOARD` |
-| **13** | `SDM_PENUGASAN_MGMT` | Daftar & Manajemen Seluruh Penugasan | SDM | Modal Tambah Manual, `SDM_DASHBOARD` |
-| **14** | `SDM_VALIDATION_MGMT` | Validasi Laporan LPJ Kegiatan | SDM | Setujui / Revisi LPJ, `SDM_DASHBOARD` |
-| **15** | `HUMAS_DASHBOARD` | Dashboard Utama Pengurus Humas | Humas | `HUMAS_CLIENTS`, `HUMAS_SPONSORS`, `HUMAS_BLOGS`, `HUMAS_GALLERY`, `HUMAS_KEGIATAN`, `HUMAS_PROPOSE`, `HUMAS_PENUGASAN` |
-| **16** | `HUMAS_CLIENTS` | Kelola Client & Mitra Instansi | Humas | Modal Tambah Client, Catat Log Interaksi |
-| **17** | `HUMAS_SPONSORS` | Kelola Sponsor & Kemitraan | Humas | Modal Tambah Sponsor |
-| **18** | `HUMAS_BLOGS` | Kelola Artikel Berita & Rilis Pers | Humas | Modal Tulis Artikel Baru |
-| **19** | `HUMAS_GALLERY` | Kelola Galeri Foto & Video | Humas | Modal Unggah Media |
-| **20** | `HUMAS_KEGIATAN` | Kelola Agenda Kegiatan Pariwisata | Humas | Modal Tambah Kegiatan (Memicu Notifikasi SDM) |
-| **21** | `HUMAS_PROPOSE` | Rekomendasi Calon Talent untuk Acara | Humas | `HUMAS_DASHBOARD` |
-| **22** | `HUMAS_PENUGASAN` | Monitoring Status Penugasan Real-Time | Humas | `HUMAS_DASHBOARD` |
-| **23** | `TALENT_DASHBOARD` | Dashboard Utama Talent Duta Wisata | Talent | `TALENT_ASSIGNMENTS`, `TALENT_HISTORY`, `TALENT_HONOR`, `TALENT_PROFILE_EDIT` |
-| **24** | `TALENT_ASSIGNMENTS` | Daftar Penugasan Saya (Inbox Mandat) | Talent | `TALENT_DETAIL` |
-| **25** | `TALENT_DETAIL` | Rincian Mandat Penugasan Terpilih | Talent | `TALENT_REPORT_FORM`, `TALENT_ASSIGNMENTS` |
-| **26** | `TALENT_REPORT_FORM` | Formulir Pengunggahan Laporan (LPJ) | Talent | `TALENT_ASSIGNMENTS` (Submit LPJ), `TALENT_DETAIL` (Batal) |
-| **27** | `TALENT_HISTORY` | Riwayat Kegiatan & Penugasan Selesai | Talent | `TALENT_DASHBOARD` |
-| **28** | `TALENT_HONOR` | Rekapitulasi Honorarium & Bukti Bayar | Talent | `TALENT_DASHBOARD` |
-| **29** | `TALENT_PROFILE_EDIT` | Edit Portofolio, Biodata, & Sosial Media | Talent | `TALENT_DASHBOARD` |
-| **30** | `BENDAHARA_DASHBOARD` | Dashboard Utama Keuangan & Pembayaran | Bendahara | `BENDAHARA_PAYMENT_INPUT`, `BENDAHARA_REPORT`, `BENDAHARA_KELOLA_KEUANGAN` |
-| **31** | `BENDAHARA_PAYMENT_INPUT` | Input Pencairan & Transfer Honorarium | Bendahara | `BENDAHARA_DASHBOARD` (Konfirmasi Bayar / Batal) |
-| **32** | `BENDAHARA_REPORT` | Rekapitulasi & Ekspor Laporan Kas | Bendahara | Cetak / Print, Ekspor Excel/CSV, `BENDAHARA_DASHBOARD` |
-| **33** | `BENDAHARA_KELOLA_KEUANGAN` | Kelola Buku Kas Umum & Transaksi | Bendahara | Modal Tambah Transaksi, `BENDAHARA_DASHBOARD` |
+| **10** | `SDM_USER_MANAGEMENT` | Manajemen Akun & Pengguna | SDM | Modal Tambah/Edit User, `SDM_TALENT_LIST` |
+| **11** | `SDM_TALENT_LIST` | Direktori & Ketersediaan Talent | SDM | Filter Status & Kategori Talent |
+| **12** | `SDM_PENUGASAN_MGMT` | Daftar & Manajemen Seluruh Penugasan | SDM | Modal Tambah Manual, Plotting |
+| **13** | `SDM_VALIDATION_MGMT` | Validasi Laporan LPJ Kegiatan | SDM | Setujui / Revisi LPJ |
+| **14** | `HUMAS_CLIENTS` | Kelola Client & Mitra Instansi | Humas | Modal Tambah Client, Catat Log Interaksi |
+| **15** | `HUMAS_SPONSORS` | Kelola Sponsor & Kemitraan | Humas | Modal Tambah Sponsor |
+| **16** | `HUMAS_PENGAJUAN` | Pengajuan Penugasan Talent Baru | Humas | Form Usulan Penugasan (ke SDM) |
+| **17** | `HUMAS_TALENT_INFO` | Informasi Profil & Portofolio Duta | Humas | Rincian Kategori & Bakat Duta |
+| **18** | `TALENT_ASSIGNMENTS` | Daftar Penugasan Saya (Inbox Mandat) | Talent | `TALENT_DETAIL` |
+| **19** | `TALENT_DETAIL` | Rincian Mandat Penugasan Terpilih | Talent | `TALENT_REPORT_FORM`, `TALENT_ASSIGNMENTS` |
+| **20** | `TALENT_REPORT_FORM` | Formulir Pengunggahan Laporan (LPJ) | Talent | `TALENT_ASSIGNMENTS` (Submit LPJ), `TALENT_DETAIL` (Batal) |
+| **21** | `TALENT_HISTORY` | Riwayat Kegiatan & Penugasan Selesai | Talent | Riwayat Tugas & Status Honor |
+| **22** | `TALENT_RATING_PROFILE` | Rating Performa & Portofolio Duta | Talent | Update Portofolio & Spesialisasi |
+| **23** | `BENDAHARA_PAYMENT_LIST` | Daftar Pembayaran & Pencairan Honor | Bendahara | Modal Input Bukti Bayar / Lunas |
+| **24** | `KETUM_MONITORING` | Pengawasan Agenda & Mandat Kota | Ketua Umum | Monitoring 10 Agenda Strategis Surabaya |
 
 ---
 
@@ -82,31 +75,31 @@ Muncul pada seluruh tampilan peran internal (SDM, Humas, Talent, Bendahara, Ketu
   - *Header Akun*: Menampilkan foto/inisial, nama lengkap, email resmi, dan tag peran.
   - *Menu "Update Profil Saya"*: Mengarahkan ke halaman `PROFILE` untuk memperbarui biodata, spesialisasi, media sosial, dan kata sandi.
   - *Menu "Pusat Notifikasi"*: Menampilkan jumlah notifikasi belum dibaca (*badge*) dan mengarahkan ke halaman `NOTIFICATIONS`.
-  - *Pill "Ganti Peran Aktif"*: Shortcut 1-klik untuk berganti peran seketika (SDM, Humas, Talent, Bendahara).
+  - *Pill "Ganti Peran Aktif"*: Shortcut 1-klik untuk berganti peran seketika (SDM ➔ `SDM_USER_MANAGEMENT`, Humas ➔ `HUMAS_CLIENTS`, Talent ➔ `TALENT_ASSIGNMENTS`, Bendahara ➔ `BENDAHARA_PAYMENT_LIST`).
   - *Tombol "Keluar (Logout)" (Aksen Merah)*: Mengakhiri sesi aktif pengguna, menampilkan pesan konfirmasi logout, dan mengarahkan ke halaman `LOGIN`.
 
 ### 3.2. Sidebar Kiri (Drawer Sidebar Internal)
-Menyediakan akses menu navigasi terstruktur yang **secara eksklusif HANYA berisi modul milik peran tersebut**:
+Menyediakan akses menu navigasi terstruktur yang **secara eksklusif HANYA berisi modul operasional milik peran tersebut (tanpa Dashboard di Iterasi 1)**:
 - **Tombol Ciutkan/Perluas Menu (Toggle Sidebar)**:
   - *Fungsi*: Mengubah lebar sidebar antara tampilan penuh dan tampilan ringkas.
 - **Daftar Menu Bersih Sesuai Peran Aktif**:
-  - *Humas*: Dashboard, Kelola Client, Kelola Sponsor, Pengajuan Penugasan, Lihat Talent.
-  - *SDM*: Dashboard, Manajemen User, Daftar Talent, Penugasan Talent, Validasi Laporan.
-  - *Talent*: Dashboard, Penugasan Saya, Riwayat (Kegiatan & Honor), Rating & Profil.
-  - *Bendahara*: Dashboard, Daftar Pembayaran.
-  - *Ketua Umum*: Dashboard Pengawasan Eksekutif.
+  - *Humas*: Kelola Client Mitra, Kelola Sponsor, Pengajuan Penugasan, Lihat Talent.
+  - *SDM*: Manajemen User, Daftar Talent, Penugasan Talent, Validasi Laporan.
+  - *Talent*: Penugasan Saya, Riwayat Kegiatan & Honor, Rating & Profil.
+  - *Bendahara*: Daftar Pembayaran.
+  - *Ketua Umum*: Pengawasan Agenda & Kegiatan.
 - **Footer Sidebar**:
   - Teks identitas paguyuban & hak cipta (tanpa tombol redundan ke publik, karena perpindahan ke portal publik sudah terakomodasi di Prototype Navigator).
 
 ### 3.3. Figma-Style Prototype Controller (Widget Melayang Kanan Bawah)
-Komponen penguji purwarupa untuk berpindah peran dan meloncat langsung ke seluruh 33 layar tanpa batasan alur otentikasi.
+Komponen penguji purwarupa untuk berpindah peran dan meloncat langsung ke seluruh layar operasional:
 - **Tombol Toggle Navigator**: Membuka/menutup laci navigasi purwarupa.
 - **Pill Pemilih Peran Cepat (Quick Switcher)**:
-  - Tombol `Guest` ➔ Beralih ke portal masyarakat umum.
-  - Tombol `SDM` ➔ Otomatis masuk sebagai Pengurus SDM (Cak Dimas Prasetyo) dan mengarah ke `SDM_DASHBOARD`.
-  - Tombol `Humas` ➔ Otomatis masuk sebagai Pengurus Humas (Ning Nabila Putri) dan mengarah ke `HUMAS_DASHBOARD`.
-  - Tombol `Talent` ➔ Otomatis masuk sebagai Talent Duta Wisata (Cak Fajar Alamsyah) dan mengarah ke `TALENT_DASHBOARD`.
-  - Tombol `Bendahara` ➔ Otomatis masuk sebagai Bendahara (Cak Reza Fahlevi) dan mengarah ke `BENDAHARA_DASHBOARD`.
+  - Tombol `Guest` ➔ Beralih ke portal masyarakat umum (`GUEST_HOME`).
+  - Tombol `SDM` ➔ Otomatis masuk sebagai Pengurus SDM dan mengarah ke `SDM_USER_MANAGEMENT`.
+  - Tombol `Humas` ➔ Otomatis masuk sebagai Pengurus Humas dan mengarah ke `HUMAS_CLIENTS`.
+  - Tombol `Talent` ➔ Otomatis masuk sebagai Talent Duta Wisata dan mengarah ke `TALENT_ASSIGNMENTS`.
+  - Tombol `Bendahara` ➔ Otomatis masuk sebagai Bendahara dan mengarah ke `BENDAHARA_PAYMENT_LIST`.
 - **Menu Dropdown Lompat Layar**: Melompat langsung ke nomor layar 0 s.d. 32.
 - **Tombol "Reset Data Prototipe"**: Mereset ulang data simulasi (kegiatan, penugasan, transaksi, notifikasi) kembali ke status default awal.
 
