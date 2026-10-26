@@ -726,7 +726,10 @@ export default function App() {
     }
     if (currentScreen === 'HUMAS_TALENT_INFO') {
       return (
-        <HumasTalentInfo talents={users} />
+        <HumasTalentInfo 
+          talents={users} 
+          penugasanList={penugasanList} 
+        />
       );
     }
 
