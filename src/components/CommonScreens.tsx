@@ -73,8 +73,11 @@ export function LoginScreen({ onLoginSuccess, users, onBackToPublic, logoutMessa
   const [error, setError] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
 
+  const [infoNotice, setInfoNotice] = useState('');
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setInfoNotice('');
     if (!username.trim() || !password.trim()) {
       setError('Mohon lengkapi username dan password Anda!');
       return;
@@ -89,6 +92,7 @@ export function LoginScreen({ onLoginSuccess, users, onBackToPublic, logoutMessa
   };
 
   const handleQuickLogin = (userRole: Role) => {
+    setInfoNotice('');
     const found = users.find(u => u.peran === userRole);
     if (found) {
       setUsername(found.username);
@@ -139,6 +143,22 @@ export function LoginScreen({ onLoginSuccess, users, onBackToPublic, logoutMessa
             <div className="mb-5 bg-rose-50 border border-rose-300 text-rose-800 text-xs rounded-xl p-3 flex items-center gap-2.5 animate-fadeIn">
               <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>{error}</span>
+            </div>
+          )}
+
+          {infoNotice && (
+            <div className="mb-5 bg-blue-50 border border-blue-300 text-blue-900 text-xs rounded-xl p-3 flex items-start justify-between gap-2.5 animate-fadeIn">
+              <div className="flex items-start gap-2">
+                <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{infoNotice}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInfoNotice('')}
+                className="text-blue-500 hover:text-blue-700 text-xs font-bold cursor-pointer"
+              >
+                Tutup
+              </button>
             </div>
           )}
 
@@ -199,7 +219,7 @@ export function LoginScreen({ onLoginSuccess, users, onBackToPublic, logoutMessa
 
               <button
                 type="button"
-                onClick={() => alert('Simulasi Reset: Silakan gunakan username dari peran yang tersedia atau hubungi Sie SDM & Diklat di Balai Pemuda.')}
+                onClick={() => setInfoNotice('Bantuan Akses: Silakan gunakan akun demo 1-Klik Masuk di bawah, atau hubungi Sie SDM & Diklat di Sekretariat Balai Pemuda Surabaya.')}
                 className="text-xs font-bold text-[#1A3C5E] hover:underline cursor-pointer"
               >
                 Lupa Sandi?

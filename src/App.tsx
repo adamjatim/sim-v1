@@ -50,6 +50,7 @@ import { KetuaUmumScreen } from './components/KetuaUmumScreen';
 import LofiLayoutGuideScreen from './components/LofiLayoutGuideScreen';
 import { LoginScreen, ProfileScreen, NotificationScreen } from './components/CommonScreens';
 import { DeleteConfirmModal } from './components/DeleteConfirmModal';
+import { LogoutConfirmModal } from './components/LogoutConfirmModal';
 
 // Icons
 import { 
@@ -110,6 +111,7 @@ export default function App() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState<boolean>(false);
   const [logoutMessage, setLogoutMessage] = useState<string>('');
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
   const [showResetSuccessToast, setShowResetSuccessToast] = useState<boolean>(false);
 
   // Active Personas & Notifications
@@ -420,9 +422,19 @@ export default function App() {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
-          <p className="text-[10px] text-slate-400 font-mono">&copy; 2026 Cak & Ning Surabaya</p>
-          <p className="text-[9px] text-[#1A3C5E] font-bold mt-0.5">Paguyuban Duta Wisata</p>
+        <div className="p-4 border-t border-slate-200 bg-slate-50 space-y-2.5">
+          <button
+            onClick={() => setIsLogoutModalOpen(true)}
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 text-rose-600 font-bold text-xs cursor-pointer transition-colors shadow-2xs"
+            title="Keluar dari sesi akun saat ini"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-500" />
+            <span>Keluar Akun</span>
+          </button>
+          <div className="text-center pt-0.5">
+            <p className="text-[10px] text-slate-400 font-mono">&copy; 2026 Cak & Ning Surabaya</p>
+            <p className="text-[9px] text-[#1A3C5E] font-bold mt-0.5">Paguyuban Duta Wisata</p>
+          </div>
         </div>
       </aside>
     );
@@ -614,7 +626,10 @@ export default function App() {
                     {/* Logout Action */}
                     <div className="pt-1.5 p-1.5 border-t border-slate-100">
                       <button
-                        onClick={handleLogout}
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          setIsLogoutModalOpen(true);
+                        }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-bold cursor-pointer transition-colors"
                       >
                         <LogOut className="w-4 h-4 text-rose-500" />
@@ -1162,6 +1177,20 @@ export default function App() {
         itemName="Seluruh Data Simulasi Paguyuban (Instansi, Sponsor, Penugasan)"
         message="Kembalikan seluruh data simulasi ke kondisi awal? Semua penambahan instansi, sponsor, dan penugasan baru yang Anda buat akan dikembalikan ke data default awal."
         confirmButtonText="Ya, Reset Data"
+      />
+
+      {/* Modal Konfirmasi Logout */}
+      <LogoutConfirmModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+        userName={currentActiveUser?.nama}
+        userRole={currentRole === 'SDM' ? 'Sie SDM & Diklat' :
+                  currentRole === 'Humas' ? 'Sie Humas & Kemitraan' :
+                  currentRole === 'Talent' ? 'Talent Duta Wisata' :
+                  currentRole === 'Bendahara' ? 'Bendahara Keuangan' :
+                  currentRole === 'Ketua Umum' ? 'Ketua Umum Paguyuban' : currentRole}
+        userEmail={currentActiveUser?.email}
       />
 
       {/* Toast Notifikasi Sukses Reset */}
