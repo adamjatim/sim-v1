@@ -49,6 +49,7 @@ import { BendaharaDashboard, BendaharaPaymentList } from './components/Bendahara
 import { KetuaUmumScreen } from './components/KetuaUmumScreen';
 import LofiLayoutGuideScreen from './components/LofiLayoutGuideScreen';
 import { LoginScreen, ProfileScreen, NotificationScreen } from './components/CommonScreens';
+import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 
 // Icons
 import { 
@@ -108,6 +109,8 @@ export default function App() {
   const [isPrototypeDropdownOpen, setIsPrototypeDropdownOpen] = useState<boolean>(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState<boolean>(false);
   const [logoutMessage, setLogoutMessage] = useState<string>('');
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
+  const [showResetSuccessToast, setShowResetSuccessToast] = useState<boolean>(false);
 
   // Active Personas & Notifications
   const currentActiveUser = users.find(u => u.peran === currentRole) || users[0];
@@ -153,17 +156,22 @@ export default function App() {
 
   // Reset Data Handler
   const handleResetData = () => {
-    if (confirm('Kembalikan seluruh data simulasi ke kondisi awal? Semua penambahan instansi, sponsor, dan penugasan baru akan di-reset.')) {
-      setUsers(INITIAL_USERS);
-      setClients(INITIAL_CLIENTS);
-      setSponsors(INITIAL_SPONSORS);
-      setPengajuanList(INITIAL_PENGAJUAN_PENUGASAN);
-      setKegiatanList(INITIAL_KEGIATAN);
-      setPenugasanList(INITIAL_PENUGASAN);
-      setNotifications(INITIAL_NOTIFICATIONS);
-      setContacts(INITIAL_CONTACTS);
-      alert('Data simulasi organisasi berhasil di-reset!');
-    }
+    setIsResetConfirmOpen(true);
+  };
+
+  const handleConfirmReset = () => {
+    setUsers(INITIAL_USERS);
+    setClients(INITIAL_CLIENTS);
+    setSponsors(INITIAL_SPONSORS);
+    setPengajuanList(INITIAL_PENGAJUAN_PENUGASAN);
+    setKegiatanList(INITIAL_KEGIATAN);
+    setPenugasanList(INITIAL_PENUGASAN);
+    setNotifications(INITIAL_NOTIFICATIONS);
+    setContacts(INITIAL_CONTACTS);
+    setShowResetSuccessToast(true);
+    setTimeout(() => {
+      setShowResetSuccessToast(false);
+    }, 4000);
   };
 
   // ============================================================================
@@ -1142,6 +1150,33 @@ export default function App() {
           </span>
         </button>
       </div>
+
+      {/* Modal Konfirmasi Reset Data Simulasi */}
+      <DeleteConfirmModal
+        isOpen={isResetConfirmOpen}
+        onClose={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmReset}
+        title="Reset Data Simulasi"
+        variant="warning"
+        itemType="Data Organisasi"
+        itemName="Seluruh Data Simulasi Paguyuban (Instansi, Sponsor, Penugasan)"
+        message="Kembalikan seluruh data simulasi ke kondisi awal? Semua penambahan instansi, sponsor, dan penugasan baru yang Anda buat akan dikembalikan ke data default awal."
+        confirmButtonText="Ya, Reset Data"
+      />
+
+      {/* Toast Notifikasi Sukses Reset */}
+      {showResetSuccessToast && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#1A3C5E] text-white px-4 py-2.5 rounded-xl shadow-2xl border border-amber-400 flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span className="font-semibold">Data simulasi organisasi berhasil dikembalikan ke kondisi awal!</span>
+          <button 
+            onClick={() => setShowResetSuccessToast(false)}
+            className="text-slate-300 hover:text-white p-0.5 rounded cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

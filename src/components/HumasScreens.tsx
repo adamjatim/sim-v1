@@ -18,6 +18,7 @@ import {
   Newspaper,
   HeartHandshake
 } from 'lucide-react';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 // ============================================================================
 // 1. DASHBOARD HUMAS (4 Kartu Statistik + Tabel Pengajuan Terbaru 5 Data)
@@ -169,6 +170,7 @@ interface HumasClientsProps {
 export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteClient }: HumasClientsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
 
   const [formInstansi, setFormInstansi] = useState('');
   const [formKontak, setFormKontak] = useState('');
@@ -283,11 +285,7 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
                         <Edit2 className="w-3 h-3" /> Edit
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm(`Yakin ingin menghapus ${client.namaInstansi}?`)) {
-                            onDeleteClient(client.id);
-                          }
-                        }}
+                        onClick={() => setClientToDelete(client)}
                         className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                         title="Hapus Client"
                       >
@@ -395,6 +393,23 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
           </div>
         </div>
       )}
+
+      {/* Modal Konfirmasi Hapus Klien */}
+      <DeleteConfirmModal
+        isOpen={clientToDelete !== null}
+        onClose={() => setClientToDelete(null)}
+        onConfirm={() => {
+          if (clientToDelete) {
+            onDeleteClient(clientToDelete.id);
+            setClientToDelete(null);
+          }
+        }}
+        title="Hapus Data Klien / Instansi"
+        itemType="Data Klien"
+        itemName={clientToDelete?.namaInstansi}
+        message="Apakah Anda yakin ingin menghapus instansi klien ini? Data kontak dan riwayat kemitraan akan dihapus dari daftar."
+        confirmButtonText="Ya, Hapus Klien"
+      />
     </div>
   );
 }
@@ -412,6 +427,7 @@ interface HumasSponsorsProps {
 export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDeleteSponsor }: HumasSponsorsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
+  const [sponsorToDelete, setSponsorToDelete] = useState<Sponsor | null>(null);
 
   const [formSponsor, setFormSponsor] = useState('');
   const [formJenis, setFormJenis] = useState<'Uang' | 'Barang' | 'Media'>('Uang');
@@ -528,11 +544,7 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
                           <Edit2 className="w-3 h-3" /> Edit
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm(`Hapus sponsor ${sponsor.namaSponsor}?`)) {
-                              onDeleteSponsor(sponsor.id);
-                            }
-                          }}
+                          onClick={() => setSponsorToDelete(sponsor)}
                           className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                         >
                           <Trash2 className="w-3 h-3" /> Hapus
@@ -617,6 +629,23 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
           </div>
         </div>
       )}
+
+      {/* Modal Konfirmasi Hapus Sponsor */}
+      <DeleteConfirmModal
+        isOpen={sponsorToDelete !== null}
+        onClose={() => setSponsorToDelete(null)}
+        onConfirm={() => {
+          if (sponsorToDelete) {
+            onDeleteSponsor(sponsorToDelete.id);
+            setSponsorToDelete(null);
+          }
+        }}
+        title="Hapus Mitra Sponsor"
+        itemType="Mitra Kemitraan"
+        itemName={sponsorToDelete?.namaSponsor}
+        message="Apakah Anda yakin ingin menghapus mitra sponsor ini? Seluruh data dukungan dan kontak person akan dihapus."
+        confirmButtonText="Ya, Hapus Sponsor"
+      />
     </div>
   );
 }
@@ -640,6 +669,7 @@ export function HumasPengajuanPenugasan({
 }: HumasPengajuanProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PengajuanPenugasan | null>(null);
+  const [pengajuanToCancel, setPengajuanToCancel] = useState<PengajuanPenugasan | null>(null);
 
   const [formNama, setFormNama] = useState('');
   const [formTanggal, setFormTanggal] = useState('');
@@ -753,11 +783,7 @@ export function HumasPengajuanPenugasan({
                         </button>
                         {item.status !== 'Dibatalkan' ? (
                           <button
-                            onClick={() => {
-                              if (confirm(`Batalkan pengajuan ${item.namaKegiatan}?`)) {
-                                onCancelPengajuan(item.id);
-                              }
-                            }}
+                            onClick={() => setPengajuanToCancel(item)}
                             className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                           >
                             <XCircle className="w-3 h-3" /> Batalkan
@@ -843,6 +869,24 @@ export function HumasPengajuanPenugasan({
           </div>
         </div>
       )}
+
+      {/* Modal Konfirmasi Pembatalan Pengajuan */}
+      <DeleteConfirmModal
+        isOpen={pengajuanToCancel !== null}
+        onClose={() => setPengajuanToCancel(null)}
+        onConfirm={() => {
+          if (pengajuanToCancel) {
+            onCancelPengajuan(pengajuanToCancel.id);
+            setPengajuanToCancel(null);
+          }
+        }}
+        title="Batalkan Pengajuan Penugasan"
+        variant="warning"
+        itemType="Pengajuan Penugasan"
+        itemName={pengajuanToCancel?.namaKegiatan}
+        message="Apakah Anda yakin ingin membatalkan berkas pengajuan penugasan ini? Status pengajuan akan diubah menjadi 'Dibatalkan'."
+        confirmButtonText="Ya, Batalkan Pengajuan"
+      />
     </div>
   );
 }

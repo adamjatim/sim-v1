@@ -20,6 +20,7 @@ import {
   ChevronRight,
   ClipboardList
 } from 'lucide-react';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 // ============================================================================
 // 1. DASHBOARD SDM (4 Kartu Statistik + Tabel Kegiatan Butuh Plotting 5 Data)
@@ -181,6 +182,7 @@ interface SdmUserManagementProps {
 export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }: SdmUserManagementProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const [formNama, setFormNama] = useState('');
   const [formUsername, setFormUsername] = useState('');
@@ -305,12 +307,8 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
                         <Edit2 className="w-3 h-3" /> Edit
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm(`Hapus akun ${user.nama}?`)) {
-                            onDeleteUser(user.id);
-                          }
-                        }}
-                        className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                        onClick={() => setUserToDelete(user)}
+                        className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                       >
                         <Trash2 className="w-3 h-3" /> Hapus
                       </button>
@@ -419,6 +417,23 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
           </div>
         </div>
       )}
+
+      {/* Modal Konfirmasi Hapus User */}
+      <DeleteConfirmModal
+        isOpen={userToDelete !== null}
+        onClose={() => setUserToDelete(null)}
+        onConfirm={() => {
+          if (userToDelete) {
+            onDeleteUser(userToDelete.id);
+            setUserToDelete(null);
+          }
+        }}
+        title="Hapus Akun Pengguna"
+        itemType={`Peran: ${userToDelete?.peran || ''}`}
+        itemName={userToDelete?.nama}
+        message="Apakah Anda yakin ingin menghapus akun pengguna ini? Seluruh data akses dan status penugasan talent/petugas akan dinonaktifkan."
+        confirmButtonText="Ya, Hapus Akun"
+      />
     </div>
   );
 }
@@ -561,6 +576,7 @@ export function SdmPenugasanManagement({
 }: SdmPenugasanManagementProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Penugasan | null>(null);
+  const [penugasanToDelete, setPenugasanToDelete] = useState<Penugasan | null>(null);
 
   const [formKegiatanNama, setFormKegiatanNama] = useState('');
   const [formTanggal, setFormTanggal] = useState('');
@@ -683,12 +699,8 @@ export function SdmPenugasanManagement({
                           <Edit2 className="w-3 h-3" /> Edit
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm(`Hapus penugasan ${item.talentNama}?`)) {
-                              onDeletePenugasan(item.id);
-                            }
-                          }}
-                          className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                          onClick={() => setPenugasanToDelete(item)}
+                          className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                         >
                           <Trash2 className="w-3 h-3" /> Hapus
                         </button>
@@ -784,6 +796,23 @@ export function SdmPenugasanManagement({
           </div>
         </div>
       )}
+
+      {/* Modal Konfirmasi Hapus Penugasan */}
+      <DeleteConfirmModal
+        isOpen={penugasanToDelete !== null}
+        onClose={() => setPenugasanToDelete(null)}
+        onConfirm={() => {
+          if (penugasanToDelete) {
+            onDeletePenugasan(penugasanToDelete.id);
+            setPenugasanToDelete(null);
+          }
+        }}
+        title="Hapus Jadwal Penugasan"
+        itemType="Data Penugasan"
+        itemName={penugasanToDelete ? `${penugasanToDelete.kegiatanNama} — ${penugasanToDelete.talentNama}` : ''}
+        message="Apakah Anda yakin ingin menghapus data penugasan ini? Jadwal talent terkait akan dikosongkan."
+        confirmButtonText="Ya, Hapus Penugasan"
+      />
     </div>
   );
 }
