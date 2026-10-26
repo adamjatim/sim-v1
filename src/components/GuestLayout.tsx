@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Kegiatan, BlogArticle, MediaItem, ContactMessage } from '../types';
-import { Search, MapPin, Mail, Phone, Clock, ArrowRight, X, Send, Download, ArrowLeft, Calendar, FileText, Globe, Trophy, Briefcase, Award } from 'lucide-react';
+import { MapPin, Mail, Phone, Clock, ArrowRight, X, Send, Download, ArrowLeft, Calendar, FileText, Globe, Trophy, Briefcase, Award } from 'lucide-react';
 import { WireframeImage } from './CommonScreens';
 
 interface GuestLayoutProps {
@@ -34,10 +34,6 @@ export default function GuestLayout({
   selectedGuestBlogId,
   setSelectedGuestBlogId
 }: GuestLayoutProps) {
-  // Search states
-  const [talentSearch, setTalentSearch] = useState('');
-  const [kegiatanSearch, setKegiatanSearch] = useState('');
-
   // Selected details fallback if parent states aren't active (safeguards)
   const [localTalentId, setLocalTalentId] = useState('u4');
   const [localKegiatanId, setLocalKegiatanId] = useState('k1');
@@ -244,25 +240,17 @@ export default function GuestLayout({
             <div className="border-b border-[#E0E0E0] pb-4 flex justify-between items-end">
               <div>
                 <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Daftar Talent Cak & Ning</h2>
-                <p className="text-xs text-slate-500 font-sans">Cari dan hubungi perwakilan duta wisata yang teregistrasi secara aktif.</p>
+                <p className="text-xs text-slate-500 font-sans">Daftar perwakilan duta wisata yang teregistrasi secara aktif.</p>
               </div>
-              {/* Search input bar */}
-              <div className="relative w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  placeholder="Cari berdasarkan nama..."
-                  value={talentSearch}
-                  onChange={(e) => setTalentSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 border-2 border-[#1A3C5E] focus:outline-none text-xs"
-                />
-              </div>
+              <span className="text-xs font-mono font-bold text-[#1A3C5E] bg-slate-100 px-3 py-1 border border-slate-300">
+                Total: {talents.filter(t => t.peran === 'Talent').length} Talent
+              </span>
             </div>
 
             {/* Talent Grid */}
             <div className="grid grid-cols-4 gap-4">
               {talents
-                .filter(t => t.peran === 'Talent' && t.nama.toLowerCase().includes(talentSearch.toLowerCase()))
+                .filter(t => t.peran === 'Talent')
                 .map((t) => (
                   <div key={t.id} className="border-2 border-[#1A3C5E] p-4 flex flex-col items-center bg-slate-50 text-center transition-all hover:border-slate-700">
                     <WireframeImage label={`Foto: ${t.nama}`} className="w-32 h-32 mb-3" />
@@ -368,23 +356,14 @@ export default function GuestLayout({
                 <h2 className="text-xl font-bold uppercase tracking-tight text-[#1A3C5E]">Agenda Kegiatan & Kalender</h2>
                 <p className="text-xs text-slate-500">Lihat rencana festival budaya, pameran pariwisata, dan penugasan publik.</p>
               </div>
-              <div className="relative w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  placeholder="Cari nama agenda..."
-                  value={kegiatanSearch}
-                  onChange={(e) => setKegiatanSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 border-2 border-[#1A3C5E] focus:outline-none text-xs"
-                />
-              </div>
+              <span className="text-xs font-mono font-bold text-[#1A3C5E] bg-slate-100 px-3 py-1 border border-slate-300">
+                Total: {kegiatanList.length} Agenda
+              </span>
             </div>
 
             {/* List Activities */}
             <div className="space-y-4">
-              {kegiatanList
-                .filter(k => k.namaKegiatan.toLowerCase().includes(kegiatanSearch.toLowerCase()))
-                .map((k) => (
+              {kegiatanList.map((k) => (
                   <div key={k.id} className="border-2 border-[#1A3C5E] p-5 flex gap-4 bg-white hover:bg-slate-50 transition-colors">
                     <WireframeImage label="Thumbnail Event" className="w-24 h-24 shrink-0" />
                     <div className="flex-1 space-y-1">

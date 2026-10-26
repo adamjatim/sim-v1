@@ -7,7 +7,6 @@ import {
   Clock, 
   CreditCard, 
   FileCheck, 
-  Search, 
   X,
   Building,
   Check
@@ -99,7 +98,6 @@ export function BendaharaPaymentList({
   penugasanList,
   onSavePayment
 }: BendaharaPaymentListProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedItemForPayment, setSelectedItemForPayment] = useState<Penugasan | null>(null);
 
   // Modal form states
@@ -111,10 +109,7 @@ export function BendaharaPaymentList({
 
   // 12 data dummy
   const list12 = penugasanList.slice(0, 12);
-  const filtered = list12.filter(p => 
-    p.talentNama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.kegiatanNama.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = list12;
 
   const handleOpenModal = (p: Penugasan) => {
     setSelectedItemForPayment(p);
@@ -140,18 +135,9 @@ export function BendaharaPaymentList({
         <p className="text-xs text-slate-500 mt-0.5">Tabel 12 pencairan honorarium duta wisata Cak & Ning Surabaya.</p>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Cari nama talent atau kegiatan..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
-          />
-        </div>
-        <span className="text-xs text-slate-500 font-mono">Tampil: <strong>{filtered.length}</strong> Pembayaran</span>
+      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
+        <span className="text-xs text-slate-500 font-medium">Daftar Rekap Pencairan Honorarium</span>
+        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Pembayaran</span>
       </div>
 
       {/* Tabel dengan kolom: Nama Talent, Nama Kegiatan, Fee Kotor, Status Bayar, Aksi */}

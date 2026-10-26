@@ -198,7 +198,7 @@ Seluruh halaman publik dibungkus dalam `GuestLayout` yang memiliki header naviga
 ### 5.2. Direktori Publik Talent Cak & Ning (`GUEST_TALENTS`)
 - **Tujuan**: Menampilkan katalog anggota duta wisata yang aktif beserta keahlian khusus dan angkatannya.
 - **Komponen Utama**:
-  - Kotak pencarian talent secara *real-time* berdasarkan nama.
+  - Ringkasan total jumlah talent terdaftar (fitur pencarian real-time diagendakan untuk Iterasi ke-2).
   - Grid kartu talent (Foto/Inisial, nama, gelar Cak/Ning, tahun angkatan, badge status aktif, jumlah penugasan).
   - Modal Rincian Profil Duta saat dipilih.
 - **Tombol dan Aksi Navigasi**:
@@ -283,7 +283,7 @@ Seluruh halaman publik dibungkus dalam `GuestLayout` yang memiliki header naviga
 ### 6.3. Manajemen Akun Pengguna (`SDM_USER_MANAGEMENT`)
 - **Tujuan**: Mengelola akun pengguna sistem, mendaftarkan anggota baru, memperbarui peran, dan mengatur status keaktifan.
 - **Komponen Utama**:
-  - Kolom pencarian nama/email dan filter peran (Semua, SDM, Humas, Bendahara, Talent).
+  - Ringkasan total akun pengguna terdaftar (fitur pencarian keyword diagendakan untuk Iterasi ke-2).
   - Tabel pengguna dengan foto inisial, email, peran, status, poin keaktifan, dan nomor telepon.
   - Modal formulir Tambah Pengguna Baru dan Edit Pengguna.
 - **Tombol dan Aksi Navigasi**:
@@ -540,7 +540,7 @@ Seluruh halaman publik dibungkus dalam `GuestLayout` yang memiliki header naviga
 ### 9.3. Buku Kas Umum & Kelola Transaksi (`BENDAHARA_KELOLA_KEUANGAN`)
 - **Tujuan**: Halaman pencatatan komprehensif seluruh transaksi penerimaan kas (sponsorship, kas internal) dan pengeluaran (honor, konsumsi, akomodasi, sewa busana).
 - **Komponen Utama**:
-  - Pencarian transaksi dan filter kategori (*Honorarium, Sponsorship, Konsumsi, Transportasi, dsb.*).
+  - Ringkasan total pembukuan kas (fitur pencarian keyword diagendakan untuk Iterasi ke-2).
   - Tabel transaksi dengan kode transaksi, tanggal, tipe (Masuk/Keluar), nominal, keterangan, dan nama pencatat.
   - Modal form catat transaksi.
 - **Tombol dan Aksi Navigasi**:

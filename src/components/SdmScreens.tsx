@@ -6,7 +6,6 @@ import {
   Plus, 
   Edit2, 
   Trash2, 
-  Search, 
   Filter, 
   Calendar, 
   FileText, 
@@ -180,7 +179,6 @@ interface SdmUserManagementProps {
 }
 
 export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }: SdmUserManagementProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
@@ -192,11 +190,7 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
 
   // 15 data dummy users
   const userList = users.slice(0, 15);
-  const filtered = userList.filter(u => 
-    u.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.username.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = userList;
 
   const handleOpenAdd = () => {
     setEditingUser(null);
@@ -263,18 +257,9 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Cari nama, username, email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
-          />
-        </div>
-        <span className="text-xs text-slate-500 font-mono">Tampil: <strong>{filtered.length}</strong> Akun</span>
+      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
+        <span className="text-xs text-slate-500 font-medium">Daftar Akun Pengguna Terdaftar</span>
+        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Akun</span>
       </div>
 
       {/* Tabel dengan kolom: No, Nama Lengkap, Username, Email, Peran (Role), Status, Aksi */}
@@ -574,7 +559,6 @@ export function SdmPenugasanManagement({
   onUpdatePenugasan,
   onDeletePenugasan
 }: SdmPenugasanManagementProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Penugasan | null>(null);
 
@@ -585,10 +569,7 @@ export function SdmPenugasanManagement({
 
   // 12 data dummy
   const list12 = penugasanList.slice(0, 12);
-  const filtered = list12.filter(p => 
-    p.kegiatanNama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.talentNama.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = list12;
 
   const handleOpenAdd = () => {
     setEditingItem(null);
@@ -655,17 +636,8 @@ export function SdmPenugasanManagement({
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Cari kegiatan atau nama talent..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
-          />
-        </div>
+      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
+        <span className="text-xs text-slate-500 font-medium">Jadwal Penugasan Duta Wisata</span>
         <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Penugasan</span>
       </div>
 

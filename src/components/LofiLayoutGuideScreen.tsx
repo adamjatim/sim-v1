@@ -14,7 +14,6 @@ import {
   ChevronRight,
   Eye,
   Layers,
-  Search,
   Bell,
   User,
   Plus

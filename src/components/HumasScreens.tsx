@@ -6,7 +6,6 @@ import {
   Plus, 
   Edit2, 
   Trash2, 
-  Search, 
   Eye, 
   CheckCircle2, 
   Clock, 
@@ -168,7 +167,6 @@ interface HumasClientsProps {
 }
 
 export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteClient }: HumasClientsProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
 
@@ -180,11 +178,7 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
 
   // 12 data dummy
   const clientList = clients.slice(0, 12);
-  const filteredClients = clientList.filter(c => 
-    c.namaInstansi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.kontakPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredClients = clientList;
 
   const handleOpenAdd = () => {
     setEditingClient(null);
@@ -252,19 +246,9 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
         </button>
       </div>
 
-      {/* Toolbar Search */}
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Cari nama instansi atau PIC..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
-          />
-        </div>
-        <span className="text-xs text-slate-500 font-mono">Tampil: <strong>{filteredClients.length}</strong> Client</span>
+      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
+        <span className="text-xs text-slate-500 font-medium">Daftar Instansi & Mitra Terhubung</span>
+        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filteredClients.length}</strong> Client</span>
       </div>
 
       {/* Tabel dengan kolom: No, Nama Instansi, Kontak Person, Telepon, Email, Aksi (Tombol Edit & Hapus) */}
@@ -426,7 +410,6 @@ interface HumasSponsorsProps {
 }
 
 export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDeleteSponsor }: HumasSponsorsProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
 
@@ -436,10 +419,7 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
 
   // 10 data dummy
   const sponsorList = sponsors.slice(0, 10);
-  const filtered = sponsorList.filter(s => 
-    s.namaSponsor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.kontakPerson.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = sponsorList;
 
   const handleOpenAdd = () => {
     setEditingSponsor(null);
@@ -500,17 +480,8 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Cari nama sponsor atau kontak..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
-          />
-        </div>
+      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
+        <span className="text-xs text-slate-500 font-medium">Daftar Rekanan Sponsor & Mitra Pendukung</span>
         <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Brand Sponsor</span>
       </div>
 
@@ -667,7 +638,6 @@ export function HumasPengajuanPenugasan({
   onUpdatePengajuan, 
   onCancelPengajuan 
 }: HumasPengajuanProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PengajuanPenugasan | null>(null);
 
@@ -677,10 +647,7 @@ export function HumasPengajuanPenugasan({
 
   // 10 data dummy
   const list10 = pengajuanList.slice(0, 10);
-  const filtered = list10.filter(p => 
-    p.namaKegiatan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.client.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filtered = list10;
 
   const handleOpenAdd = () => {
     setEditingItem(null);
@@ -739,17 +706,8 @@ export function HumasPengajuanPenugasan({
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Cari kegiatan atau mitra..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
-          />
-        </div>
+      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
+        <span className="text-xs text-slate-500 font-medium">Daftar Pengajuan Penugasan Aktif</span>
         <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Pengajuan</span>
       </div>
 
@@ -897,12 +855,8 @@ interface HumasTalentInfoProps {
 }
 
 export function HumasTalentInfo({ talents }: HumasTalentInfoProps) {
-  const [searchTerm, setSearchTerm] = useState('');
   const talentList = talents.filter(u => u.peran === 'Talent').slice(0, 15);
-  const filtered = talentList.filter(t => 
-    t.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.telepon.includes(searchTerm)
-  );
+  const filtered = talentList;
 
   return (
     <div className="space-y-6 animate-fade-in font-sans">
@@ -911,17 +865,8 @@ export function HumasTalentInfo({ talents }: HumasTalentInfoProps) {
         <p className="text-xs text-slate-500 mt-0.5">Tabel kontak dan data profil duta wisata untuk kebutuhan koordinasi penugasan Humas.</p>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-72">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Cari nama talent..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-[#1A3C5E]"
-          />
-        </div>
+      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
+        <span className="text-xs text-slate-500 font-medium">Daftar Duta Wisata Aktif</span>
         <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Talent</span>
       </div>
 
