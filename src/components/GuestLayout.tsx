@@ -45,6 +45,7 @@ export default function GuestLayout({
 
   // Selected article / media detail modals
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
+  const [downloadedDocName, setDownloadedDocName] = useState<string | null>(null);
 
   // Contact form state
   const [nama, setNama] = useState('');
@@ -222,7 +223,7 @@ export default function GuestLayout({
                     </div>
                     <button
                       type="button"
-                      onClick={() => alert(`[Mode Purwarupa]\n\nUnduh Dokumen "${doc.nama}.pdf" berhasil diproses.`)}
+                      onClick={() => setDownloadedDocName(doc.nama)}
                       className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold px-3 py-1.5 text-[9px] uppercase cursor-pointer whitespace-nowrap shrink-0 border-none"
                     >
                       Unduh PDF
@@ -231,6 +232,29 @@ export default function GuestLayout({
                 ))}
               </div>
             </div>
+
+            {/* Modal Sukses Unduh Dokumen */}
+            {downloadedDocName && (
+              <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-[#1A3C5E]">Unduh Dokumen Berhasil</h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Berkas <strong>{downloadedDocName}.pdf</strong> telah disiapkan dan siap disimpan di perangkat Anda.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setDownloadedDocName(null)}
+                    className="w-full py-2 bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold text-xs rounded-xl cursor-pointer"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

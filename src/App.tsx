@@ -23,7 +23,6 @@ import {
 
 // Screen Components
 import { GuestScreens } from './components/GuestScreens';
-import { GuestTalentDetail } from './components/GuestTalentDetail';
 import { 
   HumasDashboard, 
   HumasClients, 
@@ -204,7 +203,18 @@ export default function App() {
       }
       return p;
     }));
-    alert('Laporan penugasan berhasil diunggah dan diteruskan ke Sie SDM & Diklat!');
+    // Add notification instead of alert
+    setNotifications(prev => [
+      {
+        id: 'notif_' + Date.now(),
+        penerimaRole: 'SDM',
+        tipe: 'info',
+        pesan: 'Laporan penugasan baru telah diunggah oleh talent dan siap divalidasi.',
+        tanggal: new Date().toISOString().split('T')[0],
+        dibaca: false
+      },
+      ...prev
+    ]);
     setCurrentScreen('TALENT_ASSIGNMENTS');
   };
 
@@ -222,7 +232,15 @@ export default function App() {
     }));
   };
 
-  const handleSavePayment = (penId: string, nominal: number, tanggalTransfer: string, fileLabel: string) => {
+  const handleSavePayment = (
+    penId: string, 
+    nominal: number, 
+    tanggalTransfer: string, 
+    fileLabel: string,
+    bank?: string,
+    noRek?: string,
+    catatan?: string
+  ) => {
     setPenugasanList(prev => prev.map(p => {
       if (p.id === penId) {
         return {
@@ -230,7 +248,61 @@ export default function App() {
           honor: nominal,
           tanggalBayar: tanggalTransfer,
           buktiBayar: fileLabel,
+          bankTujuan: bank || p.bankTujuan,
+          rekeningTujuan: noRek || p.rekeningTujuan,
+          catatanBendahara: catatan || p.catatanBendahara,
           statusBayar: 'Lunas'
+        };
+      }
+      return p;
+    }));
+  };
+
+  const handleUpdatePayment = (penId: string, updatedData: Partial<Penugasan>) => {
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
+        return { ...p, ...updatedData };
+      }
+      return p;
+    }));
+  };
+
+  const handleRejectPayment = (penId: string, alasan: string) => {
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
+        return {
+          ...p,
+          statusBayar: 'Ditolak',
+          catatanBendahara: alasan
+        };
+      }
+      return p;
+    }));
+  };
+
+  const handleVoidPayment = (penId: string, alasan: string) => {
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
+        return {
+          ...p,
+          statusBayar: 'Dibatalkan',
+          catatanBendahara: alasan
+        };
+      }
+      return p;
+    }));
+  };
+
+  const handleDeletePayment = (penId: string) => {
+    // Menghapus entri pencairan keliru: mengembalikan status bayar ke 'Belum Dibayar' dan membersihkan bukti bayar
+    setPenugasanList(prev => prev.map(p => {
+      if (p.id === penId) {
+        return {
+          ...p,
+          statusBayar: 'Belum Dibayar',
+          tanggalBayar: undefined,
+          buktiBayar: undefined,
+          catatanBendahara: undefined
         };
       }
       return p;
@@ -849,6 +921,10 @@ export default function App() {
         <BendaharaPaymentList
           penugasanList={penugasanList}
           onSavePayment={handleSavePayment}
+          onUpdatePayment={handleUpdatePayment}
+          onRejectPayment={handleRejectPayment}
+          onVoidPayment={handleVoidPayment}
+          onDeletePayment={handleDeletePayment}
         />
       );
     }

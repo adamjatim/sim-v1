@@ -93,11 +93,12 @@ export interface Penugasan {
   talentNama: string;
   status: 'Menunggu Konfirmasi' | 'Dikonfirmasi' | 'Selesai' | 'Ditolak';
   honor?: number;
-  statusBayar?: 'Belum Dibayar' | 'Proses Bayar' | 'Lunas';
+  statusBayar?: 'Belum Dibayar' | 'Proses Bayar' | 'Lunas' | 'Ditolak' | 'Dibatalkan';
   tanggalBayar?: string;
   buktiBayar?: string;
   rekeningTujuan?: string;
   bankTujuan?: string;
+  catatanBendahara?: string;
   laporanDeskripsi?: string;
   laporanBuktiLink?: string;
   laporanTanggal?: string;

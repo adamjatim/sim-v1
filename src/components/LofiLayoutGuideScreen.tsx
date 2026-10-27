@@ -592,7 +592,6 @@ export default function LofiLayoutGuideScreen({ onBackToApp, onNavigateToScreen 
               </button>
               <button 
                 onClick={() => {
-                  alert('Aksi simulasi modal berhasil ditrigger!');
                   setShowMockModal(false);
                 }}
                 className="border-2 border-black bg-black text-white px-5 py-2 font-bold cursor-pointer"

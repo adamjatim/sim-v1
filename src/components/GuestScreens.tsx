@@ -53,7 +53,6 @@ const talentList = talents.filter(u => u.peran === 'Talent').slice(0, 12);
 const handleContactSubmit = (e: React.FormEvent) => {
   e.preventDefault();
   if (!contactForm.nama || !contactForm.email || !contactForm.subjek || !contactForm.pesan) {
-    alert('Mohon lengkapi seluruh kolom formulir pesan.');
     return;
   }
 
