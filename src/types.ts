@@ -16,6 +16,11 @@ export interface User {
   rating?: number; // e.g. 4.95
   bio?: string;
   portofolioLink?: string;
+  bahasa?: string[];
+  tinggiBadan?: number;
+  kategoriAcaraCocok?: string[];
+  klienPernahDilayani?: string[];
+  ketersediaanKlien?: 'Tersedia' | 'Jadwal Terisi';
 }
 
 export interface Client {

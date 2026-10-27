@@ -26,7 +26,10 @@ import {
   Award,
   Sparkles,
   Phone,
-  Mail
+  Mail,
+  Search,
+  Star,
+  Check
 } from 'lucide-react';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 
@@ -173,88 +176,6 @@ export function SdmDashboard({
           </table>
         </div>
       </div>
-
-      {/* Modal Rincian Profil & Keaktifan Talent */}
-      {selectedTalentProfile && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-[#1A3C5E] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                  {selectedTalentProfile.nama.charAt(0)}
-                </div>
-                <div>
-                  <h3 className="font-bold text-base text-[#1A3C5E]">Rincian Profil Talent</h3>
-                  <p className="text-[11px] text-slate-500">{selectedTalentProfile.angkatan || 'Cak & Ning Surabaya'}</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setSelectedTalentProfile(null)} 
-                className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer rounded-lg hover:bg-slate-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="py-4 space-y-4 text-xs">
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">Nama Lengkap:</span>
-                  <span className="font-bold text-slate-800 text-sm">{selectedTalentProfile.nama}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">Status Keanggotaan:</span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    {selectedTalentProfile.status || 'Aktif'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">Spesialisasi:</span>
-                  <span className="font-semibold text-[#1A3C5E] bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
-                    {selectedTalentProfile.spesialisasi || 'MC & Protokoler Tamu VIP'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100 text-center">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Keaktifan (30 Hari)</span>
-                  <span className="text-lg font-black text-[#1A3C5E]">
-                    {selectedTalentProfile.keaktifan30Hari || 5} <span className="text-xs font-normal text-slate-600">Tugas</span>
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-center">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Total Honor (30 Hari)</span>
-                  <span className="text-sm font-black text-emerald-700 font-mono">
-                    Rp {(selectedTalentProfile.totalHonor30Hari || 1750000).toLocaleString('id-ID')}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-1.5 text-slate-600">
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100">
-                  <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="font-mono text-[11px] truncate">{selectedTalentProfile.email}</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100">
-                  <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="font-mono text-[11px]">{selectedTalentProfile.telepon || '0812-3456-7890'}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setSelectedTalentProfile(null)}
-                className="px-4 py-2 rounded-lg bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold text-xs cursor-pointer shadow-xs transition-colors"
-              >
-                Tutup Rincian
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -281,9 +202,18 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
   const [formStatus, setFormStatus] = useState<'Aktif' | 'Nonaktif'>('Aktif');
   const [formError, setFormError] = useState<string | null>(null);
 
-  // 15 data dummy users
-  const userList = users.slice(0, 15);
-  const filtered = userList;
+  const [filterRole, setFilterRole] = useState('Semua');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // 15 data dummy users + search & filter
+  const filtered = users.filter(user => {
+    const matchRole = filterRole === 'Semua' || user.peran === filterRole;
+    const matchSearch = searchQuery.trim() === '' ||
+      user.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchRole && matchSearch;
+  });
 
   const handleOpenAdd = () => {
     setEditingUser(null);
@@ -353,9 +283,35 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
-        <span className="text-xs text-slate-500 font-medium">Daftar Akun Pengguna Terdaftar</span>
-        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Akun</span>
+      {/* Filter & Search Bar */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Cari nama lengkap, username, atau email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-[#1A3C5E]"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 font-semibold">Filter Peran:</span>
+          <select
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
+          >
+            <option value="Semua">Semua Peran</option>
+            <option value="Talent">Talent</option>
+            <option value="SDM">SDM</option>
+            <option value="Humas">Humas</option>
+            <option value="Bendahara">Bendahara</option>
+            <option value="Ketua Umum">Ketua Umum</option>
+          </select>
+          <span className="text-xs text-slate-500 font-mono pl-2">Total: <strong>{filtered.length}</strong> Akun</span>
+        </div>
       </div>
 
       {/* Tabel dengan kolom: No, Nama Lengkap, Username, Email, Peran (Role), Status, Aksi */}
@@ -539,21 +495,45 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
 }
 
 // ============================================================================
-// 3. HALAMAN DAFTAR TALENT KHUSUS SDM (15 Data + Filter Angkatan & Keaktifan)
+// 3. HALAMAN DAFTAR TALENT KHUSUS SDM (15 Data + Filter + Detail Modal)
 // ============================================================================
 interface SdmTalentListProps {
   talents: User[];
+  penugasanList?: Penugasan[];
+  onNavigateToScreen?: (screenId: string) => void;
 }
 
-export function SdmTalentList({ talents }: SdmTalentListProps) {
+export function SdmTalentList({ talents, penugasanList = [], onNavigateToScreen }: SdmTalentListProps) {
   const [filterAngkatan, setFilterAngkatan] = useState('Semua');
   const [filterKeaktifan, setFilterKeaktifan] = useState('Semua');
+  const [filterStatus, setFilterStatus] = useState('Semua');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedTalentProfile, setSelectedTalentProfile] = useState<User | null>(null);
+
+  // Close modal with Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedTalentProfile) {
+        setSelectedTalentProfile(null);
+      }
+    };
+    if (selectedTalentProfile) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedTalentProfile]);
 
   // 15 data dummy talent
   const talentList = talents.filter(u => u.peran === 'Talent').slice(0, 15);
+  
   const filtered = talentList.filter(t => {
     const matchAngkatan = filterAngkatan === 'Semua' || t.angkatan === filterAngkatan;
+    const matchStatus = filterStatus === 'Semua' || t.status === filterStatus;
+    
     let matchKeaktifan = true;
     if (filterKeaktifan === 'Aktif Tinggi') {
       matchKeaktifan = (t.keaktifan30Hari || 0) >= 6;
@@ -562,54 +542,110 @@ export function SdmTalentList({ talents }: SdmTalentListProps) {
     } else if (filterKeaktifan === 'Rendah') {
       matchKeaktifan = (t.keaktifan30Hari || 0) < 3;
     }
-    return matchAngkatan && matchKeaktifan;
+
+    const matchSearch = searchQuery.trim() === '' || 
+      t.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.spesialisasi && t.spesialisasi.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (t.angkatan && t.angkatan.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchAngkatan && matchKeaktifan && matchStatus && matchSearch;
   });
+
+  // Ambil riwayat penugasan untuk talent yang dipilih
+  const talentAssignments = selectedTalentProfile ? penugasanList.filter(
+    p => p.talentId === selectedTalentProfile.id || p.talentNama === selectedTalentProfile.nama
+  ) : [];
 
   return (
     <div className="space-y-6 animate-fade-in font-sans">
-      <div className="border-b border-slate-200 pb-4">
-        <h2 className="text-2xl font-black text-[#1A3C5E]">Daftar Talent (Khusus SDM)</h2>
-        <p className="text-xs text-slate-500 mt-0.5">Tabel 15 talent mengenai keaktifan bertugas 30 hari terakhir dan honorarium yang diterima.</p>
+      <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-black text-[#1A3C5E]">Daftar Talent (Khusus SDM)</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Direktori ketersediaan duta wisata, riwayat keaktifan 30 hari, dan rincian honorarium.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#1A3C5E] border border-blue-200">
+            {filtered.length} dari {talentList.length} Talent
+          </span>
+        </div>
       </div>
 
-      {/* Dropdown Filter di Atas Tabel */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-semibold">Filter Angkatan:</span>
-            <select
-              value={filterAngkatan}
-              onChange={(e) => setFilterAngkatan(e.target.value)}
-              className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
-            >
-              <option value="Semua">Semua Angkatan</option>
-              <option value="Cak Ning 2025">Cak Ning 2025</option>
-              <option value="Cak Ning 2024">Cak Ning 2024</option>
-              <option value="Cak Ning 2023">Cak Ning 2023</option>
-              <option value="Cak Ning 2022">Cak Ning 2022</option>
-              <option value="Cak Ning 2021">Cak Ning 2021</option>
-            </select>
+      {/* Filter & Search Bar */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Cari nama duta, spesialisasi, atau angkatan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-[#1A3C5E]"
+            />
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-semibold">Tingkat Keaktifan:</span>
-            <select
-              value={filterKeaktifan}
-              onChange={(e) => setFilterKeaktifan(e.target.value)}
-              className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
-            >
-              <option value="Semua">Semua Keaktifan</option>
-              <option value="Aktif Tinggi">Tinggi (&ge; 6x Tugas)</option>
-              <option value="Aktif Sedang">Sedang (3-5x Tugas)</option>
-              <option value="Rendah">Rendah (&lt; 3x Tugas)</option>
-            </select>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-semibold">Angkatan:</span>
+              <select
+                value={filterAngkatan}
+                onChange={(e) => setFilterAngkatan(e.target.value)}
+                className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
+              >
+                <option value="Semua">Semua Angkatan</option>
+                <option value="Cak Ning 2025">Cak Ning 2025</option>
+                <option value="Cak Ning 2024">Cak Ning 2024</option>
+                <option value="Cak Ning 2023">Cak Ning 2023</option>
+                <option value="Cak Ning 2022">Cak Ning 2022</option>
+                <option value="Cak Ning 2021">Cak Ning 2021</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-semibold">Keaktifan:</span>
+              <select
+                value={filterKeaktifan}
+                onChange={(e) => setFilterKeaktifan(e.target.value)}
+                className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
+              >
+                <option value="Semua">Semua Keaktifan</option>
+                <option value="Aktif Tinggi">Tinggi (&ge; 6x Tugas)</option>
+                <option value="Aktif Sedang">Sedang (3-5x Tugas)</option>
+                <option value="Rendah">Rendah (&lt; 3x Tugas)</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-semibold">Status:</span>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
+              >
+                <option value="Semua">Semua Status</option>
+                <option value="Aktif">Aktif</option>
+                <option value="Nonaktif">Nonaktif</option>
+              </select>
+            </div>
+
+            {(searchQuery || filterAngkatan !== 'Semua' || filterKeaktifan !== 'Semua' || filterStatus !== 'Semua') && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setFilterAngkatan('Semua');
+                  setFilterKeaktifan('Semua');
+                  setFilterStatus('Semua');
+                }}
+                className="text-xs text-rose-600 hover:text-rose-700 font-semibold px-2 py-1.5 rounded hover:bg-rose-50 transition-colors cursor-pointer"
+              >
+                Reset Filter
+              </button>
+            )}
           </div>
         </div>
-
-        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Talent</span>
       </div>
 
-      {/* Tabel dengan kolom: Nama, Angkatan, Keaktifan 30 Hari (Angka), Honor 30 Hari (Rp), Aksi */}
+      {/* Tabel dengan kolom: Nama, Angkatan, Spesialisasi, Keaktifan 30 Hari, Honor 30 Hari, Status, Aksi */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -618,39 +654,292 @@ export function SdmTalentList({ talents }: SdmTalentListProps) {
                 <th className="p-3.5 w-12 text-center">No</th>
                 <th className="p-3.5">Nama Talent</th>
                 <th className="p-3.5">Angkatan</th>
-                <th className="p-3.5 text-center">Keaktifan 30 Hari</th>
-                <th className="p-3.5 text-right">Honor 30 Hari</th>
+                <th className="p-3.5">Spesialisasi Bakat</th>
+                <th className="p-3.5 text-center">Keaktifan (30 Hari)</th>
+                <th className="p-3.5 text-right">Honor (30 Hari)</th>
+                <th className="p-3.5 text-center">Status</th>
                 <th className="p-3.5 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {filtered.map((t, idx) => (
-                <tr key={t.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
-                  <td className="p-3.5 font-bold text-[#1A3C5E]">{t.nama}</td>
-                  <td className="p-3.5 font-mono text-slate-600">{t.angkatan}</td>
-                  <td className="p-3.5 text-center">
-                    <span className="font-mono font-bold text-[#1A3C5E] px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 inline-block">
-                      {t.keaktifan30Hari || 5} Tugas
-                    </span>
-                  </td>
-                  <td className="p-3.5 text-right font-mono font-bold text-emerald-700">
-                    Rp {(t.totalHonor30Hari || 1750000).toLocaleString('id-ID')}
-                  </td>
-                  <td className="p-3.5 text-center">
-                    <button
-                      onClick={() => setSelectedTalentProfile(t)}
-                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-[#1A3C5E] hover:text-white text-slate-700 font-semibold text-[11px] cursor-pointer transition-colors"
-                    >
-                      Lihat Rincian
-                    </button>
+              {filtered.length > 0 ? (
+                filtered.map((t, idx) => {
+                  const isNing = t.nama.toLowerCase().includes('ning');
+                  const keaktifan = t.keaktifan30Hari || 5;
+                  const isHigh = keaktifan >= 6;
+                  const isMedium = keaktifan >= 3 && keaktifan < 6;
+
+                  return (
+                    <tr key={t.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
+                      <td className="p-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-8 h-8 rounded-full ${isNing ? 'bg-gradient-to-tr from-rose-500 to-pink-600' : 'bg-gradient-to-tr from-[#1A3C5E] to-blue-700'} text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0`}>
+                            {t.nama.replace(/(Cak|Ning)\s+/i, '').charAt(0)}
+                          </div>
+                          <div>
+                            <button
+                              onClick={() => setSelectedTalentProfile(t)}
+                              className="font-bold text-[#1A3C5E] hover:underline cursor-pointer text-left block"
+                            >
+                              {t.nama}
+                            </button>
+                            <span className="text-[10px] text-slate-400 font-mono">@{t.username}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{t.angkatan}</td>
+                      <td className="p-3.5 text-slate-600 max-w-xs truncate">{t.spesialisasi || 'MC Protokoler & Tamu VIP'}</td>
+                      <td className="p-3.5 text-center whitespace-nowrap">
+                        <span className={`font-mono font-bold px-2.5 py-0.5 rounded text-[11px] inline-flex items-center gap-1 border ${
+                          isHigh 
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                            : isMedium 
+                            ? 'bg-blue-50 text-[#1A3C5E] border-blue-200' 
+                            : 'bg-amber-50 text-amber-800 border-amber-200'
+                        }`}>
+                          {keaktifan} Tugas
+                        </span>
+                      </td>
+                      <td className="p-3.5 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">
+                        Rp {(t.totalHonor30Hari || 1750000).toLocaleString('id-ID')}
+                      </td>
+                      <td className="p-3.5 text-center whitespace-nowrap">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          t.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {t.status}
+                        </span>
+                      </td>
+                      <td className="p-3.5 text-center whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTalentProfile(t)}
+                          className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-[#1A3C5E] text-[#1A3C5E] hover:text-white font-bold text-xs inline-flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                          title={`Lihat detail lengkap ${t.nama}`}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Lihat Detail</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-slate-400">
+                    <p className="font-semibold text-slate-500 mb-1">Tidak ada data talent yang sesuai dengan filter.</p>
+                    <p className="text-xs">Coba ubah kata kunci pencarian atau reset filter angkatan dan keaktifan.</p>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* ==================================================================== */}
+      {/* MODAL DETAIL PROFIL, KEAKTIFAN & PORTOFOLIO TALENT (LENGKAP SDM) */}
+      {/* ==================================================================== */}
+      {selectedTalentProfile && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setSelectedTalentProfile(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex justify-between items-start border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-2xl ${
+                  selectedTalentProfile.nama.toLowerCase().includes('ning') 
+                    ? 'bg-gradient-to-tr from-rose-500 to-pink-600' 
+                    : 'bg-gradient-to-tr from-[#1A3C5E] to-blue-700'
+                } text-white flex items-center justify-center font-black text-lg shadow-md shrink-0`}>
+                  {selectedTalentProfile.nama.replace(/(Cak|Ning)\s+/i, '').charAt(0)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-extrabold text-lg text-[#1A3C5E]">{selectedTalentProfile.nama}</h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1A3C5E] border border-blue-200 font-mono">
+                      {selectedTalentProfile.angkatan || 'Cak Ning Surabaya'}
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      selectedTalentProfile.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {selectedTalentProfile.status || 'Aktif'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">@{selectedTalentProfile.username} &bull; ID: {selectedTalentProfile.id}</p>
+                </div>
+              </div>
+
+              <button 
+                type="button"
+                onClick={() => setSelectedTalentProfile(null)} 
+                className="p-1.5 text-slate-400 hover:text-slate-700 cursor-pointer rounded-xl hover:bg-slate-100 transition-colors"
+                title="Tutup Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-4 text-xs">
+              {/* Highlight Spesialisasi & Rating */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Spesialisasi Utama</span>
+                  <span className="font-bold text-sm text-[#1A3C5E] block">
+                    {selectedTalentProfile.spesialisasi || 'MC Keprotokolan & Pemandu Wisata Sejarah'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg text-xs">
+                    <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                    <span>{selectedTalentProfile.rating ? selectedTalentProfile.rating.toFixed(2) : '4.95'} / 5.0</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Metrik Statistik (Keaktifan, Total Honor, Rata-rata per Tugas) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-100 text-center">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Keaktifan (30 Hari)</span>
+                  <span className="text-2xl font-black text-[#1A3C5E]">
+                    {selectedTalentProfile.keaktifan30Hari || 5} <span className="text-xs font-semibold text-slate-600">Tugas</span>
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">
+                    {(selectedTalentProfile.keaktifan30Hari || 5) >= 6 ? 'Tingkat Aktif Tinggi' : 'Tingkat Aktif Standar'}
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-center">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Total Honor (30 Hari)</span>
+                  <span className="text-lg font-black text-emerald-700 font-mono block">
+                    Rp {(selectedTalentProfile.totalHonor30Hari || 1750000).toLocaleString('id-ID')}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium block mt-0.5">Akumulasi Penghasilan</span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-purple-50/70 border border-purple-100 text-center">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1">Fee Rata-rata / Acara</span>
+                  <span className="text-lg font-black text-purple-700 font-mono block">
+                    Rp {Math.round((selectedTalentProfile.totalHonor30Hari || 1750000) / Math.max(1, selectedTalentProfile.keaktifan30Hari || 5)).toLocaleString('id-ID')}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium block mt-0.5">Standar Honorarium</span>
+                </div>
+              </div>
+
+              {/* Data Kontak Resmi & Dokumen Portofolio */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Kontak Komunikasi</span>
+                  <div className="flex items-center gap-2 text-slate-700">
+                    <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="font-mono text-xs">{selectedTalentProfile.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-700">
+                    <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="font-mono text-xs font-semibold">{selectedTalentProfile.telepon || '0812-3456-7890'}</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Berkas Portofolio</span>
+                  <div className="flex items-center gap-2 text-[#1A3C5E] font-medium pt-1">
+                    <FileText className="w-4 h-4 text-[#1A3C5E] shrink-0" />
+                    <span className="font-mono text-xs truncate">
+                      {selectedTalentProfile.portofolioLink || `portofolio_${selectedTalentProfile.username}.pdf`}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-emerald-700 font-semibold block">Dokumen Resmi Terverifikasi SDM</span>
+                </div>
+              </div>
+
+              {/* Bio & Pengalaman Duta */}
+              {selectedTalentProfile.bio && (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Profil & Rekam Jejak</span>
+                  <p className="text-slate-700 leading-relaxed text-xs">
+                    {selectedTalentProfile.bio}
+                  </p>
+                </div>
+              )}
+
+              {/* Riwayat Penugasan Terbaru (Jika ada di database penugasan) */}
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                    Riwayat Penugasan Terkait ({talentAssignments.length})
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">30 Hari Terakhir</span>
+                </div>
+
+                {talentAssignments.length > 0 ? (
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {talentAssignments.slice(0, 4).map((assign) => (
+                      <div key={assign.id} className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-between gap-3">
+                        <div className="space-y-0.5">
+                          <strong className="text-xs text-[#1A3C5E] block">{assign.kegiatanNama}</strong>
+                          <div className="flex items-center gap-2 text-[10px] text-slate-500 font-mono">
+                            <span>{assign.tanggal}</span>
+                            <span>&bull;</span>
+                            <span>{assign.lokasi}</span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-mono font-bold text-xs text-emerald-700 block">
+                            Rp {(assign.honor || 350000).toLocaleString('id-ID')}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                            assign.status === 'Selesai' ? 'bg-emerald-50 text-emerald-800' :
+                            assign.status === 'Dikonfirmasi' ? 'bg-blue-50 text-blue-800' :
+                            'bg-amber-50 text-amber-800'
+                          }`}>
+                            {assign.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 text-center text-slate-400 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                    Belum ada riwayat penugasan langsung dalam antrean penugasan aktif.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer Buttons */}
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-2.5 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setSelectedTalentProfile(null)}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors text-center"
+              >
+                Tutup Rincian
+              </button>
+
+              {onNavigateToScreen && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedTalentProfile(null);
+                    onNavigateToScreen('SDM_PENUGASAN_MGMT');
+                  }}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-colors"
+                >
+                  <Plus className="w-4 h-4" /> Tugaskan ke Kegiatan Baru
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -685,9 +974,18 @@ export function SdmPenugasanManagement({
   const [formStatus, setFormStatus] = useState<'Menunggu Konfirmasi' | 'Dikonfirmasi' | 'Selesai' | 'Ditolak'>('Menunggu Konfirmasi');
   const [formError, setFormError] = useState<string | null>(null);
 
-  // 12 data dummy
-  const list12 = penugasanList.slice(0, 12);
-  const filtered = list12;
+  const [filterStatus, setFilterStatus] = useState('Semua');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Penugasan filter & search
+  const filtered = penugasanList.filter(item => {
+    const matchStatus = filterStatus === 'Semua' || item.status === filterStatus;
+    const matchSearch = searchQuery.trim() === '' ||
+      item.kegiatanNama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.talentNama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.lokasi.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchStatus && matchSearch;
+  });
 
   const handleOpenAdd = () => {
     setEditingItem(null);
@@ -756,9 +1054,34 @@ export function SdmPenugasanManagement({
         </button>
       </div>
 
-      <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
-        <span className="text-xs text-slate-500 font-medium">Jadwal Penugasan Duta Wisata</span>
-        <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Penugasan</span>
+      {/* Filter & Search Bar */}
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Cari nama kegiatan, talent terpilih, atau lokasi..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-[#1A3C5E]"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 font-semibold">Status:</span>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="text-xs py-2 px-3 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#1A3C5E] font-medium"
+          >
+            <option value="Semua">Semua Status</option>
+            <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
+            <option value="Dikonfirmasi">Dikonfirmasi</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Ditolak">Ditolak</option>
+          </select>
+          <span className="text-xs text-slate-500 font-mono pl-2">Total: <strong>{filtered.length}</strong> Penugasan</span>
+        </div>
       </div>
 
       {/* Tabel dengan kolom: Nama Kegiatan, Tanggal, Talent Terpilih, Status Penugasan, Aksi */}

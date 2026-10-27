@@ -316,6 +316,22 @@ Seluruh halaman publik dibungkus dalam `GuestLayout` yang memiliki header naviga
 
 ---
 
+### 6.6. Direktori & Profil Personalia Talent (`SDM_TALENT_LIST`)
+- **Tujuan**: Mengawasi distribusi penugasan, beban kerja per talent, kepatuhan pelaporan, dan rekapitulasi kompensasi honorarium bulanan internal.
+- **Komponen Utama**:
+  - Filter interaktif: Angkatan, Status Akun (Aktif/Nonaktif), Distribusi Beban (Overload ≥6x, Seimbang 3-5x, Kurang Terbang <3x), serta Kolom Pencarian Nama/Keahlian.
+  - Kartu talent dengan badge status keaktifan, total penugasan, poin keaktifan, dan indikator beban kerja 30 hari.
+  - **Modal Detail Talent Personalia (Khusus SDM)**:
+    - Ringkasan Kompensasi: Total Honor 30 hari terakhir, rata-rata fee penugasan, dan status pencairan.
+    - Metrik Keaktifan: Jam terbang 30 hari, rating performa lapangan, kepatuhan berkas LPJ.
+    - Riwayat Penugasan Lapangan: Detail acara, tanggal tugas, nominal honor per kegiatan, dan status validasi LPJ.
+- **Tombol dan Aksi Navigasi**:
+  - `Lihat Detail (pada kartu talent)`: Membuka modal audit personalia lengkap.
+  - `+ Plotting Penugasan Baru (dalam modal)`: Mengarahkan langsung ke halaman `SDM_PLOTTING` untuk menugaskan talent bersangkutan.
+  - `Tutup / Esc`: Menutup modal detail talent.
+
+---
+
 ## 7. Kategori 4: Alur Hubungan Masyarakat & Kemitraan (Humas Flow)
 
 ### 7.1. Dashboard Utama Pengurus Humas (`HUMAS_DASHBOARD`)
@@ -406,6 +422,23 @@ Seluruh halaman publik dibungkus dalam `GuestLayout` yang memiliki header naviga
   - Tabel status penugasan real-time (*Menunggu Konfirmasi, Dikonfirmasi, Selesai, Ditolak*).
 - **Tombol dan Aksi Navigasi**:
   - `← Kembali ke Dashboard`: Mengarahkan ke `HUMAS_DASHBOARD`.
+
+---
+
+### 7.9. Katalog Keahlian Duta & Kebutuhan Klien (`HUMAS_TALENT_INFO`)
+- **Tujuan**: Katalog representasi eksternal untuk mencocokkan keahlian talent dengan kebutuhan acara klien/instansi (*Event & Client Matching*), tanpa mengekspos data privat personalia internal (seperti total honorarium bulanan dan audit kepatuhan LPJ).
+- **Komponen Utama**:
+  - Filter Kebutuhan Acara: Kategori Acara (MC, Protokoler VIP, Gala Dinner, Heritage Tour), Kemampuan Bahasa (Inggris, Mandarin, Jawa Kromo), dan Status Ketersediaan Klien (*Tersedia Booking, Booking Terbatas, Sedang Bertugas*).
+  - Kartu talent dengan badge bahasa asing, kecocokan acara, dan status ketersediaan.
+  - **Modal Profil Representasi Klien (Khusus Humas)**:
+    - Tab 1 - Kebutuhan Acara & Keahlian: Penguasaan bahasa, kesesuaian kategori acara, tinggi badan & standar grooming protokoler, spesialisasi persona duta.
+    - Tab 2 - Rekam Jejak Klien: Portofolio acara kenegaraan/korporasi yang pernah dilayani (Pemkot, Bank Jatim, Konjen) beserta dokumentasi foto dan testimoni kepuasan klien.
+    - Peringatan privasi: Data nominal fee pribadi & kepatuhan LPJ internal tidak ditampilkan di portal ini.
+- **Tombol dan Aksi Navigasi**:
+  - `Lihat Profil Klien`: Membuka modal profil representasi klien.
+  - `Salin Format Penawaran Klien (1-Click Proposal Generator)`: Menghasilkan dan menyalin teks format penawaran profil resmi ke clipboard, siap ditempel (*paste*) ke WhatsApp atau surat penawaran calon klien.
+  - `Ajukan Duta ke Formulir Klien`: Membawa data talent langsung ke alur penugasan/rekomendasi acara (`HUMAS_PENGAJUAN`).
+  - `Tutup / Esc`: Menutup modal profil talent.
 
 ---
 

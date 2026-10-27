@@ -459,6 +459,8 @@ export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
   ];
 
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [selectedKegiatan, setSelectedKegiatan] = useState<typeof riwayatKegiatan[0] | null>(null);
+  const [selectedHonor, setSelectedHonor] = useState<typeof riwayatHonor[0] | null>(null);
 
   const handleConfirm = (id: string, nama: string) => {
     setConfirmedList(prev => ({ ...prev, [id]: true }));
@@ -509,11 +511,12 @@ export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
                   <th className="p-3.5">Tanggal</th>
                   <th className="p-3.5">Lokasi Tempat</th>
                   <th className="p-3.5 text-center">Status</th>
+                  <th className="p-3.5 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {riwayatKegiatan.map((rk, idx) => (
-                  <tr key={rk.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={rk.id} className="hover:bg-blue-50/60 transition-colors cursor-pointer" onClick={() => setSelectedKegiatan(rk)}>
                     <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
                     <td className="p-3.5 font-bold text-[#1A3C5E]">{rk.nama}</td>
                     <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{rk.tanggal}</td>
@@ -522,6 +525,14 @@ export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
                       <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-block">
                         {rk.status}
                       </span>
+                    </td>
+                    <td className="p-3.5 text-center">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedKegiatan(rk); }}
+                        className="px-2.5 py-1 rounded-lg bg-[#1A3C5E]/10 hover:bg-[#1A3C5E] hover:text-white text-[#1A3C5E] font-bold text-[10px] transition-colors cursor-pointer flex items-center gap-1 mx-auto"
+                      >
+                        <Eye className="w-3 h-3" /> Detail
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -543,6 +554,7 @@ export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
                   <th className="p-3.5">Tanggal Pencairan</th>
                   <th className="p-3.5 text-right">Nominal Honor</th>
                   <th className="p-3.5 text-center">Status</th>
+                  <th className="p-3.5 text-center">Detail</th>
                   <th className="p-3.5 text-center">Aksi Konfirmasi</th>
                 </tr>
               </thead>
@@ -550,7 +562,7 @@ export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
                 {riwayatHonor.map((rh, idx) => {
                   const isConfirmed = confirmedList[rh.id] || false;
                   return (
-                    <tr key={rh.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={rh.id} className="hover:bg-emerald-50/50 transition-colors cursor-pointer" onClick={() => setSelectedHonor(rh)}>
                       <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
                       <td className="p-3.5 font-bold text-[#1A3C5E] max-w-xs">{rh.kegiatan}</td>
                       <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{rh.tanggal}</td>
@@ -563,13 +575,21 @@ export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
                         </span>
                       </td>
                       <td className="p-3.5 text-center">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSelectedHonor(rh); }}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 font-bold text-[10px] border border-emerald-200 transition-colors cursor-pointer flex items-center gap-1 mx-auto"
+                        >
+                          <Eye className="w-3 h-3" /> Lihat
+                        </button>
+                      </td>
+                      <td className="p-3.5 text-center">
                         {isConfirmed ? (
                           <span className="text-emerald-700 font-bold text-[11px] flex items-center justify-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" /> Diterima
                           </span>
                         ) : (
                           <button
-                            onClick={() => handleConfirm(rh.id, rh.kegiatan)}
+                            onClick={(e) => { e.stopPropagation(); handleConfirm(rh.id, rh.kegiatan); }}
                             className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow-xs cursor-pointer transition-colors"
                           >
                             Konfirmasi Terima
@@ -581,6 +601,99 @@ export function TalentHistory({ talent, penugasanList }: TalentHistoryProps) {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* POPUP DETAIL KEGIATAN */}
+      {selectedKegiatan && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4" onClick={() => setSelectedKegiatan(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">Detail Kegiatan</span>
+                <h3 className="text-base font-black text-[#1A3C5E] mt-0.5">{selectedKegiatan.nama}</h3>
+              </div>
+              <button onClick={() => setSelectedKegiatan(null)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-0.5">Tanggal</span>
+                  <span className="font-mono font-semibold text-slate-700">{selectedKegiatan.tanggal}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-0.5">Status</span>
+                  <span className="font-bold text-emerald-700">{selectedKegiatan.status}</span>
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-0.5">Lokasi</span>
+                <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" /> {selectedKegiatan.lokasi}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                <span className="text-[10px] text-[#1A3C5E] font-bold uppercase block mb-0.5">Catatan</span>
+                <span className="text-slate-600">Kegiatan resmi paguyuban yang telah diselesaikan dengan baik. Laporan telah divalidasi Sie SDM.</span>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-slate-100 flex justify-end">
+              <button onClick={() => setSelectedKegiatan(null)} className="px-4 py-2 rounded-xl bg-[#1A3C5E] text-white font-bold text-xs cursor-pointer hover:bg-slate-800 transition-colors">Tutup</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POPUP DETAIL HONOR */}
+      {selectedHonor && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4" onClick={() => setSelectedHonor(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">Detail Honor</span>
+                <h3 className="text-base font-black text-[#1A3C5E] mt-0.5">{selectedHonor.kegiatan}</h3>
+              </div>
+              <button onClick={() => setSelectedHonor(null)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs">
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
+                <DollarSign className="w-8 h-8 text-emerald-600 shrink-0" />
+                <div>
+                  <span className="text-[10px] text-emerald-600 font-bold uppercase block">Nominal Honor Diterima</span>
+                  <span className="text-2xl font-black text-emerald-700 font-mono">Rp {selectedHonor.nominal.toLocaleString('id-ID')}</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-0.5">Tanggal Pencairan</span>
+                  <span className="font-mono font-semibold text-slate-700">{selectedHonor.tanggal}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-0.5">Status Pembayaran</span>
+                  <span className="font-bold text-emerald-700">{selectedHonor.status}</span>
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                <span className="text-[10px] text-[#1A3C5E] font-bold uppercase block mb-0.5">Keterangan</span>
+                <span className="text-slate-600">Honor telah dicairkan oleh Bendahara Paguyuban dan ditransfer ke rekening talent. Harap konfirmasi penerimaan.</span>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-slate-100 flex justify-end gap-2">
+              <button onClick={() => setSelectedHonor(null)} className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer transition-colors">Tutup</button>
+              {!confirmedList[selectedHonor.id] && (
+                <button
+                  onClick={() => { handleConfirm(selectedHonor.id, selectedHonor.kegiatan); setSelectedHonor(null); }}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer transition-colors"
+                >
+                  Konfirmasi Terima Honor
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

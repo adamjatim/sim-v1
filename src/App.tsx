@@ -23,6 +23,7 @@ import {
 
 // Screen Components
 import { GuestScreens } from './components/GuestScreens';
+import { GuestTalentDetail } from './components/GuestTalentDetail';
 import { 
   HumasDashboard, 
   HumasClients, 
@@ -104,6 +105,7 @@ export default function App() {
   const [currentRole, setCurrentRole] = useState<Role>('Guest');
   const [currentScreen, setCurrentScreen] = useState<string>('GUEST_HOME');
   const [selectedPenugasanId, setSelectedPenugasanId] = useState<string>('p1');
+  const [selectedGuestTalentId, setSelectedGuestTalentId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
   // Floating Prototype Dropdown state & Profile Dropdown state
@@ -651,33 +653,16 @@ export default function App() {
   // ============================================================================
   const renderScreenContent = () => {
     // A. GUEST AREA
-    if (currentScreen === 'GUEST_HOME') {
+    const guestScreens = ['GUEST_HOME', 'GUEST_TALENTS', 'GUEST_CONTACT', 'GUEST_TALENT_DETAIL'];
+    if (guestScreens.includes(currentScreen)) {
       return (
-        <GuestScreens 
-          currentScreen="GUEST_HOME" 
-          onNavigate={setCurrentScreen} 
-          talents={users} 
-          onSendContact={(msg) => setContacts(prev => [msg, ...prev])} 
-        />
-      );
-    }
-    if (currentScreen === 'GUEST_TALENTS') {
-      return (
-        <GuestScreens 
-          currentScreen="GUEST_TALENTS" 
-          onNavigate={setCurrentScreen} 
-          talents={users} 
-          onSendContact={(msg) => setContacts(prev => [msg, ...prev])} 
-        />
-      );
-    }
-    if (currentScreen === 'GUEST_CONTACT') {
-      return (
-        <GuestScreens 
-          currentScreen="GUEST_CONTACT" 
-          onNavigate={setCurrentScreen} 
-          talents={users} 
-          onSendContact={(msg) => setContacts(prev => [msg, ...prev])} 
+        <GuestScreens
+          currentScreen={currentScreen as 'GUEST_HOME' | 'GUEST_TALENTS' | 'GUEST_CONTACT' | 'GUEST_TALENT_DETAIL'}
+          onNavigate={setCurrentScreen}
+          talents={users}
+          onSendContact={(msg) => setContacts(prev => [msg, ...prev])}
+          selectedTalentId={selectedGuestTalentId}
+          onSelectTalent={(id) => { setSelectedGuestTalentId(id); setCurrentScreen('GUEST_TALENT_DETAIL'); }}
         />
       );
     }
@@ -726,7 +711,11 @@ export default function App() {
     }
     if (currentScreen === 'HUMAS_TALENT_INFO') {
       return (
-        <HumasTalentInfo talents={users} />
+        <HumasTalentInfo
+          talents={users}
+          penugasanList={penugasanList}
+          onNavigateToScreen={setCurrentScreen}
+        />
       );
     }
 
@@ -753,7 +742,11 @@ export default function App() {
     }
     if (currentScreen === 'SDM_TALENT_LIST') {
       return (
-        <SdmTalentList talents={users} />
+        <SdmTalentList
+          talents={users}
+          penugasanList={penugasanList}
+          onNavigateToScreen={setCurrentScreen}
+        />
       );
     }
     if (currentScreen === 'SDM_PENUGASAN_MGMT') {
