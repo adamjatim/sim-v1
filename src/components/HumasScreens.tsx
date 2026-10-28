@@ -189,6 +189,8 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+  const [selectedClientDetail, setSelectedClientDetail] = useState<Client | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const [formInstansi, setFormInstansi] = useState('');
   const [formKontak, setFormKontak] = useState('');
@@ -200,6 +202,12 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
   // 12 data dummy
   const clientList = clients.slice(0, 12);
   const filteredClients = clientList;
+
+  const handleCopyText = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldName);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   const handleOpenAdd = () => {
     setEditingClient(null);
@@ -260,7 +268,7 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <h2 className="text-2xl font-black text-[#1A3C5E]">Kelola Client Mitra</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Database 12 instansi mitra dinas dan korporasi pemohon penugasan duta wisata.</p>
+          <p className="text-xs text-slate-500 mt-0.5">Database 12 instansi mitra dinas dan korporasi pemohon penugasan duta wisata. Klik salah satu klien untuk melihat detail lengkap.</p>
         </div>
         <button
           onClick={handleOpenAdd}
@@ -271,11 +279,11 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
       </div>
 
       <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
-        <span className="text-xs text-slate-500 font-medium">Daftar Instansi & Mitra Terhubung</span>
+        <span className="text-xs text-slate-500 font-medium">Daftar Instansi & Mitra Terhubung (Pilih untuk melihat detail kemitraan)</span>
         <span className="text-xs text-slate-500 font-mono">Total: <strong>{filteredClients.length}</strong> Client</span>
       </div>
 
-      {/* Tabel dengan kolom: No, Nama Instansi, Kontak Person, Telepon, Email, Aksi (Tombol Edit & Hapus) */}
+      {/* Tabel dengan kolom: No, Nama Instansi, Kontak Person, Telepon, Email, Aksi (Tombol Detail, Edit & Hapus) */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -286,19 +294,35 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
                 <th className="p-3.5">Kontak Person</th>
                 <th className="p-3.5">Telepon</th>
                 <th className="p-3.5">Email</th>
-                <th className="p-3.5 text-center">Aksi</th>
+                <th className="p-3.5 text-center">Aksi Humas</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredClients.map((client, idx) => (
-                <tr key={client.id} className="hover:bg-slate-50/80 transition-colors">
+                <tr 
+                  key={client.id} 
+                  onClick={() => setSelectedClientDetail(client)}
+                  className="hover:bg-amber-50/40 cursor-pointer transition-colors group"
+                >
                   <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
-                  <td className="p-3.5 font-bold text-[#1A3C5E] max-w-xs">{client.namaInstansi}</td>
+                  <td className="p-3.5 max-w-xs">
+                    <div className="font-bold text-[#1A3C5E] group-hover:text-amber-800 transition-colors">
+                      {client.namaInstansi}
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-normal">Klik untuk melihat detail profil</span>
+                  </td>
                   <td className="p-3.5 font-medium">{client.kontakPerson}</td>
                   <td className="p-3.5 font-mono text-slate-600">{client.telepon}</td>
                   <td className="p-3.5 text-slate-600">{client.email}</td>
                   <td className="p-3.5 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
+                    <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => setSelectedClientDetail(client)}
+                        className="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                        title="Lihat Detail Client"
+                      >
+                        <Eye className="w-3 h-3" /> Detail
+                      </button>
                       <button
                         onClick={() => handleOpenEdit(client)}
                         className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
@@ -321,6 +345,172 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
           </table>
         </div>
       </div>
+
+      {/* Modal Detail Client Mitra (Terbuka saat baris atau tombol Detail diklik) */}
+      {selectedClientDetail && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in"
+          onClick={() => setSelectedClientDetail(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 my-8 animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header Modal */}
+            <div className="flex justify-between items-start border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-[#1A3C5E] shrink-0">
+                  <Building2 className="w-6 h-6 text-[#1A3C5E]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {selectedClientDetail.status || 'Aktif'}
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-400">ID: #{selectedClientDetail.id}</span>
+                  </div>
+                  <h3 className="font-black text-lg text-[#1A3C5E] mt-0.5">
+                    {selectedClientDetail.namaInstansi}
+                  </h3>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedClientDetail(null)} 
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+                title="Tutup Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Konten Detail Client */}
+            <div className="py-4 space-y-4 text-xs max-h-[70vh] overflow-y-auto pr-1">
+              {/* Banner Ringkasan Kemitraan */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Kategori Lembaga Mitra</span>
+                  <span className="text-xs font-bold text-[#1A3C5E]">
+                    {selectedClientDetail.namaInstansi.toLowerCase().includes('dinas') || selectedClientDetail.namaInstansi.toLowerCase().includes('provinsi') || selectedClientDetail.namaInstansi.toLowerCase().includes('biro')
+                      ? 'Pemerintah Provinsi / Kedinasan Pemkot Surabaya'
+                      : selectedClientDetail.namaInstansi.toLowerCase().includes('hotel')
+                      ? 'Hospitality / Perhotelan Bintang Surabaya'
+                      : selectedClientDetail.namaInstansi.toLowerCase().includes('universitas')
+                      ? 'Lembaga Akademik & Perguruan Tinggi'
+                      : 'Korporasi Swasta & Pusat Perbelanjaan'}
+                  </span>
+                </div>
+                <div className="sm:text-right">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Status Kerjasama</span>
+                  <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 sm:justify-end">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Kemitraan Terverifikasi
+                  </span>
+                </div>
+              </div>
+
+              {/* Informasi Kontak & PIC */}
+              <div>
+                <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#1A3C5E]" /> Informasi Kontak & Penanggung Jawab
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="p-3 bg-white rounded-xl border border-slate-200">
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Kontak Person (PIC)</span>
+                    <span className="font-bold text-slate-800 text-xs mt-0.5 block">{selectedClientDetail.kontakPerson}</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Nomor Telepon</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText(selectedClientDetail.telepon, 'telepon')}
+                        className="text-[10px] text-[#1A3C5E] hover:underline flex items-center gap-0.5 cursor-pointer"
+                      >
+                        <Copy className="w-2.5 h-2.5" />
+                        {copiedField === 'telepon' ? 'Tersalin' : 'Salin'}
+                      </button>
+                    </div>
+                    <span className="font-mono font-bold text-slate-800 text-xs mt-0.5 block">{selectedClientDetail.telepon}</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-slate-200 sm:col-span-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Email Resmi</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText(selectedClientDetail.email, 'email')}
+                        className="text-[10px] text-[#1A3C5E] hover:underline flex items-center gap-0.5 cursor-pointer"
+                      >
+                        <Copy className="w-2.5 h-2.5" />
+                        {copiedField === 'email' ? 'Tersalin' : 'Salin'}
+                      </button>
+                    </div>
+                    <span className="font-mono text-slate-800 text-xs mt-0.5 block">{selectedClientDetail.email}</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-slate-200 sm:col-span-2">
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold block flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-slate-400" /> Alamat Kantor / Instansi
+                    </span>
+                    <span className="text-slate-700 text-xs mt-0.5 block leading-relaxed">
+                      {selectedClientDetail.alamat || 'Alamat lengkap belum dicatat pada database sistem.'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Riwayat Interaksi & Kemitraan */}
+              <div>
+                <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-[#1A3C5E]" /> Riwayat Penugasan & Kolaborasi Terakhir
+                </h4>
+                <div className="bg-slate-50/80 rounded-xl border border-slate-200 p-3.5 space-y-2">
+                  {selectedClientDetail.catatanInteraksi && selectedClientDetail.catatanInteraksi.length > 0 ? (
+                    selectedClientDetail.catatanInteraksi.map((note, nIdx) => (
+                      <div key={nIdx} className="flex items-start gap-2.5 text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                        <span className="leading-relaxed">{note}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-slate-500 italic text-xs py-2 text-center">
+                      Belum ada catatan interaksi khusus. Kemitraan ini terdaftar sebagai rekanan aktif Paguyuban Cak & Ning Surabaya.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Ketentuan Penugasan Humas */}
+              <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 space-y-1">
+                <span className="font-bold block text-amber-950 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Ketentuan Kemitraan Humas Paguyuban:
+                </span>
+                <p>• Permohonan kehadiran Duta Wisata diajukan selambatnya H-3 sebelum tanggal pelaksanaan event.</p>
+                <p>• Seluruh penugasan akan diverifikasi dan di-plotting personilnya melalui koordinasi bersama Divisi SDM.</p>
+              </div>
+            </div>
+
+            {/* Footer Modal */}
+            <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  const client = selectedClientDetail;
+                  setSelectedClientDetail(null);
+                  handleOpenEdit(client);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <Edit2 className="w-3.5 h-3.5" /> Edit Data Klien
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedClientDetail(null)}
+                className="px-4 py-2 rounded-xl bg-[#1A3C5E] hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer transition-colors"
+              >
+                Tutup Detail
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Tambah / Edit Client */}
       {isModalOpen && (
@@ -456,6 +646,8 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
   const [sponsorToDelete, setSponsorToDelete] = useState<Sponsor | null>(null);
+  const [selectedSponsorDetail, setSelectedSponsorDetail] = useState<Sponsor | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const [formSponsor, setFormSponsor] = useState('');
   const [formJenis, setFormJenis] = useState<'Uang' | 'Barang' | 'Media'>('Uang');
@@ -465,6 +657,12 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
   // 10 data dummy
   const sponsorList = sponsors.slice(0, 10);
   const filtered = sponsorList;
+
+  const handleCopyText = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldName);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   const handleOpenAdd = () => {
     setEditingSponsor(null);
@@ -518,7 +716,7 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <h2 className="text-2xl font-black text-[#1A3C5E]">Kelola Sponsor</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Daftar 10 sponsor resmi pendukung kegiatan Duta Wisata Cak & Ning Surabaya.</p>
+          <p className="text-xs text-slate-500 mt-0.5">Daftar 10 sponsor resmi pendukung kegiatan Duta Wisata Cak & Ning Surabaya. Klik salah satu sponsor untuk melihat detail kontribusi & MoU.</p>
         </div>
         <button
           onClick={handleOpenAdd}
@@ -529,11 +727,11 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
       </div>
 
       <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
-        <span className="text-xs text-slate-500 font-medium">Daftar Rekanan Sponsor & Mitra Pendukung</span>
+        <span className="text-xs text-slate-500 font-medium">Daftar Rekanan Sponsor & Mitra Pendukung (Pilih untuk melihat detail kemitraan)</span>
         <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Brand Sponsor</span>
       </div>
 
-      {/* Tabel dengan kolom: No, Nama Sponsor, Jenis Sponsorship (Uang/Barang/Media), Kontak, Aksi */}
+      {/* Tabel dengan kolom: No, Nama Sponsor, Jenis Sponsorship, Kontak, Aksi Humas */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -543,7 +741,7 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
                 <th className="p-3.5">Nama Sponsor</th>
                 <th className="p-3.5">Jenis Sponsorship</th>
                 <th className="p-3.5">Kontak</th>
-                <th className="p-3.5 text-center">Aksi</th>
+                <th className="p-3.5 text-center">Aksi Humas</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -555,9 +753,18 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
                 if (jenisDisplay === 'Barang') badgeStyle = 'bg-amber-50 text-amber-800 border-amber-200';
 
                 return (
-                  <tr key={sponsor.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr 
+                    key={sponsor.id} 
+                    onClick={() => setSelectedSponsorDetail(sponsor)}
+                    className="hover:bg-amber-50/40 cursor-pointer transition-colors group"
+                  >
                     <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
-                    <td className="p-3.5 font-bold text-[#1A3C5E]">{sponsor.namaSponsor}</td>
+                    <td className="p-3.5">
+                      <div className="font-bold text-[#1A3C5E] group-hover:text-amber-800 transition-colors">
+                        {sponsor.namaSponsor}
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-normal">Klik untuk melihat detail MoU & Benefit</span>
+                    </td>
                     <td className="p-3.5">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border inline-block ${badgeStyle}`}>
                         {jenisDisplay}
@@ -568,16 +775,25 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
                       <span className="font-mono text-[11px] text-slate-500">{sponsor.telepon}</span>
                     </td>
                     <td className="p-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
+                      <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => setSelectedSponsorDetail(sponsor)}
+                          className="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Lihat Detail Sponsor"
+                        >
+                          <Eye className="w-3 h-3" /> Detail
+                        </button>
                         <button
                           onClick={() => handleOpenEdit(sponsor)}
                           className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Edit Data Sponsor"
                         >
                           <Edit2 className="w-3 h-3" /> Edit
                         </button>
                         <button
                           onClick={() => setSponsorToDelete(sponsor)}
                           className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Hapus Sponsor"
                         >
                           <Trash2 className="w-3 h-3" /> Hapus
                         </button>
@@ -590,6 +806,166 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
           </table>
         </div>
       </div>
+
+      {/* Modal Detail Sponsor (Terbuka saat baris atau tombol Detail diklik) */}
+      {selectedSponsorDetail && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in"
+          onClick={() => setSelectedSponsorDetail(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 my-8 animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header Modal */}
+            <div className="flex justify-between items-start border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
+                  <Award className="w-6 h-6 text-amber-600" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                      {selectedSponsorDetail.jenisSponsorship}
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-400">ID: #{selectedSponsorDetail.id}</span>
+                  </div>
+                  <h3 className="font-black text-lg text-[#1A3C5E] mt-0.5">
+                    {selectedSponsorDetail.namaSponsor}
+                  </h3>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedSponsorDetail(null)} 
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+                title="Tutup Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Konten Detail Sponsor */}
+            <div className="py-4 space-y-4 text-xs max-h-[70vh] overflow-y-auto pr-1">
+              {/* Highlight Nilai Dukungan & Kategori */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200">
+                  <span className="text-[10px] text-amber-800 uppercase font-semibold block">Estimasi Nilai Kontribusi / MoU</span>
+                  <span className="text-base font-black text-amber-900 mt-0.5 block">
+                    {selectedSponsorDetail.nominalDukungan && selectedSponsorDetail.nominalDukungan > 0
+                      ? `Rp ${selectedSponsorDetail.nominalDukungan.toLocaleString('id-ID')}`
+                      : 'Fasilitas Produk & In-Kind'}
+                  </span>
+                  <span className="text-[10px] text-amber-700/80 block mt-0.5">Tahun Anggaran 2026/2027</span>
+                </div>
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Status Legalitas Kemitraan</span>
+                  <span className="text-xs font-bold text-emerald-700 mt-1 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> MoU Kerjasama Aktif
+                  </span>
+                  <span className="text-[10px] text-slate-500 block mt-0.5">Sie Humas & Kemitraan Resmi</span>
+                </div>
+              </div>
+
+              {/* Informasi PIC & Kontak Sponsor */}
+              <div>
+                <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#1A3C5E]" /> Kontak Person Perusahaan (PIC)
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="p-3 bg-white rounded-xl border border-slate-200">
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Nama PIC / Jabatan</span>
+                    <span className="font-bold text-slate-800 text-xs mt-0.5 block">{selectedSponsorDetail.kontakPerson}</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Telepon / WhatsApp</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText(selectedSponsorDetail.telepon, 'teleponSponsor')}
+                        className="text-[10px] text-[#1A3C5E] hover:underline flex items-center gap-0.5 cursor-pointer"
+                      >
+                        <Copy className="w-2.5 h-2.5" />
+                        {copiedField === 'teleponSponsor' ? 'Tersalin' : 'Salin'}
+                      </button>
+                    </div>
+                    <span className="font-mono font-bold text-slate-800 text-xs mt-0.5 block">{selectedSponsorDetail.telepon}</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-slate-200 sm:col-span-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Email Korespondensi</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyText(selectedSponsorDetail.email || 'sponsorship@cakning.org', 'emailSponsor')}
+                        className="text-[10px] text-[#1A3C5E] hover:underline flex items-center gap-0.5 cursor-pointer"
+                      >
+                        <Copy className="w-2.5 h-2.5" />
+                        {copiedField === 'emailSponsor' ? 'Tersalin' : 'Salin'}
+                      </button>
+                    </div>
+                    <span className="font-mono text-slate-800 text-xs mt-0.5 block">{selectedSponsorDetail.email || 'sponsorship@cakning.org'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rincian Dukungan & Deliverables */}
+              <div>
+                <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Handshake className="w-3.5 h-3.5 text-[#1A3C5E]" /> Komitmen Kerjasama & Benefit Sponsor
+                </h4>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <p className="text-slate-700 leading-relaxed font-medium">
+                    {selectedSponsorDetail.keterangan || 'Kerjasama sponsorship resmi paguyuban untuk mendukung pembinaan duta wisata dan promosi pariwisata Surabaya.'}
+                  </p>
+                  
+                  <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
+                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Deliverables Kemitraan:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-700">
+                      <div className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Penempatan Logo pada Backdrop Resmi</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Ad-libs Mention oleh MC Cak & Ning</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Display Booth & Sampling Produk</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Dokumentasi Laporan LPJ Humas</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Modal */}
+            <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => {
+                  const sponsor = selectedSponsorDetail;
+                  setSelectedSponsorDetail(null);
+                  handleOpenEdit(sponsor);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <Edit2 className="w-3.5 h-3.5" /> Edit Data Sponsor
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedSponsorDetail(null)}
+                className="px-4 py-2 rounded-xl bg-[#1A3C5E] hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer transition-colors"
+              >
+                Tutup Detail
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal CRUD Sponsor */}
       {isModalOpen && (
@@ -708,6 +1084,8 @@ export function HumasPengajuanPenugasan({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PengajuanPenugasan | null>(null);
   const [pengajuanToCancel, setPengajuanToCancel] = useState<PengajuanPenugasan | null>(null);
+  const [selectedPengajuanDetail, setSelectedPengajuanDetail] = useState<PengajuanPenugasan | null>(null);
+  const [isCopiedSummary, setIsCopiedSummary] = useState(false);
 
   const [formNama, setFormNama] = useState('');
   const [formTanggal, setFormTanggal] = useState('');
@@ -736,6 +1114,13 @@ export function HumasPengajuanPenugasan({
     setIsModalOpen(true);
   };
 
+  const handleCopySummary = (p: PengajuanPenugasan) => {
+    const text = `[Pengajuan Penugasan Humas]\nKegiatan: ${p.namaKegiatan}\nKlien: ${p.client}\nTanggal: ${p.tanggal}\nStatus: ${p.status}\nKebutuhan Talent: ${p.kebutuhanTalent || 2} Orang (Cak & Ning)\nCatatan: ${p.keterangan || 'Penugasan protokoler resmi Paguyuban Cak & Ning Surabaya'}`;
+    navigator.clipboard.writeText(text);
+    setIsCopiedSummary(true);
+    setTimeout(() => setIsCopiedSummary(false), 2000);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formNama.trim() || !formTanggal.trim() || !formClient.trim()) {
@@ -757,7 +1142,11 @@ export function HumasPengajuanPenugasan({
         namaKegiatan: formNama,
         tanggal: formTanggal,
         client: formClient,
-        status: 'Diajukan ke SDM'
+        status: 'Diajukan ke SDM',
+        lokasi: 'Kota Surabaya',
+        kebutuhanTalent: 2,
+        usulanTalentNama: ['Cak Aditya Pratama', 'Ning Dania Lestari'],
+        keterangan: 'Pengajuan kemitraan baru diajukan oleh Sie Humas untuk ditindaklanjuti oleh SDM.'
       });
     }
     setIsModalOpen(false);
@@ -768,7 +1157,7 @@ export function HumasPengajuanPenugasan({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <h2 className="text-2xl font-black text-[#1A3C5E]">Kelola Pengajuan Penugasan</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Tabel 10 berkas pengajuan penugasan dari dinas dan instansi mitra.</p>
+          <p className="text-xs text-slate-500 mt-0.5">Tabel 10 berkas pengajuan penugasan dari dinas dan instansi mitra. Klik baris penugasan untuk melihat rincian usulan & status koordinasi SDM.</p>
         </div>
         <button
           onClick={handleOpenAdd}
@@ -779,11 +1168,11 @@ export function HumasPengajuanPenugasan({
       </div>
 
       <div className="flex items-center justify-between gap-4 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-xs">
-        <span className="text-xs text-slate-500 font-medium">Daftar Pengajuan Penugasan Aktif</span>
+        <span className="text-xs text-slate-500 font-medium">Daftar Pengajuan Penugasan Aktif (Pilih untuk melihat detail berkas)</span>
         <span className="text-xs text-slate-500 font-mono">Total: <strong>{filtered.length}</strong> Pengajuan</span>
       </div>
 
-      {/* Tabel dengan kolom: No, Nama Kegiatan, Tanggal, Client, Status, Aksi (Tombol Edit & Batalkan) */}
+      {/* Tabel dengan kolom: No, Nama Kegiatan, Tanggal, Client, Status, Aksi Humas */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -794,7 +1183,7 @@ export function HumasPengajuanPenugasan({
                 <th className="p-3.5">Tanggal</th>
                 <th className="p-3.5">Client</th>
                 <th className="p-3.5 text-center">Status</th>
-                <th className="p-3.5 text-center">Aksi</th>
+                <th className="p-3.5 text-center">Aksi Humas</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -805,9 +1194,18 @@ export function HumasPengajuanPenugasan({
                 if (item.status === 'Dibatalkan') badgeClass = 'bg-red-50 text-red-800 border-red-200';
 
                 return (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr 
+                    key={item.id} 
+                    onClick={() => setSelectedPengajuanDetail(item)}
+                    className="hover:bg-amber-50/40 cursor-pointer transition-colors group"
+                  >
                     <td className="p-3.5 text-center font-mono text-slate-400 font-semibold">{idx + 1}</td>
-                    <td className="p-3.5 font-bold text-[#1A3C5E] max-w-xs">{item.namaKegiatan}</td>
+                    <td className="p-3.5 max-w-xs">
+                      <div className="font-bold text-[#1A3C5E] group-hover:text-amber-800 transition-colors">
+                        {item.namaKegiatan}
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-normal">Klik untuk melihat detail berkas & usulan talent</span>
+                    </td>
                     <td className="p-3.5 font-mono text-slate-600 whitespace-nowrap">{item.tanggal}</td>
                     <td className="p-3.5 text-slate-600 max-w-xs">{item.client}</td>
                     <td className="p-3.5 text-center">
@@ -816,10 +1214,18 @@ export function HumasPengajuanPenugasan({
                       </span>
                     </td>
                     <td className="p-3.5 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
+                      <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => setSelectedPengajuanDetail(item)}
+                          className="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Lihat Detail Pengajuan"
+                        >
+                          <Eye className="w-3 h-3" /> Detail
+                        </button>
                         <button
                           onClick={() => handleOpenEdit(item)}
                           className="px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Edit Pengajuan"
                         >
                           <Edit2 className="w-3 h-3" /> Edit
                         </button>
@@ -827,6 +1233,7 @@ export function HumasPengajuanPenugasan({
                           <button
                             onClick={() => setPengajuanToCancel(item)}
                             className="px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
+                            title="Batalkan Pengajuan"
                           >
                             <XCircle className="w-3 h-3" /> Batalkan
                           </button>
@@ -842,6 +1249,192 @@ export function HumasPengajuanPenugasan({
           </table>
         </div>
       </div>
+
+      {/* Modal Detail Pengajuan Penugasan (Terbuka saat baris atau tombol Detail diklik) */}
+      {selectedPengajuanDetail && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in"
+          onClick={() => setSelectedPengajuanDetail(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 my-8 animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header Modal */}
+            <div className="flex justify-between items-start border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1A3C5E] shrink-0">
+                  <FileText className="w-6 h-6 text-[#1A3C5E]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                      selectedPengajuanDetail.status === 'Disetujui' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' :
+                      selectedPengajuanDetail.status === 'Diajukan ke SDM' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+                      selectedPengajuanDetail.status === 'Dibatalkan' ? 'bg-red-50 text-red-800 border-red-200' :
+                      'bg-blue-50 text-[#1A3C5E] border-blue-200'
+                    }`}>
+                      {selectedPengajuanDetail.status}
+                    </span>
+                    <span className="text-[11px] font-mono text-slate-400">ID: #{selectedPengajuanDetail.id}</span>
+                  </div>
+                  <h3 className="font-black text-lg text-[#1A3C5E] mt-0.5">
+                    {selectedPengajuanDetail.namaKegiatan}
+                  </h3>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedPengajuanDetail(null)} 
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+                title="Tutup Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Konten Detail Pengajuan */}
+            <div className="py-4 space-y-4 text-xs max-h-[70vh] overflow-y-auto pr-1">
+              {/* Highlight Ringkasan Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="p-3 bg-white rounded-xl border border-slate-200">
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Instansi Klien Pemohon</span>
+                  <span className="font-bold text-[#1A3C5E] text-xs mt-0.5 block">{selectedPengajuanDetail.client}</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200">
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Tanggal Pelaksanaan Acara</span>
+                  <span className="font-mono font-bold text-slate-800 text-xs mt-0.5 block flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-slate-500" /> {selectedPengajuanDetail.tanggal}
+                  </span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200 sm:col-span-2">
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-slate-400" /> Lokasi / Venue Kegiatan
+                  </span>
+                  <span className="font-semibold text-slate-800 text-xs mt-0.5 block">
+                    {selectedPengajuanDetail.lokasi || 'Surabaya, Jawa Timur (Lokasi resmi ditentukan pemohon)'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Kebutuhan & Usulan Talent */}
+              <div>
+                <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#1A3C5E]" /> Personel Talent yang Diusulkan Humas
+                </h4>
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-600 font-medium">Estimasi Kebutuhan:</span>
+                    <span className="font-bold text-[#1A3C5E] bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                      {selectedPengajuanDetail.kebutuhanTalent || 2} Orang Duta Wisata (Cak & Ning)
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider block mb-1.5">
+                      Rekomendasi Cak & Ning dari Humas:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedPengajuanDetail.usulanTalentNama && selectedPengajuanDetail.usulanTalentNama.length > 0 ? (
+                        selectedPengajuanDetail.usulanTalentNama.map((talentName, tIdx) => (
+                          <span 
+                            key={tIdx} 
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-[#1A3C5E] shadow-2xs"
+                          >
+                            <span className="w-2 h-2 rounded-full bg-amber-500" />
+                            {talentName}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-[#1A3C5E]">
+                          <span className="w-2 h-2 rounded-full bg-amber-500" />
+                          Plotting definitif diserahkan kepada Sie SDM
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Deskripsi & Arahan Penugasan */}
+              <div>
+                <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-[#1A3C5E]" /> Deskripsi Tugas & Catatan Klien
+                </h4>
+                <div className="p-3 rounded-xl bg-white border border-slate-200 text-slate-700 leading-relaxed text-xs">
+                  {selectedPengajuanDetail.keterangan || 'Penugasan protokoler resmi, pendampingan tamu VIP kehormatan, dan representasi duta wisata resmi Kota Surabaya.'}
+                </div>
+              </div>
+
+              {/* Alur Koordinasi Humas ↔ SDM */}
+              <div>
+                <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-[#1A3C5E]" /> Tahapan Alur Koordinasi Penugasan
+                </h4>
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                  <div className="flex items-center gap-2 text-slate-700 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>1. Humas menerima permohonan kemitraan dari klien & menginput data</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-700 font-medium">
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                      selectedPengajuanDetail.status === 'Disetujui' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
+                    }`}>
+                      2
+                    </span>
+                    <span>2. Berkas pengajuan diverifikasi oleh Sie SDM untuk plotting personel resmi</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-500">
+                    <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] font-bold shrink-0">
+                      3
+                    </span>
+                    <span>3. SDM mengonfirmasi talent Cak & Ning terpilih untuk pelaksanaan tugas</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-500">
+                    <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[10px] font-bold shrink-0">
+                      4
+                    </span>
+                    <span>4. Talent menyerahkan laporan kegiatan & validasi honorarium oleh Bendahara</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Modal */}
+            <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCopySummary(selectedPengajuanDetail)}
+                  className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  {isCopiedSummary ? 'Tersalin!' : 'Salin Ringkasan'}
+                </button>
+                {selectedPengajuanDetail.status !== 'Dibatalkan' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const item = selectedPengajuanDetail;
+                      setSelectedPengajuanDetail(null);
+                      handleOpenEdit(item);
+                    }}
+                    className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" /> Edit Berkas
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedPengajuanDetail(null)}
+                className="px-4 py-2 rounded-xl bg-[#1A3C5E] hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer transition-colors"
+              >
+                Tutup Detail
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Ajukan / Edit Pengajuan */}
       {isModalOpen && (
