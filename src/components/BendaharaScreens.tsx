@@ -517,7 +517,7 @@ export function BendaharaPaymentList({
                         </div>
 
                         {/* HOVER DETAIL CARD FLOATING PREVIEW (MUNCUL SAAT DI HOVER) */}
-                        {isHovered && (
+                        {/* {isHovered && (
                           <div 
                             className="absolute left-6 top-full z-40 w-72 bg-white rounded-xl shadow-2xl border-2 border-[#1A3C5E] p-3.5 text-xs text-slate-800 pointer-events-none animate-in fade-in zoom-in-95 duration-150"
                             style={{ filter: 'drop-shadow(0 10px 15px rgba(26, 60, 94, 0.15))' }}
@@ -570,7 +570,7 @@ export function BendaharaPaymentList({
                               <Eye className="w-3 h-3 text-[#1A3C5E]" /> Klik baris untuk kelola (Edit / Tolak / Voucher)
                             </div>
                           </div>
-                        )}
+                        )} */}
                       </td>
 
                       {/* Kegiatan */}
@@ -595,7 +595,7 @@ export function BendaharaPaymentList({
                       <td className="p-3.5 text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-1">
                           {/* Tombol Lihat Detail */}
-                          <button
+                          {/* <button
                             onClick={() => {
                               setSelectedItemId(item.id);
                               setDetailModalItem(item);
@@ -604,7 +604,7 @@ export function BendaharaPaymentList({
                             className="p-1.5 rounded-lg text-slate-500 hover:text-[#1A3C5E] hover:bg-slate-100 cursor-pointer transition-colors"
                           >
                             <Eye className="w-4 h-4" />
-                          </button>
+                          </button> */}
 
                           {/* Tombol Proses jika belum lunas */}
                           {!isPaid && !isRejected && !isVoid && (

@@ -274,7 +274,7 @@ export function HumasClients({ clients, onAddClient, onUpdateClient, onDeleteCli
           onClick={handleOpenAdd}
           className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" /> + Tambah Client
+          <Plus className="w-4 h-4" />Tambah Client
         </button>
       </div>
 
@@ -722,7 +722,7 @@ export function HumasSponsors({ sponsors, onAddSponsor, onUpdateSponsor, onDelet
           onClick={handleOpenAdd}
           className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" /> + Tambah Sponsor
+          <Plus className="w-4 h-4" />Tambah Sponsor
         </button>
       </div>
 
@@ -1163,7 +1163,7 @@ export function HumasPengajuanPenugasan({
           onClick={handleOpenAdd}
           className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" /> + Ajukan Penugasan Baru
+          <Plus className="w-4 h-4" />Ajukan Penugasan Baru
         </button>
       </div>
 

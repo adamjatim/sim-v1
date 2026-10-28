@@ -279,7 +279,7 @@ export function SdmUserManagement({ users, onAddUser, onUpdateUser, onDeleteUser
           onClick={handleOpenAdd}
           className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" /> + Tambah User
+          <Plus className="w-4 h-4" />Tambah User
         </button>
       </div>
 
@@ -1050,7 +1050,7 @@ export function SdmPenugasanManagement({
           onClick={handleOpenAdd}
           className="bg-[#1A3C5E] hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4" /> + Buat Penugasan Baru
+          <Plus className="w-4 h-4" />Buat Penugasan Baru
         </button>
       </div>
 
